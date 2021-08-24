@@ -1,13 +1,14 @@
 
 # add TCR (or similar) data to SCE
 
-#dir <- '~/Projects/rcc/Data/TCR/samples'
-#sce <- loadHDF5SummarizedExperiment('~/Projects/rcc/sceMNN')
+dir <- '~/Projects/rcc/Data/TCR/samples'
+require(HDF5Array)
+sce <- loadHDF5SummarizedExperiment('~/Projects/rcc/sceMNN')
 
 # future work: make it more flexible so that 'sce' can be a SCE object or a directory,
 #    use DropletUtils::read10xCounts to get SCE from directory
 
-# need to figure out barcodes. Why are they all *_1 in the TCR data? is replacing that with ii really doing the matching properly? (~94%)
+# need to figure out barcodes. Why are they all *_1 in the TCR data? is replacing that with ii really doing the matching properly? (94.4%)
 
 require(S4Vectors)
 addTCRtoSCE(dir, sce){
@@ -31,3 +32,8 @@ addTCRtoSCE(dir, sce){
     sce$contigs <- tcr.list
     return(sce)
 }
+
+# inspection (look for mismatched samples)
+# tcrsamp <- sapply(tcr.list[,'sample'], function(x){ ifelse(length(x)>0, x[1], NA)})
+# tcrsamp[is.na(tcrsamp)] <- sce$sample[is.na(tcrsamp)]
+# x <- sce[, tcrsamp != sce$sample]
