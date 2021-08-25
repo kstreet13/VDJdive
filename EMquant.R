@@ -1,5 +1,3 @@
-require(SingleCellExperiment)
-sce <- readRDS('~/Desktop/toyTCRdata.rds')
 
 
 
@@ -125,7 +123,7 @@ EMquant <- function(sce, TCRcol = 'contigs', thresh = .01, iter.max = 1000){
         
         diff <- sum(abs(counts-counts.old))
         #print(diff[length(diff)])
-        if(diff < thresh | iters >= iters.max){
+        if(diff < thresh | iters >= iter.max){
             working <- FALSE
         }
         
@@ -133,6 +131,8 @@ EMquant <- function(sce, TCRcol = 'contigs', thresh = .01, iter.max = 1000){
     }
     
     # for now, just return the vector of non-zero elements (for diversity calculation)
+    # this should probably be a cells-by-clonotypes sparse matrix (have to re-code a bit)
+    # can hopefully add it as an element of the colData
     return(counts@x)
 }
 
