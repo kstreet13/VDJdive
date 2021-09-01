@@ -11,7 +11,6 @@ EMquant <- function(sce, TCRcol = 'contigs', thresh = .01, iter.max = 1000){
     nBeta <- sapply(contigs, function(x){
         sum(x$chain == 'TRB' & x$productive == 'True')
     })
-    # table(nAlpha,nBeta)
     
     # remove unproductive and 'Multi' contigs (for now)
     contigs <- contigs[contigs[,'productive']=='True']
@@ -23,7 +22,7 @@ EMquant <- function(sce, TCRcol = 'contigs', thresh = .01, iter.max = 1000){
     # find all unique beta chains
     all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRB']))
     
-    # initialize counts matrix
+    # initialize counts matrix (#alpha-by-#beta)
     require(Matrix)
     counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), sparse = TRUE)
     rownames(counts) <- all.alphas
@@ -121,18 +120,39 @@ EMquant <- function(sce, TCRcol = 'contigs', thresh = .01, iter.max = 1000){
             }
         }
         
+        # check for convergence
         diff <- sum(abs(counts-counts.old))
         #print(diff[length(diff)])
         if(diff < thresh | iters >= iter.max){
             working <- FALSE
+            # build full cells-by-clonotypes matrix
+            clono <- Matrix(0, nrow = ncol(sce), ncol = length(all.alphas)*length(all.betas), sparse = TRUE)
+            colnames(clono) <- as.character(outer(rownames(counts), 
+                                                  colnames(counts), 
+                                                  FUN = paste))
+            for(i in seq_along(contigs)){
+                contribution <- counts.old[contigs[[i]]$cdr3[contigs[[i]]$chain=='TRA'],
+                                           contigs[[i]]$cdr3[contigs[[i]]$chain=='TRB'],
+                                           drop = FALSE] / 
+                    sum(counts.old[contigs[[i]]$cdr3[contigs[[i]]$chain=='TRA'],
+                                   contigs[[i]]$cdr3[contigs[[i]]$chain=='TRB']])
+                if(length(contribution) > 0){
+                    col.ind <- outer(match(rownames(contribution), rownames(counts)),
+                                     (match(colnames(contribution), colnames(counts))-1) * nrow(counts),
+                                     FUN = "+")
+                    clono[i, as.numeric(col.ind)] <- as.numeric(contribution)
+                }
+            }
+            clono <- clono[, colSums(clono) > 0]
         }
         
         counts.old <- counts
     }
     
-    # for now, just return the vector of non-zero elements (for diversity calculation)
-    # this should probably be a cells-by-clonotypes sparse matrix (have to re-code a bit)
-    # can hopefully add it as an element of the colData
-    return(counts@x)
+    # update sce
+    colData(sce)$clono <- clono
+    return(sce)
+    # just return vector of non-zero values, for diversity calculations
+    #return(counts@x)
 }
 
