@@ -131,11 +131,30 @@ EMquant <- function(sce, TCRcol = 'contigs', thresh = .01, iter.max = 1000){
                                                   colnames(counts), 
                                                   FUN = paste))
             for(i in seq_along(contigs)){
-                contribution <- counts.old[contigs[[i]]$cdr3[contigs[[i]]$chain=='TRA'],
-                                           contigs[[i]]$cdr3[contigs[[i]]$chain=='TRB'],
-                                           drop = FALSE] / 
-                    sum(counts.old[contigs[[i]]$cdr3[contigs[[i]]$chain=='TRA'],
-                                   contigs[[i]]$cdr3[contigs[[i]]$chain=='TRB']])
+                if(nAlpha[i] == 0 | nBeta[i] == 0){
+                    if(nAlpha[i] + nBeta[i] == 0){
+                        next
+                    }else{
+                        if(nAlpha[i] == 0){
+                            # only beta chain(s)
+                            rowind <- which(rowSums(counts.old[,contigs[[i]]$cdr3,drop=FALSE]) > 0)
+                            contribution <- counts.old[rowind, contigs[[i]]$cdr3, drop = FALSE] /
+                                sum(counts.old[rowind, contigs[[i]]$cdr3])
+                        }
+                        if(nBeta[i] == 0){
+                            # only alpha chain(s)
+                            colind <- which(colSums(counts.old[contigs[[i]]$cdr3,,drop=FALSE]) > 0)
+                            contribution <- counts.old[contigs[[i]]$cdr3, colind, drop = FALSE] /
+                                sum(counts.old[contigs[[i]]$cdr3, colind])
+                        }
+                    }
+                }else{
+                    contribution <- counts.old[contigs[[i]]$cdr3[contigs[[i]]$chain=='TRA'],
+                                               contigs[[i]]$cdr3[contigs[[i]]$chain=='TRB'],
+                                               drop = FALSE] / 
+                        sum(counts.old[contigs[[i]]$cdr3[contigs[[i]]$chain=='TRA'],
+                                       contigs[[i]]$cdr3[contigs[[i]]$chain=='TRB']])
+                }
                 if(length(contribution) > 0){
                     col.ind <- outer(match(rownames(contribution), rownames(counts)),
                                      (match(colnames(contribution), colnames(counts))-1) * nrow(counts),
