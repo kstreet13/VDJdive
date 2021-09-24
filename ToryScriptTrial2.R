@@ -14,5 +14,4 @@ tcr_matrix <- inner_join(data.frame(toyTCRdata$contigs), tcr_coldata,
 tcr_file<-dplyr::filter(tcr_matrix, cdr3 != "None" & productive == "True") #Filtering cdr3 is None values and full length false values
 tcr_file_fin<-dplyr::filter(tcr_file, full_length == "True")
 
-print(tcr_file_fin)
 
