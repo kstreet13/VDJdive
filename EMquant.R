@@ -1,8 +1,43 @@
 
 
+#' @param sce SingleCellExperiment object with TCR data
+#' @param TCRcol element of the colData of sce that contains the TCR data
+#' @param sample optional variable for splitting quantification by sample. This can speed up computation and avoid crosstalk between samples.
+#' @param thresh threshold for convergence in assigning clonotype counts
+#' @param iter.max maximum number of iterations for the EM algorithm.
 
-EMquant <- function(sce, TCRcol = 'contigs', thresh = .01, iter.max = 1000){
+
+EMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter.max = 1000){
+    if(!is.null(sample)){
+        if(length(sample) == 1){
+            stopifnot(sample %in% names(colData(sce)))
+            sampVar <- factor(sce[[sample]])
+        }else{
+            stopifnot(length(sample) == ncol(sce))
+            sampVar <- factor(sample)
+        }
+        clono.list <- lapply(levels(sampVar), function(lv){
+            EMquant(sce[,which(sampVar == lv)],
+                    TCRcol = TCRcol, sample = NULL,
+                    thresh = thresh, iter.max = iter.max)$clono
+        })
+        all.clonotypes <- unique(unlist(lapply(clono.list, colnames)))
+        clono.list <- lapply(clono.list, function(mat){
+            missing <- all.clonotypes[! all.clonotypes %in% colnames(mat)]
+            zeros <- Matrix(0, ncol = length(missing), nrow = nrow(mat), 
+                            sparse = TRUE)
+            colnames(zeros) <- missing
+            return(cbind(mat, zeros))
+        })
+        clono <- do.call(rbind, clono.list)
+        clono <- clono[colnames(sce), ]
+        # update sce
+        colData(sce)$clono <- clono
+        return(sce)
+    }
+    
     contigs <- sce[[TCRcol]]
+    
     
     # explore possible numbers of alpha and beta chains
     nAlpha <- sapply(contigs, function(x){
@@ -167,6 +202,7 @@ EMquant <- function(sce, TCRcol = 'contigs', thresh = .01, iter.max = 1000){
         
         counts.old <- counts
     }
+    rownames(clono) <- colnames(sce)
     
     # update sce
     colData(sce)$clono <- clono
