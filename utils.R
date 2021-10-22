@@ -1,6 +1,6 @@
-source('EMquant.R')
-sce <- readRDS('~/Desktop/toyTCRdata.rds')
-sce <- EMquant(sce, sample = 'sample')
+# source('EMquant.R')
+# sce <- readRDS('~/Desktop/toyTCRdata.rds')
+# sce <- EMquant(sce, sample = 'sample')
 
 
 # cell-level counts by sample
