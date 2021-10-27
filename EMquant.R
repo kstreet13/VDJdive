@@ -5,6 +5,8 @@
 #' @param sample optional variable for splitting quantification by sample. This can speed up computation and avoid crosstalk between samples.
 #' @param thresh threshold for convergence in assigning clonotype counts
 #' @param iter.max maximum number of iterations for the EM algorithm.
+require(Matrix)
+require(SingleCellExperiment)
 
 # next step: parallelize it
 EMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter.max = 1000){
@@ -175,7 +177,7 @@ pyEMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter
             sampVar <- factor(sample)
         }
         clono.list <- lapply(levels(sampVar), function(lv){
-            EMquant2(sce[,which(sampVar == lv)],
+            pyEMquant(sce[,which(sampVar == lv)],
                      TCRcol = TCRcol, sample = NULL,
                      thresh = thresh, iter.max = iter.max)$clono
         })
@@ -230,23 +232,23 @@ pyEMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter
     poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
     # others are incorrect, though
     poss.indices[ind.multiple] <- lapply(ind.multiple, function(i){
-        return(as.integer(sapply(wa[[i]], function(a){
+        return(sort(as.integer(sapply(wa[[i]], function(a){
             sapply(wb[[i]], function(b){
                 length(all.alphas)*(b-1) + a
             })
-        })))
+        }))))
     })
     poss.indices[ind.noAlpha] <- lapply(ind.noAlpha, function(i){
         a.i <- seq_along(all.alphas)
-        return(as.integer(sapply(wb[[i]], function(b){
+        return(sort(as.integer(sapply(wb[[i]], function(b){
             length(all.alphas)*(b-1) + a.i
-        })))
+        }))))
     })
     poss.indices[ind.noBeta] <- lapply(ind.noBeta, function(i){
         b.i <- seq_along(all.betas)
-        return(as.integer(sapply(wa[[i]], function(a){
-            length(all.alphas)*(b.i-1) + a
-        })))
+        return(sort(as.integer(sapply(wa[[i]], function(a){
+            sort(length(all.alphas)*(b.i-1) + a)
+        }))))
     })
     
     # step 1: assign cells with 1 alpha, 1 beta
@@ -273,25 +275,19 @@ pyEMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter
     names(t.indices) <- NULL # so python takes it as a list of lists, not a dict
     
     # iteration handled by python
-    counts <- TCR_EM_counts(uniquecounts, counts.old, t.indices, thresh, 100)
+    counts <- TCR_EM_counts(uniquecounts, counts.old, t.indices, thresh, iter.max)
     
     # build full cells-by-clonotypes matrix
-    clono <- Matrix(0, nrow = ncol(sce), 
-                    ncol = length(all.alphas)*length(all.betas), 
-                    sparse = TRUE)
+    clonoATj <- as.integer(unlist(poss.indices)-1)
+    clonoATp = as.integer(c(0,cumsum(lengths(poss.indices))))
+    clonoATx <- unlist(sapply(which(lengths(poss.indices) > 0), function(i){
+        counts[poss.indices[[i]]] / 
+            sum(counts[poss.indices[[i]]])
+    }))
+    clono <- new('dgRMatrix', j = clonoATj, p = clonoATp, x = clonoATx,
+                 Dim = as.integer(c(ncol(sce), length(counts))))
     colnames(clono) <- as.character(outer(all.alphas, all.betas, 
                                           FUN = paste))
-    
-    for(i in ind.unique){
-        clono[i, poss.indices[[i]]] <- 1
-    }
-    for(i in ind.ambiguous){
-        # use counts.old so that it's equal to the current contribution, not running one extra iteration
-        clono[i, poss.indices[[i]]] <- 
-            counts.old[poss.indices[[i]]] / 
-            sum(counts.old[poss.indices[[i]]])
-    }
-    
     clono <- clono[, colSums(clono) > 0]
     rownames(clono) <- colnames(sce)
     
@@ -301,5 +297,6 @@ pyEMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter
     # just return vector of non-zero values, for diversity calculations
     #return(counts@x)
 }
+
 
 

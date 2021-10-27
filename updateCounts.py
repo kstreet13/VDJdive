@@ -17,7 +17,7 @@ def TCR_EM_counts(unique_counts, counts_old, t_indices, thresh, max_iters):
     while working:
         iters += 1
         counts = list(unique_counts)
-        #print('update ' + str(iters))
+        print('update ' + str(iters))
         #print('first element of counts: ' + str(counts[0]))
         #print('first element of counts_old: ' + str(counts_old[0]))
         for idx in t_indices:
