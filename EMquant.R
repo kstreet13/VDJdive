@@ -212,12 +212,12 @@ pyEMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter
     
     # find all unique alpha chains
     all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRA']))
-    if(length(all.alphas==0)){
+    if(length(all.alphas)==0){
         all.alphas <- 'unknown'
     }
     # find all unique beta chains
     all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRB']))
-    if(length(all.betas==0)){
+    if(length(all.betas)==0){
         all.betas <- 'unknown'
     }
     
