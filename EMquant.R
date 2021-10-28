@@ -98,18 +98,22 @@ EMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter.m
     temp <- contigs[ind.unique]
     uniquecounts <- unclass(table(unlist(temp[temp[,'chain']=='TRA','cdr3']), 
                                   unlist(temp[temp[,'chain']=='TRB','cdr3'])))
-    counts[rownames(uniquecounts), colnames(uniquecounts)] <- uniquecounts
+    if(length(temp) > 0){
+        counts[rownames(uniquecounts), colnames(uniquecounts)] <- uniquecounts
+    }
     uniquecounts <- counts <- as.numeric(counts)
     
     # step 2: assign (multi-mapped) cells (equally across all possibilities)
     ############################################################
     temp <- contigs[ind.ambiguous]
-    t.indices <- poss.indices[ind.ambiguous]
-    for(i in seq_along(temp)){
-        counts[t.indices[[i]]] <- 
-            counts[t.indices[[i]]] + 1/length(t.indices[[i]])
+    if(length(temp) > 0){
+        t.indices <- poss.indices[ind.ambiguous]
+        for(i in seq_along(temp)){
+            counts[t.indices[[i]]] <- 
+                counts[t.indices[[i]]] + 1/length(t.indices[[i]])
+        }
+        counts.old <- counts
     }
-    counts.old <- counts
     
     # repeat 2 (proportional to previous counts)
     #################
@@ -208,9 +212,14 @@ pyEMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter
     
     # find all unique alpha chains
     all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRA']))
-    
+    if(length(all.alphas==0)){
+        all.alphas <- 'unknown'
+    }
     # find all unique beta chains
     all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRB']))
+    if(length(all.betas==0)){
+        all.betas <- 'unknown'
+    }
     
     # initialize counts matrix (#alpha-by-#beta)
     require(Matrix)
@@ -256,35 +265,44 @@ pyEMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter
     temp <- contigs[ind.unique]
     uniquecounts <- unclass(table(unlist(temp[temp[,'chain']=='TRA','cdr3']), 
                                   unlist(temp[temp[,'chain']=='TRB','cdr3'])))
-    counts[rownames(uniquecounts), colnames(uniquecounts)] <- uniquecounts
+    if(length(temp) > 0){
+        counts[rownames(uniquecounts), colnames(uniquecounts)] <- uniquecounts
+    }
     uniquecounts <- counts <- as.numeric(counts)
     
     # step 2: assign (multi-mapped) cells (equally across all possibilities)
     ############################################################
     temp <- contigs[ind.ambiguous]
-    t.indices <- poss.indices[ind.ambiguous]
-    for(i in seq_along(temp)){
-        counts[t.indices[[i]]] <- 
-            counts[t.indices[[i]]] + 1/length(t.indices[[i]])
+    if(length(temp) > 0){
+        t.indices <- poss.indices[ind.ambiguous]
+        for(i in seq_along(temp)){
+            counts[t.indices[[i]]] <- 
+                counts[t.indices[[i]]] + 1/length(t.indices[[i]])
+        }
+        counts.old <- counts
     }
-    counts.old <- counts
     
     # repeat 2 (proportional to previous counts)
     #################
     t.indices <- poss.indices[ind.ambiguous]
     names(t.indices) <- NULL # so python takes it as a list of lists, not a dict
+    # force python to take length-1 vectors as lists
+    l1.idx <- which(lengths(t.indices) == 1)
+    for(ii in l1.idx){
+        t.indices[[ii]] <- list(as.integer(t.indices[[ii]]))
+    }
     
     # iteration handled by python
     counts <- TCR_EM_counts(uniquecounts, counts.old, t.indices, thresh, iter.max)
     
     # build full cells-by-clonotypes matrix
-    clonoATj <- as.integer(unlist(poss.indices)-1)
-    clonoATp = as.integer(c(0,cumsum(lengths(poss.indices))))
-    clonoATx <- unlist(sapply(which(lengths(poss.indices) > 0), function(i){
+    clonoJ <- as.integer(unlist(poss.indices)-1)
+    clonoP = as.integer(c(0,cumsum(lengths(poss.indices))))
+    clonoX <- unlist(sapply(which(lengths(poss.indices) > 0), function(i){
         counts[poss.indices[[i]]] / 
             sum(counts[poss.indices[[i]]])
     }))
-    clono <- new('dgRMatrix', j = clonoATj, p = clonoATp, x = clonoATx,
+    clono <- new('dgRMatrix', j = clonoJ, p = clonoP, x = clonoX,
                  Dim = as.integer(c(ncol(sce), length(counts))))
     colnames(clono) <- as.character(outer(all.alphas, all.betas, 
                                           FUN = paste))
@@ -297,6 +315,4 @@ pyEMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter
     # just return vector of non-zero values, for diversity calculations
     #return(counts@x)
 }
-
-
 
