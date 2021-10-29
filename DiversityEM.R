@@ -1,36 +1,4 @@
-library(sparseMatrixStats)
-library(dplyr)
-library(breakaway)
-require(SingleCellExperiment)
-sce <- readRDS('~/Desktop/PostDoColabProj/toyTCRdata.rds')
-source('EMquant.R')
-sce <- EMquant(sce)
-# the resulting matrix:
-sce$clono 
-table(sce$clono@i)
-table(sce$clono@p)
-table(sce$clono@Dim)
-table(sce$clono@x)
-
-#Split By Sample and run diveristy
-
-#thing 1 split samples before you run the diversity measures
-
-
-EM_Div_input<-as.data.frame(colSums(sce$clono))
-kk12<-as.data.frame(sample(0.0:50.1, 29322, replace = TRUE)) 
-EM_Div_input2<-cbind(EM_Div_input,kk12)
-names(EM_Div_input2)<-c("ini","non")
-calculate_diversity(EM_Div_input2,"shannon")
-calculate_diversity(EM_Div_input2,"simpson")
-calculate_diversity(EM_Div_input2,"invsimpson")
-#for Chao1 bundge int is needed
-EM_Div_input3<-EM_Div_input2
-EM_Div_input3<-round(EM_Div_input3*10,0)
-calculate_diversity(EM_Div_input3,"chao1")
-calculate_diversity(EM_Div_input3,"chaobonge")
-
-#Diversity for EM
+#EMDiversity
 createCountsMatrixEm<-function(x) {
   df<-as.data.frame(colSums(x$clono))
   return(df)
