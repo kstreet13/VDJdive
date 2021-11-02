@@ -170,7 +170,7 @@ EMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter.m
     #return(counts@x)
 }
 
-reticulate::source_python('updateCounts.py')
+reticulate::source_python('/Users/mercedeh/git/rafa_lab/TCRseq/updateCounts.py')
 pyEMquant <- function(sce, TCRcol = 'contigs', sample = NULL, thresh = .01, iter.max = 1000){
     if(!is.null(sample)){
         if(length(sample) == 1){
