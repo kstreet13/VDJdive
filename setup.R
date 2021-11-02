@@ -11,13 +11,13 @@ sce <- loadHDF5SummarizedExperiment('~/Projects/OLD/rcc/sceMNN')
 # need to figure out barcodes. Why are they all *_1 in the TCR data? is replacing that with ii really doing the matching properly? (94.4%)
 
 require(S4Vectors)
-addTCRtoSCE <- function(dir, sce){
+readTCR <- function(dir){
     # get TCR contigs
     sample_ids <- system(paste('ls',dir), intern = TRUE)
     contigs <- NULL
     for (ii in 1:length(sample_ids)) {
         tcr_ii <- read.csv(file.path(dir, sample_ids[ii],
-                                  "filtered_contig_annotations.csv"))
+                                     "filtered_contig_annotations.csv"))
         tcr_ii$barcode <- gsub("1$", ii, tcr_ii$barcode)
         tcr_ii$type <- "TCR"
         tcr_ii$clonotype_tcr <- paste0(sample_ids[ii], "-", tcr_ii$raw_clonotype_id)
@@ -25,9 +25,16 @@ addTCRtoSCE <- function(dir, sce){
         contigs <- rbind(contigs, tcr_ii)
     }
     rm(ii, tcr_ii)
-    # convert to 
-    tcr.list <- split(DataFrame(contigs), factor(contigs$barcode, sce$cell))
-    class(tcr.list)
+    # convert to SplitDataFrameList
+    tcr.list <- split(DataFrame(contigs), factor(contigs$barcode))
+
+    return(tcr.list)
+}
+
+addTCRtoSCE <- function(dir, sce, barcode = 'cell'){
+    # get TCR contigs
+    contigs <- unlist(readTCR(dir))
+    tcr.list <- split(DataFrame(contigs), factor(contigs$barcode, sce[[barcode]]))
     
     sce$contigs <- tcr.list
     return(sce)
