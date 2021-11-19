@@ -1,0 +1,23 @@
+Package: TCRseq
+Title: Analysis Tools for 10X V(D)J Data 
+Version: 0.0.1
+Authors@R: c(
+  person("Kelly", "Street", role = c("aut", "cre"), email = "street.kelly@gmail.com", comment = c(ORCID = "0000-0001-6379-5013")),
+  person("Mercedeh", "Movassagh", role = "aut", email = "mercedeh@ds.dfci.harvard.edu", comment = c(ORCID = "0000-0001-7690-0230"))),
+  person("Jill", "Lundell", role = "aut", email = "jflundell@gmail.com", comment = c(ORCID = "0000-0002-6048-4700")))
+)
+Provides functions for handling and analyzing immune receptor repertoire data output by the CellRanger V(D)J pipeline. This includes reading the data into R, merging it with paired data, quantifying clonotype abundances, calculating diversity metrics, and producing common plots.
+License: Artistic-2.0
+Depends:
+    R (>= 4.0)
+Imports:
+    IRanges,
+    S4Vectors,
+    SummarizedExperiment
+Suggests:
+URL: https://github.com/kstreet13/TCRseq
+BugReports: https://github.com/kstreet13/TCRseq/issues
+biocViews: Software
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
