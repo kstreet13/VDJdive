@@ -1,46 +1,65 @@
 
+# TODO: parallelize it
 
-#' @param sce SingleCellExperiment object with TCR data
-#' @param TCRcol element of the colData of sce that contains the TCR data
-#' @param sample optional variable for splitting quantification by sample. This can speed up computation and avoid crosstalk between samples.
-#' @param method R or python
-#' @param thresh threshold for convergence in assigning clonotype counts
-#' @param iter.max maximum number of iterations for the EM algorithm.
-require(Matrix)
-require(SingleCellExperiment)
-require(IRanges)
-reticulate::source_python('src/updateCounts.py')
+#require(Matrix)
+#require(SingleCellExperiment)
+#require(IRanges)
 
-# next step: parallelize it
-
+#' @title Clonotype quantification with the EM algorithm
+#' @name EMquant
+#' @export
 setGeneric(name = "EMquant",
            signature = "x",
            def = function(x, ...) standardGeneric("EMquant"))
 
-setMethod(f = "EMquant",
-          signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, TCRcol = 'contigs', sample = NULL, ...){
-              sce <- x
-              if(!is.null(sample)){
-                  if(length(sample) == 1){
-                      stopifnot(sample %in% names(colData(sce)))
-                      sampVar <- factor(sce[[sample]])
-                  }else{
-                      stopifnot(length(sample) == ncol(sce))
-                      sampVar <- factor(sample)
-                  }
-                  # calculate cells x clonotypes matrix
-                  clono <- EMquant(sce[[TCRcol]], sample = sampVar, ...)
-              }else{
-                  # calculate cells x clonotypes matrix
-                  clono <- EMquant(sce[[TCRcol]], ...)
-              }
-              
-              # update sce
-              colData(sce)$clono <- clono
-              return(sce)
-          })
-
+#' @rdname EMquant
+#' 
+#' @description Assign each cell (with at least one V(D)J contig) to its most
+#'   likely clonotype with the EM algorithm. For ambiguous cells, this leads to
+#'   proportional (non-integer) assignment across multiple possible clonotypes.
+#' 
+#' @param x A \code{SplitDataFrameList} object containing V(D)J contig
+#'   information, split by cell barcodes, as created by \code{readVDJcontigs}.
+#'   Alternatively, a \code{SingleCellExperiment} object with such a
+#'   \code{SplitDataFrameList} in the \code{colData}, as created by
+#'   \code{addVDJtoSCE}.
+#' @param TCRcol The name of the column in the \code{colData} of \code{x} that
+#'   contains the VDJ contig data (only applies if \code{x} is a
+#'   \code{SingleCellExperiment}).
+#' @param sample The name of the column in \code{x} (or the \code{colData} of
+#'   \code{x}, for \code{SingleCellExperiment} objects) that stores each cell's
+#'   sample of origin. Alternatively, a vector of length equal to \code{x} (or
+#'   \code{ncol(x)}) indicating the sample of origin. Providing this information
+#'   can dramatically speed up computation and avoid unwanted cross-talk between
+#'   samples.
+#' @param method Which implementation to use. Options are \code{'r'} or
+#'   \code{'python'} (default).
+#' @param thresh Numeric threshold for convergence of the EM algorithm.
+#'   Indicates the maximum allowable deviation in a count between updates.
+#' @param iter.max Maximum number of iterations for the EM algorithm.
+#' 
+#' @details This quantification method defines a clonotype as a specific alpha
+#'   and beta chain pair and attempts to assign each cell to its most likely
+#'   clonotype. Unlike other quantification methods, this can lead to
+#'   non-integer counts for cells with ambiguous information (ie. only an alpha
+#'   chain, or two alphas and one beta chain).
+#'   
+#' @details We highly recommend providing information on each cell's sample of
+#'   origin, as this can speed up computation and provide more accurate results.
+#'   Because the EM algorithm shares information across cells, splitting by
+#'   sample can improve accuracy by removing extraneous clonotypes from the set
+#'   of possibilities for a particular cell.
+#' 
+#' @return Creates a sparse matrix (\code{dgRMatrix}) of cell-level clonotype
+#'   assignments (cells-by-clonotypes). If \code{x} is a
+#'   \code{SingleCellExperiment}, this matrix is added to the \code{colData}
+#'   under the name \code{clono}.
+#' 
+#' @import IRanges
+#' @importFrom reticulate sourcePython
+#' @import Matrix
+#' 
+#' @export
 setMethod(f = "EMquant",
           signature = signature(x = "SplitDataFrameList"),
           definition = function(x, sample = 'sample', 
@@ -168,6 +187,11 @@ setMethod(f = "EMquant",
               # repeat 2 (proportional to previous counts)
               #################
               if(method == 'python'){
+                  # source necessary python code
+                  loc <- find.package('TCRseq')
+                  loc <- file.path(loc, 'src/updateCounts.py')
+                  reticulate::source_python(loc)
+                  
                   t.indices <- poss.indices[ind.ambiguous]
                   names(t.indices) <- NULL # so python takes it as a list of lists, not a dict
                   # force python to take length-1 vectors as lists
@@ -225,5 +249,28 @@ setMethod(f = "EMquant",
           })
 
 
-
-# add methods for other quantification methods
+#' @rdname EMquant
+#' @export
+setMethod(f = "EMquant",
+          signature = signature(x = "SingleCellExperiment"),
+          definition = function(x, TCRcol = 'contigs', sample = NULL, ...){
+              sce <- x
+              if(!is.null(sample)){
+                  if(length(sample) == 1){
+                      stopifnot(sample %in% names(colData(sce)))
+                      sampVar <- factor(sce[[sample]])
+                  }else{
+                      stopifnot(length(sample) == ncol(sce))
+                      sampVar <- factor(sample)
+                  }
+                  # calculate cells x clonotypes matrix
+                  clono <- EMquant(sce[[TCRcol]], sample = sampVar, ...)
+              }else{
+                  # calculate cells x clonotypes matrix
+                  clono <- EMquant(sce[[TCRcol]], ...)
+              }
+              
+              # update sce
+              colData(sce)$clono <- clono
+              return(sce)
+          })

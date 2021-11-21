@@ -1,11 +1,4 @@
 
-
-# future work: make it more flexible so that 'sce' can be a SCE object or a directory,
-#    use DropletUtils::read10xCounts to get SCE from directory
-
-# samples <- system('ls ~/Projects/OLD/rcc/Data/TCR/samples', intern = TRUE)
-# samples <- paste0('~/Projects/OLD/rcc/Data/TCR/samples/',samples)
-
 #' @title Load 10X CellRanger V(D)J data
 #' @name readVDJcontigs
 #' @export
@@ -35,8 +28,8 @@ setGeneric(name = "readVDJcontigs",
 #' @return A \code{SplitDataFrameList} object containing data on all contigs,
 #'   grouped by cell barcode.
 #' 
-#' @importFrom S4Vectors split
-#' @importClassesFrom IRanges DataFrameList
+#' @import S4Vectors
+#' @import IRanges
 #' @export
 setMethod(f = 'readVDJcontigs',
           signature = signature(samples = "character"),
@@ -147,10 +140,3 @@ setMethod(f = 'addVDJtoSCE',
           })
 
 
-
-
-#sce <- addTCRtoSCE(dir, sce)
-# inspection (look for mismatched samples)
-# tcrsamp <- sapply(tcr.list[,'sample'], function(x){ ifelse(length(x)>0, x[1], NA)})
-# tcrsamp[is.na(tcrsamp)] <- sce$sample[is.na(tcrsamp)]
-# x <- sce[, tcrsamp != sce$sample]

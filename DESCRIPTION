@@ -10,6 +10,8 @@ Depends:
     R (>= 4.0)
 Imports:
     IRanges,
+    Matrix,
+    reticulate,
     S4Vectors,
     SummarizedExperiment
 Suggests:
