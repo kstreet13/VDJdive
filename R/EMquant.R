@@ -1,5 +1,6 @@
 
 # TODO: parallelize it
+# TODO: make TCR/BCR setting
 
 #require(Matrix)
 #require(SingleCellExperiment)
@@ -38,11 +39,12 @@ setGeneric(name = "EMquant",
 #'   Indicates the maximum allowable deviation in a count between updates.
 #' @param iter.max Maximum number of iterations for the EM algorithm.
 #' 
-#' @details This quantification method defines a clonotype as a specific alpha
-#'   and beta chain pair and attempts to assign each cell to its most likely
-#'   clonotype. Unlike other quantification methods, this can lead to
-#'   non-integer counts for cells with ambiguous information (ie. only an alpha
-#'   chain, or two alphas and one beta chain).
+#' @details This quantification method defines a clonotype as a pair of specific
+#'   chains (alpha and beta for T cells, heavy and light for B cells) and
+#'   attempts to assign each cell to its most likely clonotype. Unlike other
+#'   quantification methods, this can lead to non-integer counts for cells with
+#'   ambiguous information (ie. only an alpha chain, or two alphas and one beta
+#'   chain).
 #'   
 #' @details We highly recommend providing information on each cell's sample of
 #'   origin, as this can speed up computation and provide more accurate results.
@@ -56,7 +58,7 @@ setGeneric(name = "EMquant",
 #'   under the name \code{clono}.
 #' 
 #' @import IRanges
-#' @importFrom reticulate sourcePython
+#' @importFrom reticulate source_python
 #' @import Matrix
 #' 
 #' @export

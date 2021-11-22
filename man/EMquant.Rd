@@ -56,11 +56,12 @@ likely clonotype with the EM algorithm. For ambiguous cells, this leads to
 proportional (non-integer) assignment across multiple possible clonotypes.
 }
 \details{
-This quantification method defines a clonotype as a specific alpha
-and beta chain pair and attempts to assign each cell to its most likely
-clonotype. Unlike other quantification methods, this can lead to
-non-integer counts for cells with ambiguous information (ie. only an alpha
-chain, or two alphas and one beta chain).
+This quantification method defines a clonotype as a pair of specific
+chains (alpha and beta for T cells, heavy and light for B cells) and
+attempts to assign each cell to its most likely clonotype. Unlike other
+quantification methods, this can lead to non-integer counts for cells with
+ambiguous information (ie. only an alpha chain, or two alphas and one beta
+chain).
 
 We highly recommend providing information on each cell's sample of
 origin, as this can speed up computation and provide more accurate results.
