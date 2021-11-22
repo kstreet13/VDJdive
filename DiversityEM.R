@@ -8,10 +8,13 @@ FileToy<-readRDS("~/Desktop/PostDoColabProj/toyTCRdata.rds")
 quant_Toy<-EMquant(FileToy)
 
 
-
-createCountsMatrixEm<-function(x) {
-  df<-as.data.frame(colSums(x$clono))
-  return(df)
+#Function to create a matrix compatibe for diversity function
+createCountsMatrixEm<-function(ranged_sum_exp) {
+  col_data <- colData(ranged_sum_exp) #EM_alg data matrix
+  by_sample <- split(col_data, col_data$sample) # split matrix by samples 
+  col_sums <- lapply(by_sample, function(df) colSums(df$clono)) #perform colsums for colontypes per samples
+  final_df <- as.data.frame(col_sums) #make list to dataframe
+  return(final_df)
 }
 
 k2<-createCountsMatrixEm(quant_Toy)
@@ -20,6 +23,9 @@ k2<-createCountsMatrixEm(quant_Toy)
 calculateDiversity <- function(k, methods, ...) {
   # any parm but k or methods is ... for e.g. cutoff for breakaway which will pass down
   # function to calculate diversity for a given method
+  
+  # this is the scale factor we decided on for chaobonge and chao1 to account for EM output fractions
+  scale_factor <- 100
   
   # Set EM to TRUE of not all values are integers
   EM = !all(as.integer(k[, 1]) == k[, 1])
@@ -35,8 +41,8 @@ calculateDiversity <- function(k, methods, ...) {
       rownames(ret) <- paste0(method, ".estimate")
     } else if ("chao1" == method  & EM) {
       # use fossil::chao1() for chao1
-      ret <- round(k*100,0)
-      ret <- data.frame(t(apply(ret, 2, fossil::chao1, ...))) #apply chao1 function for every column
+      ret <- round(k*scale_factor,0)
+      ret <- data.frame(t(apply(ret, 2, fossil::chao1, ...))) / scale_factor #apply chao1 function for every column
       rownames(ret) <- paste0(method, ".estimate")
     } 
     else if ("chaobonge" == method  & !EM) {
@@ -49,10 +55,10 @@ calculateDiversity <- function(k, methods, ...) {
     } 
     else if ("chaobonge" == method & EM) {
       # use breakaway() for chaobonge
-      ret <- round(k*100,0)
+      ret <- round(k*scale_factor,0)
       ret <- data.frame(apply(ret, 2, function(x, ...) {
         bw <- breakaway(x, ...)
-        c(estimate=bw$estimate, error=bw$error)
+        c(estimate=bw$estimate, error=bw$error) / scale_factor
       }))
       rownames(ret) <- paste0(method, ".", rownames(ret))
     }
