@@ -9,11 +9,15 @@ Description: Provides functions for handling and analyzing immune receptor reper
 Depends:
     R (>= 4.0)
 Imports:
+    fossil,
     IRanges,
     Matrix,
     reticulate,
     S4Vectors,
-    SummarizedExperiment
+    SummarizedExperiment,
+    vegan
+Remotes:
+    adw96/breakaway
 Suggests:
     knitr
 License: Artistic-2.0

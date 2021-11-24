@@ -190,7 +190,8 @@ setMethod(f = "EMquant",
               #################
               if(method == 'python'){
                   # source necessary python code
-                  loc <- find.package('TCRseq')
+                  #loc <- find.package('TCRseq')
+                  loc <- '~/Projects/TCRseq' # just for now
                   loc <- file.path(loc, 'src/updateCounts.py')
                   reticulate::source_python(loc)
                   
