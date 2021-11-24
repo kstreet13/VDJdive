@@ -21,7 +21,7 @@ k2<-createCountsMatrixEm(quant_Toy)
 
 #PCA function compatible createCountMatrixEM output
 
-PcaTcrSeq<-function(k, application ="TCR", ...) {
+PcaTcrSeq<-function(k, application ="Sample") {
       if(application == "TCR"){
         PCA_ret <- prcomp(t(k))
       } else if (application == "Sample") {
@@ -32,6 +32,23 @@ PcaTcrSeq<-function(k, application ="TCR", ...) {
     return(PCA_ret)
 }
 
-PcaTcrSeq(k2,"TCR")   
+pcaobj<-PcaTcrSeq(k2,"Sample")   
 
+library(ggplot2)
+library(RColorBrewer)
+
+#PlotPCA rotation (samples)
+PlotPCA<-function(pcaobj) {
+        plotDATA1 <- data.frame(pcaobj$rotation,
+                        headers=rownames(pcaobj$rotation),
+                        color=apply(pcaobj$rotation, 1, function(x) sum(x)))
+        qplotObj<-qplot(PC1,PC2,data=plotDATA1,label=rownames(plotDATA1), color=color)+
+                  geom_point(size=2) + 
+                  ggtitle("PCA of data")+
+                  theme(plot.title = element_text(size = 10, face = "bold"))
+        qplotObj<-qplotObj + scale_color_gradientn(colours = rainbow(5))
+        return(qplotObj)
+}
+
+PlotPCA(pcaobj)
 
