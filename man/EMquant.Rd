@@ -25,6 +25,8 @@ Alternatively, a \code{SingleCellExperiment} object with such a
 \code{SplitDataFrameList} in the \code{colData}, as created by
 \code{addVDJtoSCE}.}
 
+\item{...}{additional arguments.}
+
 \item{sample}{The name of the column in \code{x} (or the \code{colData} of
 \code{x}, for \code{SingleCellExperiment} objects) that stores each cell's
 sample of origin. Alternatively, a vector of length equal to \code{x} (or
@@ -68,4 +70,9 @@ origin, as this can speed up computation and provide more accurate results.
 Because the EM algorithm shares information across cells, splitting by
 sample can improve accuracy by removing extraneous clonotypes from the set
 of possibilities for a particular cell.
+}
+\examples{
+data('example_contigs')
+counts <- EMquant(contigs)
+
 }

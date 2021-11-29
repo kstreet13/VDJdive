@@ -7,6 +7,7 @@
 #require(IRanges)
 
 #' @title Clonotype quantification with the EM algorithm
+#' @param ... additional arguments.
 #' @name EMquant
 #' @export
 setGeneric(name = "EMquant",
@@ -57,9 +58,14 @@ setGeneric(name = "EMquant",
 #'   \code{SingleCellExperiment}, this matrix is added to the \code{colData}
 #'   under the name \code{clono}.
 #' 
+#' @examples 
+#' data('example_contigs')
+#' counts <- EMquant(contigs)
+#' 
 #' @import IRanges
 #' @importFrom reticulate source_python
-#' @import Matrix
+#' @importFrom Matrix Matrix colSums
+#' @importClassesFrom Matrix dgRMatrix
 #' 
 #' @export
 setMethod(f = "EMquant",
@@ -126,7 +132,6 @@ setMethod(f = "EMquant",
               }
               
               # initialize counts matrix (#alpha-by-#beta)
-              require(Matrix)
               counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), sparse = TRUE)
               rownames(counts) <- all.alphas
               colnames(counts) <- all.betas
@@ -192,7 +197,7 @@ setMethod(f = "EMquant",
                   # source necessary python code
                   #loc <- find.package('TCRseq')
                   loc <- '~/Projects/TCRseq' # just for now
-                  loc <- file.path(loc, 'src/updateCounts.py')
+                  loc <- file.path(loc, 'inst/updateCounts.py')
                   reticulate::source_python(loc)
                   
                   t.indices <- poss.indices[ind.ambiguous]
@@ -245,7 +250,7 @@ setMethod(f = "EMquant",
                            Dim = as.integer(c(length(contigs), length(counts))))
               colnames(clono) <- as.character(outer(all.alphas, all.betas, 
                                                     FUN = paste))
-              clono <- clono[, colSums(clono) > 0]
+              clono <- clono[, which(colSums(clono) > 0), drop = FALSE]
               rownames(clono) <- names(contigs)
               
               return(clono)

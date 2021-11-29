@@ -26,6 +26,8 @@ counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 be a character, giving the name of the column from the \code{colData} to
 use as this variable.}
 
+\item{...}{additional arguments.}
+
 \item{clonoCol}{A character providing the name of the cell-level clonotype
 counts matrix in the \code{colData} of \code{x} (default = \code{'clono'}).
 Only applies when \code{x} is a \code{SingleCellExperiment} object.}
@@ -38,4 +40,10 @@ sample-level clonotype counts).
 \description{
 Takes a matrix of cell-level clonotype counts and sums them
 within groups (typically samples).
+}
+\examples{
+example(addVDJtoSCE)
+sce <- EMquant(sce, sample = "sample")
+sampleLevelCounts <- summarizeClonotypes(sce, by = "sample")
+
 }

@@ -24,6 +24,12 @@ matrix stored in the \code{clono} slot of the \code{colData}.}
 counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 be a character, giving the name of the column from the \code{colData} to
 use as this variable.}
+
+\item{...}{additional arguments.}
+
+\item{clonoCol}{The name of the column in the \code{colData} of \code{x} that
+contains the cell-level clonotype assignments (only applies if \code{x} is a
+\code{SingleCellExperiment}).}
 }
 \value{
 A list of \code{Matrix} objects providing the cell-level counts for
@@ -33,4 +39,10 @@ matrix in the list will contain the cells from a single sample).
 \description{
 Takes a matrix of cell-level clonotype counts and splits them
 into a list of group-specific counts (typically samples).
+}
+\examples{
+example(addVDJtoSCE)
+sce <- EMquant(sce, sample = "sample")
+sampleCountsList <- splitClonotypes(sce, by = "sample")
+
 }

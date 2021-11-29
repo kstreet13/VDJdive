@@ -3,11 +3,14 @@
 \name{CRquant}
 \alias{CRquant}
 \alias{CRquant,SingleCellExperiment-method}
+\alias{CRquant,SplitDataFrameList-method}
 \title{Clonotype quantification given by Cell Ranger}
 \usage{
 CRquant(x, ...)
 
 \S4method{CRquant}{SingleCellExperiment}(x, TCRcol = "contigs", sample = NULL)
+
+\S4method{CRquant}{SplitDataFrameList}(x, sample = "sample")
 }
 \arguments{
 \item{x}{A \code{SplitDataFrameList} object containing V(D)J contig
@@ -15,6 +18,8 @@ information, split by cell barcodes, as created by \code{readVDJcontigs}.
 Alternatively, a \code{SingleCellExperiment} object with such a
 \code{SplitDataFrameList} in the \code{colData}, as created by
 \code{addVDJtoSCE}.}
+
+\item{...}{additional arguments.}
 
 \item{TCRcol}{The name of the column in the \code{colData} of \code{x} that
 contains the VDJ contig data (only applies if \code{x} is a
@@ -41,4 +46,9 @@ This quantification method uses the clonotype labels provided by the
 Cell Ranger V(D)J pipeline. This will provide a label for every cell that
 has V(D)J information, but these labels are not directly comparable across
 samples.
+}
+\examples{
+data('example_contigs')
+counts <- CRquant(contigs)
+
 }

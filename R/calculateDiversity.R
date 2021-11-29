@@ -39,6 +39,7 @@
 
 #' @title Sample diversity estimation
 #' @name calculateDiversity
+#' @param ... Additional arguments passed to external calculation methods.
 #' @export
 setGeneric(name = "calculateDiversity",
            signature = "k",
@@ -74,7 +75,14 @@ setGeneric(name = "calculateDiversity",
 #'   
 #' @return A matrix of diversity estimates for each sample. Note that the
 #'   \code{'chaobunge'} method also includes an estimate of the standard error.
-#'   
+#'
+#' @examples 
+#' data('example_contigs')
+#' samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+#' counts <- EMquant(contigs)
+#' k <- t(summarizeClonotypes(counts, samples))
+#' calculateDiversity(k)
+#'
 #' @importFrom vegan diversity
 #' @importFrom fossil chao1
 #' @importFrom breakaway breakaway
@@ -98,7 +106,7 @@ setMethod(f = "calculateDiversity",
               
               # loop over methods
               results <- sapply(methods, function(method){
-                  .div_function(k, method, ints, scale_factor)
+                  .div_function(k, method, ints, scale_factor, ...)
               })
               colnames(results) <- paste0(colnames(results), '.estimate')
               if('chaobunge' %in% methods){

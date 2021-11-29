@@ -2,6 +2,7 @@
 # cell-level counts by sample
 #' @title Split cell-level clonotype counts by sample
 #' @name splitClonotypes
+#' @param ... additional arguments.
 #' @export
 setGeneric(name = "splitClonotypes",
            signature = c("x","by"),
@@ -24,22 +25,27 @@ setGeneric(name = "splitClonotypes",
 #'   each unique value of \code{by} (if \code{by} denotes sample labels, each
 #'   matrix in the list will contain the cells from a single sample).
 #' 
-#' @import Matrix
+#' @examples 
+#' example(addVDJtoSCE)
+#' sce <- EMquant(sce, sample = "sample")
+#' sampleCountsList <- splitClonotypes(sce, by = "sample")
+#' 
+#' @importClassesFrom Matrix Matrix
 #' @export
 setMethod(f = "splitClonotypes",
           signature = signature(x = "Matrix"),
           definition = function(x, by){
               stopifnot(length(by) == nrow(x))
-              out <- lapply(sort(unique(byVar)), function(lv){
-                  x[which(byVar == lv), ,drop = FALSE]
+              out <- lapply(sort(unique(by)), function(lv){
+                  x[which(by == lv), ,drop = FALSE]
               })
-              names(out) <- as.character(sort(unique(byVar)))
+              names(out) <- as.character(sort(unique(by)))
               return(out)
           })
 
 
 #' @rdname splitClonotypes
-#' @import Matrix
+#' @importFrom Matrix Matrix
 #' @export
 setMethod(f = "splitClonotypes",
           signature = signature(x = "matrix"),
@@ -48,7 +54,10 @@ setMethod(f = "splitClonotypes",
           })
 
 #' @rdname splitClonotypes
-#' @import SingleCellExperiment
+#' @param clonoCol The name of the column in the \code{colData} of \code{x} that
+#'   contains the cell-level clonotype assignments (only applies if \code{x} is a
+#'   \code{SingleCellExperiment}).
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #' @export
 setMethod(f = "splitClonotypes",
           signature = signature(x = "SingleCellExperiment"),
@@ -68,6 +77,7 @@ setMethod(f = "splitClonotypes",
 
 #' @title Get sample-level clonotype counts
 #' @name summarizeClonotypes
+#' @param ... additional arguments.
 #' @export
 setGeneric(name = "summarizeClonotypes",
            signature = c("x","by"),
@@ -92,6 +102,11 @@ setGeneric(name = "summarizeClonotypes",
 #' @return A matrix clonotype counts where each row corresponds to a unique
 #'   value of \code{by} (if \code{by} denotes sample labels, this is a matrix of
 #'   sample-level clonotype counts).
+#' 
+#' @examples 
+#' example(addVDJtoSCE)
+#' sce <- EMquant(sce, sample = "sample")
+#' sampleLevelCounts <- summarizeClonotypes(sce, by = "sample")
 #' 
 #' @export
 setMethod(f = "summarizeClonotypes",
@@ -125,7 +140,7 @@ setMethod(f = "summarizeClonotypes",
           })
 
 #' @rdname summarizeClonotypes
-#' @import Matrix
+#' @importFrom Matrix Matrix
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "matrix"),
@@ -135,6 +150,21 @@ setMethod(f = "summarizeClonotypes",
 
 
 
-
-
-
+#' @title Example V(D)J contig data
+#' @name example_contigs
+#'
+#' @usage data("example_contigs")
+#'
+#' @description This is a small dataset consisting of 24 cells from 2 samples,
+#'   meant to demonstrate how certain functions in the \code{TCRseq} package
+#'   work.
+#'
+#' @format A \code{SplitDataFrameList} object of length 24.
+#' 
+#' @source An extremely small subset of the TCR data from Braun, et al. (2020).
+#'
+#' @examples
+#' data("example_contigs")
+#' contigs
+#' 
+"contigs"

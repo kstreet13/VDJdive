@@ -9,17 +9,21 @@ Description: Provides functions for handling and analyzing immune receptor reper
 Depends:
     R (>= 4.0)
 Imports:
+    breakaway,
     fossil,
     IRanges,
     Matrix,
+    methods,
     reticulate,
     S4Vectors,
+    SingleCellExperiment,
     SummarizedExperiment,
+    utils,
     vegan
-Remotes:
-    adw96/breakaway
 Suggests:
     knitr
+Remotes:
+    adw96/breakaway
 License: Artistic-2.0
 URL: https://github.com/kstreet13/TCRseq
 BugReports: https://github.com/kstreet13/TCRseq/issues

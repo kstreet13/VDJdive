@@ -20,6 +20,8 @@ named \code{filtered_contig_annotations.csv}. Alternatively, a
 
 \item{sce}{A \code{SingleCellExperiment} object.}
 
+\item{...}{additional arguments.}
+
 \item{sample.names}{A character vector of length equal to \code{samples}
 containing the sample names to store in the output object. If \code{NULL}
 and \code{samples} is a character vector, the \code{basename}s of each
@@ -48,4 +50,21 @@ where the sample index (in the \code{samples} vector) is appended to each
 cell barcode, to ensure that each barcode is unique, across all samples. If
 \code{sce} was created by a different method, such as conversion from a
 \code{Seurat} object, you may need to check the barcode naming convention.
+}
+\examples{
+# load example V(D)J data
+data('example_contigs')
+
+# make SCE object with matching barcodes and sample IDs
+ncells <- 24
+u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
+barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
+samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+sce <- SingleCellExperiment(assays = list(counts = u),
+                            colData=data.frame(Barcode=barcodes, 
+                                               sample = samples))
+
+sce <- addVDJtoSCE(contigs, sce)
+sce$contigs
+
 }

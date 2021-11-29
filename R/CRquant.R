@@ -1,6 +1,7 @@
 # quantification by Cell Ranger clonotypes
 #' @title Clonotype quantification given by Cell Ranger
 #' @name CRquant
+#' @param ... additional arguments.
 #' @export
 setGeneric(name = "CRquant",
            signature = "x",
@@ -35,8 +36,12 @@ setGeneric(name = "CRquant",
 #'   \code{SingleCellExperiment}, this matrix is added to the \code{colData}
 #'   under the name \code{clono}.
 #' 
-#' @import IRanges
-#' @import Matrix
+#' @examples 
+#' data('example_contigs')
+#' counts <- CRquant(contigs)
+#' 
+#' @importClassesFrom IRanges SplitDataFrameList
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #' 
 #' @export
 setMethod(f = "CRquant",
@@ -63,6 +68,11 @@ setMethod(f = "CRquant",
               return(sce)
           })
 
+#' @rdname CRquant
+#' @importClassesFrom IRanges SplitDataFrameList
+#' @importFrom Matrix Matrix colSums
+#' @importClassesFrom Matrix dgRMatrix
+#' @export
 setMethod(f = "CRquant",
           signature = signature(x = "SplitDataFrameList"),
           definition = function(x, sample = 'sample'){
@@ -124,7 +134,7 @@ setMethod(f = "CRquant",
               clono <- new('dgRMatrix', j = clonoJ, p = clonoP, x = clonoX,
                            Dim = as.integer(c(length(contigs), length(all_clonotypes))))
               colnames(clono) <- all_clonotypes
-              clono <- clono[, colSums(clono) > 0]
+              clono <- clono[, which(colSums(clono) > 0), drop = FALSE]
               rownames(clono) <- names(contigs)
               
               return(clono)

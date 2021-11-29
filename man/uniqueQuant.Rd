@@ -19,6 +19,8 @@ Alternatively, a \code{SingleCellExperiment} object with such a
 \code{SplitDataFrameList} in the \code{colData}, as created by
 \code{addVDJtoSCE}.}
 
+\item{...}{additional arguments.}
+
 \item{TCRcol}{The name of the column in the \code{colData} of \code{x} that
 contains the VDJ contig data (only applies if \code{x} is a
 \code{SingleCellExperiment}).}
@@ -44,4 +46,9 @@ This quantification method defines a clonotype as a pair of specific
 chains (alpha and beta for T cells, heavy and light for B cells) and only
 assigns cells that are a perfect match for their clonotype, leaving others
 unassigned, even if they contain V(D)J information.
+}
+\examples{
+data('example_contigs')
+counts <- uniqueQuant(contigs)
+
 }

@@ -14,6 +14,8 @@ readVDJcontigs(samples, ...)
 each corresponding to a 10X sample. Each directory should contain a file
 named \code{filtered_contig_annotations.csv}.}
 
+\item{...}{additional arguments.}
+
 \item{sample.names}{A character vector of length equal to \code{samples}
 containing the sample names to store in the output object. If \code{NULL},
 the \code{basename}s of each directory will be used.}
@@ -33,4 +35,13 @@ The resulting list of DataFrames contains all the data in
 the index of each sample in \code{samples} is concatenated to the cell
 barcodes, so that cells from different samples cannot have identical
 barcodes.
+}
+\examples{
+# write the example data to a temporary directory
+example(writeVDJcontigs)
+
+# specify sample locations and read in data
+samples <- file.path(loc, c('sample1','sample2'))
+contigs <- readVDJcontigs(samples)
+
 }

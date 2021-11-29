@@ -18,6 +18,8 @@ calculateDiversity(k, ...)
 \item{k}{A matrix of abundance values where rows are features and columns are
 samples.}
 
+\item{...}{Additional arguments passed to external calculation methods.}
+
 \item{methods}{A character vector specifying which diversity measures to use
 (default = \code{'all'}, see Details).}
 
@@ -47,4 +49,12 @@ rounded to the nearest integer. The resulting estimate is then divided by
 \code{scaling_factor} to return to the original scale. The
 \code{'shannon'}, \code{'simpson'}, and \code{'invsimpson'} methods work
 with any input type.
+}
+\examples{
+data('example_contigs')
+samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+counts <- EMquant(contigs)
+k <- t(summarizeClonotypes(counts, samples))
+calculateDiversity(k)
+
 }

@@ -3,6 +3,7 @@
 
 #' @title Clonotype quantification for uniquely assignable cells
 #' @name uniqueQuant
+#' @param ... additional arguments.
 #' @export
 setGeneric(name = "uniqueQuant",
            signature = "x",
@@ -37,8 +38,12 @@ setGeneric(name = "uniqueQuant",
 #'   \code{SingleCellExperiment}, this matrix is added to the \code{colData}
 #'   under the name \code{clono}.
 #' 
-#' @import IRanges
-#' @import Matrix
+#' @examples 
+#' data('example_contigs')
+#' counts <- uniqueQuant(contigs)
+#' 
+#' @importClassesFrom IRanges SplitDataFrameList
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #' 
 #' @export
 setMethod(f = "uniqueQuant",
@@ -66,6 +71,9 @@ setMethod(f = "uniqueQuant",
           })
 
 #' @rdname uniqueQuant
+#' @importClassesFrom IRanges SplitDataFrameList
+#' @importFrom Matrix Matrix colSums
+#' @importClassesFrom Matrix dgRMatrix
 #' @export
 setMethod(f = "uniqueQuant",
           signature = signature(x = "SplitDataFrameList"),
@@ -128,7 +136,6 @@ setMethod(f = "uniqueQuant",
               }
               
               # initialize counts matrix (#alpha-by-#beta)
-              require(Matrix)
               counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), sparse = TRUE)
               rownames(counts) <- all.alphas
               colnames(counts) <- all.betas
@@ -163,7 +170,7 @@ setMethod(f = "uniqueQuant",
                            Dim = as.integer(c(length(contigs), length(counts))))
               colnames(clono) <- as.character(outer(all.alphas, all.betas, 
                                                     FUN = paste))
-              clono <- clono[, colSums(clono) > 0]
+              clono <- clono[, which(colSums(clono) > 0), drop = FALSE]
               rownames(clono) <- names(contigs)
               
               return(clono)

@@ -1,6 +1,7 @@
 
 #' @title Load 10X CellRanger V(D)J data
 #' @name readVDJcontigs
+#' @param ... additional arguments.
 #' @export
 setGeneric(name = "readVDJcontigs",
            signature = "samples",
@@ -28,8 +29,17 @@ setGeneric(name = "readVDJcontigs",
 #' @return A \code{SplitDataFrameList} object containing data on all contigs,
 #'   grouped by cell barcode.
 #' 
+#' @examples 
+#' # write the example data to a temporary directory
+#' example(writeVDJcontigs)
+#' 
+#' # specify sample locations and read in data
+#' samples <- file.path(loc, c('sample1','sample2'))
+#' contigs <- readVDJcontigs(samples)
+#' 
+#' @importFrom utils read.csv
 #' @import S4Vectors
-#' @import IRanges
+#' @importClassesFrom IRanges SplitDataFrameList
 #' @export
 setMethod(f = 'readVDJcontigs',
           signature = signature(samples = "character"),
@@ -60,6 +70,7 @@ setMethod(f = 'readVDJcontigs',
 
 #' @title Add 10X CellRanger V(D)J data to SingleCellExperiment
 #' @name addVDJtoSCE
+#' @param ... additional arguments.
 #' @export
 setGeneric(name = "addVDJtoSCE",
            signature = c("samples","sce"),
@@ -97,8 +108,26 @@ setGeneric(name = "addVDJtoSCE",
 #'   with an element named \code{contigs} added to the \code{colData},
 #'   representing the V(D)J data.
 #' 
+#' @examples 
+#' # load example V(D)J data
+#' data('example_contigs')
+#' 
+#' # make SCE object with matching barcodes and sample IDs
+#' ncells <- 24
+#' u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
+#' barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
+#' samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+#' sce <- SingleCellExperiment(assays = list(counts = u),
+#'                             colData=data.frame(Barcode=barcodes, 
+#'                                                sample = samples))
+#' 
+#' sce <- addVDJtoSCE(contigs, sce)
+#' sce$contigs
+#' 
 #' @import S4Vectors
-#' @importFrom SummarizedExperiment colData
+#' @importFrom SummarizedExperiment colData colData<-
+#' @importClassesFrom IRanges SplitDataFrameList
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #' @export          
 setMethod(f = 'addVDJtoSCE',
           signature = signature(samples = "SplitDataFrameList", 
@@ -119,7 +148,7 @@ setMethod(f = 'addVDJtoSCE',
               loss <- length(unique(contigs$barcode)) - 
                   sum(lengths(tcr.list)>0)
               pct <- loss / length(unique(contigs$barcode))
-              message(loss, ' cells with V(D)J data were dropped because',
+              message(loss, ' cells with V(D)J data were dropped because ',
                       'they had no match in SingleCellExperiment object (',
                       format(100 * pct, digits = 2),
                       '% of V(D)J data).')
@@ -138,5 +167,64 @@ setMethod(f = 'addVDJtoSCE',
               contigs <- readVDJcontigs(samples, sample.names = sample.names)
               return(addVDJtoSCE(contigs, sce, sample.names = sample.names, barcode = barcode))
           })
+
+
+
+
+
+
+
+
+#' @title Write V(D)J contig data in 10X format
+#' @name writeVDJcontigs
+#' @param ... additional arguments.
+#' @export
+setGeneric(name = "writeVDJcontigs",
+           signature = c("path","x"),
+           def = function(path, x, ...) standardGeneric("writeVDJcontigs"))
+
+
+#' @rdname writeVDJcontigs
+#' 
+#' @description Write V(D)J data to a series of directories, each containing a
+#'   CSV file with the data for an individual sample.
+#'
+#' @param path A string containing the path to the output directory.
+#' @param x A \code{SplitDataFrameList} object containing V(D)J contig
+#'   information, split by cell barcodes, as created by \code{readVDJcontigs}.
+#' 
+#' @returns 
+#' Creates various subdirectories of the directory specified in \code{path}.
+#' Each subdirectory is named for a sample found in the dataset, \code{x}, and
+#' contains a CSV filed named \code{filtered_contig_annotations.csv}.
+#' 
+#' @examples 
+#' data('example_contigs')
+#' loc <- tempdir()
+#' writeVDJcontigs(loc, contigs)
+#' 
+#' @importFrom utils write.csv
+#' @export
+setMethod(f = 'writeVDJcontigs',
+          signature = signature(path = "character", x = "SplitDataFrameList"),
+          definition = function(path, x){
+    
+    contigs <- data.frame(unlist(x))
+    
+    if(!dir.exists(path)){
+        dir.create(path)
+    }
+    for(samp in unique(contigs$sample)){
+        contigs.ii <- contigs[which(contigs$sample==samp), ]
+        contigs.ii$sample <- NULL
+        path.ii <- file.path(path, samp)
+        if(!dir.exists(path.ii)){
+            dir.create(path.ii)
+        }
+        write.csv(contigs.ii, file.path(path.ii,
+                                        'filtered_contig_annotations.csv'))
+    }
+})
+
 
 
