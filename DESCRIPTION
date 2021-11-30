@@ -22,7 +22,8 @@ Imports:
     utils,
     vegan
 Suggests:
-    knitr
+    covr,
+    testthat
 Remotes:
     adw96/breakaway
 License: Artistic-2.0
