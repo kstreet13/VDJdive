@@ -24,7 +24,7 @@ Imports:
 Suggests:
     covr,
     knitr,
-    rmkarkdown,
+    rmarkdown,
     testthat
 Remotes:
     adw96/breakaway
