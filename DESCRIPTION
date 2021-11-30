@@ -14,7 +14,6 @@ Imports:
     fossil,
     IRanges,
     Matrix,
-    methods,
     reticulate,
     S4Vectors,
     SingleCellExperiment,
@@ -31,7 +30,13 @@ Remotes:
 License: Artistic-2.0
 URL: https://github.com/kstreet13/TCRseq
 BugReports: https://github.com/kstreet13/TCRseq/issues
-biocViews: Software
+biocViews: 
+    Software,
+    ImmunoOncology, 
+    SingleCell,
+    Annotation,
+    RNASeq,
+    TargetedResequencing
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
