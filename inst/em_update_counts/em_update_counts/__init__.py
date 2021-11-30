@@ -1,18 +1,3 @@
-
-
-# def showPython(x):
-#     print(x)
-
-# def updateCounts(counts, counts_old, t_indices):
-#     for idx in t_indices:
-#         vals = [counts_old[x-1] for x in idx]
-#         s = sum(vals)
-#         for ii in range(len(idx)):
-#             counts[idx[ii]-1] += vals[ii]/s
-#     return counts
-
-
-
 def TCR_EM_counts(unique_counts, counts_old, t_indices, thresh, max_iters):
     working = True
     iters = 0
@@ -34,7 +19,4 @@ def TCR_EM_counts(unique_counts, counts_old, t_indices, thresh, max_iters):
         else:
             counts_old = list(counts)
     return counts
-
-
-
 

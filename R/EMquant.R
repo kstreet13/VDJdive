@@ -63,7 +63,8 @@ setGeneric(name = "EMquant",
 #' counts <- EMquant(contigs)
 #' 
 #' @import IRanges
-#' @importFrom reticulate source_python
+#' @importFrom reticulate import
+#' @importFrom basilisk basiliskStart basiliskRun basiliskStop
 #' @importFrom Matrix Matrix colSums
 #' @importClassesFrom Matrix dgRMatrix
 #' 
@@ -194,22 +195,24 @@ setMethod(f = "EMquant",
               # repeat 2 (proportional to previous counts)
               #################
               if(method == 'python'){
-                  # source necessary python code
-                  #loc <- find.package('TCRseq')
-                  loc <- '~/Projects/TCRseq' # just for now
-                  loc <- file.path(loc, 'inst/updateCounts.py')
-                  reticulate::source_python(loc)
-                  
+                  # setup inputs
                   t.indices <- poss.indices[ind.ambiguous]
-                  names(t.indices) <- NULL # so python takes it as a list of lists, not a dict
+                  # so python takes it as a list of lists, not a dict:
+                  names(t.indices) <- NULL 
                   # force python to take length-1 vectors as lists
                   l1.idx <- which(lengths(t.indices) == 1)
                   for(ii in l1.idx){
                       t.indices[[ii]] <- list(as.integer(t.indices[[ii]]))
                   }
                   
-                  # iteration handled by python
-                  counts <- TCR_EM_counts(uniquecounts, counts.old, t.indices, thresh, iter.max)
+                  # iteration handled by python, via basilisk
+                  cl <- basiliskStart(pyenv)
+                  counts <- basiliskRun(cl, function(uniquecounts, counts.old, t.indices, thresh, iter.max){ 
+                      mod <- reticulate::import("em_update_counts")
+                      return(mod$TCR_EM_counts(uniquecounts, counts.old, t.indices, thresh, iter.max))
+                  }, uniquecounts = uniquecounts, counts.old = counts.old, t.indices = t.indices, thresh = thresh, iter.max = iter.max)
+                  basiliskStop(cl)
+                  
               }else{
                   working <- TRUE
                   iters <- 0

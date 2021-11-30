@@ -9,6 +9,7 @@ Description: Provides functions for handling and analyzing immune receptor reper
 Depends:
     R (>= 4.0)
 Imports:
+    basilisk,
     breakaway,
     fossil,
     IRanges,
