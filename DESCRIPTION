@@ -23,6 +23,8 @@ Imports:
     vegan
 Suggests:
     covr,
+    knitr,
+    rmkarkdown,
     testthat
 Remotes:
     adw96/breakaway
