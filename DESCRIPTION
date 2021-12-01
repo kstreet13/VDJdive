@@ -17,6 +17,7 @@ Imports:
     reticulate,
     S4Vectors,
     SingleCellExperiment,
+    stats,
     SummarizedExperiment,
     utils,
     vegan

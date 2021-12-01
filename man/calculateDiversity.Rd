@@ -15,8 +15,8 @@ calculateDiversity(k, ...)
 )
 }
 \arguments{
-\item{k}{A matrix of abundance values where rows are features and columns are
-samples.}
+\item{k}{A matrix of abundance values where rows are features (clonotypes)
+and columns are samples.}
 
 \item{...}{Additional arguments passed to external calculation methods.}
 

@@ -52,8 +52,8 @@ setGeneric(name = "calculateDiversity",
 #'   diversity of samples based on a matrix of clonotype abundances (samples are
 #'   columns).
 #' 
-#' @param k A matrix of abundance values where rows are features and columns are
-#'   samples.
+#' @param k A matrix of abundance values where rows are features (clonotypes)
+#'   and columns are samples.
 #' @param methods A character vector specifying which diversity measures to use
 #'   (default = \code{'all'}, see Details).
 #' @param scale_factor Numeric scaling factor for handling non-integer counts
