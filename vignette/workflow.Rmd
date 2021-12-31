@@ -1,0 +1,113 @@
+---
+title: "VDJdive workflow"
+author:
+- name: Kelly Street
+  email: street.kelly@gmail.com
+- name: Mercedeh Movassagh
+- name: Jill Lundell
+package: VDJdive
+output:
+  BiocStyle::html_document
+abstract: |
+  Description of your vignette
+vignette: |
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE, 
+  warning = FALSE
+)
+```
+
+# Introduction
+
+this is the intro to the package
+
+```{r loadPackage}
+require(utils)
+require(VDJdive)
+```
+
+# Read in 10X data
+
+The 10X data are in a file called contig\_annotations.csv. The functions in `r Biocpkg("VDJdive")` require that the data are a CompressedSplitDFrameList. The following snippet demonstrates how to read in the filtered\_contig\_annotations.csv file and convert it to a CompressedSplitDFrameList for downstream use. 
+
+The function readVDJcontigs takes a character vector that contains directory names. Each directory should contain a file called filtered\_contig\_annotations.csv. readVDJcontics will read in the 10X files from the directory, split by cell barcode, and create a SplitDataFrameList from the files. The barcodes will be unique across samples because the sample name is appended to the barcode. 
+
+```{r, eval = FALSE}
+# Read in a single file
+contigs <- readVDJcontigs("path_to_10X_files")
+
+# Read in files for multiple samples
+path1 <- "sample1"
+path2 <- "sample2"
+contigs <- readVDJcontigs(c("path1", "path2"))
+```
+
+# Create counts matrix
+
+`r Biocpkg("VDJdive")` contains two methods for obtaining clonotype counts. The first is done with the function uniqueQuant which produces whole number counts. This method considers only cells with complete, productive alpha and beta chains. Cells that do not meet this criteria are not included in the counts. If two cells have identical amino acids in their CDR3 regions, they are considered to be the same clonotype. uniqueQuant produces a sparse matrix that can be used for downstream analysis. 
+
+```{r}
+data("contigs")
+Ucounts <- uniqueQuant(contigs)
+class(Ucounts)
+```
+
+The other method for quantifying clonotypes is EMquant. It uses the EM algorithm to assigne clonotype counts. Rather than filtering out any cells that do not have a productive alpha and productive beta chain, EMquant allows for partial assignment. For example, if a cell has one productive alpha chain and two productive beta chains, the EM algorithm will be used to make a partial clonotype assignment based on the prevalence of each clonotype in the sample. That means that a cell may have a count of 0.6 for one clonotype and 0.4 for a different clonotype rather than a count of 1 for a single clonotype. As with CRquant, a sparse matrix is returned. However, the matrix for EMquant contains fractional counts rather then solely whole number counts. EMquant is implemented as follows: 
+
+```{r}
+EMcounts <- EMquant(contigs, sample = "sample")
+class(EMcounts)
+```
+
+The sparse matrix itself is not used for downstream analysis. The function summarizeClonotypes creates a matrix where the *columns* represent each clonotype and the values are the counts for that clonotype. The *rows* represent each of the samples. However, the data need to be put in the format of a singleCellExperiment prior to using summarizeClonotypes. This can be done for contigs with the following code: 
+
+```{r}
+require(SingleCellExperiment)
+ncells <- 24
+u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
+barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
+samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+x <- SingleCellExperiment(assays = list(counts = u),
+                            colData = data.frame(Barcode = barcodes,
+                                                 sample = samples))
+x <- addVDJtoSCE(contigs, x)
+x$contigs
+```
+
+
+```{r}
+x <- EMquant(x, sample = "sample")
+sampleCounts <- t(summarizeClonotypes(x, by = "sample"))
+head(sampleCounts)
+```
+
+
+# Diversity
+
+Diversity can be computed with the sampleCounts matrix. The calculateDiversity function can compute Shannon entropy, Simpson entropy, inverse-Simpson entropy, Chao diversity, and Chao-Bunge diversity. The Chao and Chao-Bunge diversity measures require integer counts. Thus, the results for the EM counts are multiplied by 100 and then rounded prior to calculation. The resulting diversity measure is then rescaled back by dividing by 100. The entropy measures do not require integer counts so no transformation is needed for those measures. 
+
+All of the diversity measures can be computed for each sample by doing the following: 
+
+```{r}
+div <- calculateDiversity(sampleCounts, methods = "all")
+div
+```
+
+# Visualization
+
+`r Biocpkg("VDJdive")` has many options for visualization. This section demonstrates the graphs that can be created. 
+
+## Barplot
+
+```{r}
+barVDJ(sampleCounts, bySample = TRUE, title = "contigs", legend = TRUE)
+```
+

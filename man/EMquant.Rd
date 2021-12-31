@@ -72,7 +72,7 @@ sample can improve accuracy by removing extraneous clonotypes from the set
 of possibilities for a particular cell.
 }
 \examples{
-data('example_contigs')
+data('contigs')
 counts <- EMquant(contigs)
 
 }

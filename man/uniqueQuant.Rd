@@ -48,7 +48,7 @@ assigns cells that are a perfect match for their clonotype, leaving others
 unassigned, even if they contain V(D)J information.
 }
 \examples{
-data('example_contigs')
+data('contigs')
 counts <- uniqueQuant(contigs)
 
 }

@@ -8,35 +8,35 @@ setGeneric(name = "readVDJcontigs",
            def = function(samples, ...) standardGeneric("readVDJcontigs"))
 
 #' @rdname readVDJcontigs
-#' 
+#'
 #' @description Creates a \code{SplitDataFrameList} (see
 #'   \code{\link[IRanges]{DataFrameList}}) from a vector of directory names
 #'   corresponding to the output of the CellRanger V(D)J pipeline.
-#' 
+#'
 #' @param samples A character vector containing one or more directory names,
 #'   each corresponding to a 10X sample. Each directory should contain a file
 #'   named \code{filtered_contig_annotations.csv}.
 #' @param sample.names A character vector of length equal to \code{samples}
 #'   containing the sample names to store in the output object. If \code{NULL},
 #'   the \code{basename}s of each directory will be used.
-#' 
+#'
 #' @details The resulting list of DataFrames contains all the data in
 #'   \code{filtered_contig_annotations.csv}, split by cell barcode. Note that
 #'   the index of each sample in \code{samples} is concatenated to the cell
 #'   barcodes, so that cells from different samples cannot have identical
 #'   barcodes.
-#' 
+#'
 #' @return A \code{SplitDataFrameList} object containing data on all contigs,
 #'   grouped by cell barcode.
-#' 
-#' @examples 
+#'
+#' @examples
 #' # write the example data to a temporary directory
 #' example(writeVDJcontigs)
-#' 
+#'
 #' # specify sample locations and read in data
 #' samples <- file.path(loc, c('sample1','sample2'))
 #' contigs <- readVDJcontigs(samples)
-#' 
+#'
 #' @importFrom utils read.csv
 #' @import S4Vectors
 #' @importClassesFrom IRanges SplitDataFrameList
@@ -61,7 +61,7 @@ setMethod(f = 'readVDJcontigs',
               rm(ii, tcr_ii)
               # convert to SplitDataFrameList
               tcr.list <- split(DataFrame(contigs), factor(contigs$barcode))
-              
+
               return(tcr.list)
           })
 
@@ -77,10 +77,10 @@ setGeneric(name = "addVDJtoSCE",
            def = function(samples, sce, ...) standardGeneric("addVDJtoSCE"))
 
 #' @rdname addVDJtoSCE
-#' 
+#'
 #' @description Matches CellRanger V(D)J data to paired data in an existing
 #'   \code{\link[SingleCellExperiment]{SingleCellExperiment}} object.
-#' 
+#'
 #' @param samples A character vector containing one or more directory names,
 #'   each corresponding to a 10X sample. Each directory should contain a file
 #'   named \code{filtered_contig_annotations.csv}. Alternatively, a
@@ -94,7 +94,7 @@ setGeneric(name = "addVDJtoSCE",
 #'   containing cell barcodes. These should match the barcodes in the V(D)J data
 #'   (see Details). Alternatively, a vector of cell barcodes of length equal to
 #'   \code{ncol(sce)}.
-#' 
+#'
 #' @details Matching cell barcodes between data objects can cause problems,
 #'   because different methods have different ways of ensuring barcodes are
 #'   unique across all samples. This function and \code{\link{readVDJcontigs}}
@@ -103,36 +103,36 @@ setGeneric(name = "addVDJtoSCE",
 #'   cell barcode, to ensure that each barcode is unique, across all samples. If
 #'   \code{sce} was created by a different method, such as conversion from a
 #'   \code{Seurat} object, you may need to check the barcode naming convention.
-#' 
+#'
 #' @return A \code{\link[SingleCellExperiment]{SingleCellExperiment}} object
 #'   with an element named \code{contigs} added to the \code{colData},
 #'   representing the V(D)J data.
-#' 
-#' @examples 
+#'
+#' @examples
 #' # load example V(D)J data
-#' data('example_contigs')
-#' 
+#' data('contigs')
+#'
 #' # make SCE object with matching barcodes and sample IDs
 #' ncells <- 24
 #' u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
 #' barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
 #' samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
 #' sce <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = u),
-#'                             colData = data.frame(Barcode = barcodes, 
+#'                             colData = data.frame(Barcode = barcodes,
 #'                                                  sample = samples))
-#' 
+#'
 #' sce <- addVDJtoSCE(contigs, sce)
 #' sce$contigs
-#' 
+#'
 #' @import S4Vectors
 #' @importFrom SummarizedExperiment colData colData<-
 #' @importClassesFrom IRanges SplitDataFrameList
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment
-#' @export          
+#' @export
 setMethod(f = 'addVDJtoSCE',
-          signature = signature(samples = "SplitDataFrameList", 
+          signature = signature(samples = "SplitDataFrameList",
                                 sce = "SingleCellExperiment"),
-          definition = function(samples, sce, sample.names = NULL, 
+          definition = function(samples, sce, sample.names = NULL,
                                 barcode = 'Barcode'){
               contigs <- unlist(samples)
               if(length(barcode) == 1){
@@ -142,25 +142,25 @@ setMethod(f = 'addVDJtoSCE',
                   stopifnot(length(barcode) == ncol(sce))
                   bcVar <- as.character(barcode)
               }
-              
-              tcr.list <- split(DataFrame(contigs), 
+
+              tcr.list <- split(DataFrame(contigs),
                                 factor(contigs$barcode, bcVar))
-              loss <- length(unique(contigs$barcode)) - 
+              loss <- length(unique(contigs$barcode)) -
                   sum(lengths(tcr.list)>0)
               pct <- loss / length(unique(contigs$barcode))
               message(loss, ' cells with V(D)J data were dropped because ',
                       'they had no match in SingleCellExperiment object (',
                       format(100 * pct, digits = 2),
                       '% of V(D)J data).')
-              
+
               sce$contigs <- tcr.list
               return(sce)
           })
-          
+
 #' @rdname addVDJtoSCE
-#' @export          
+#' @export
 setMethod(f = 'addVDJtoSCE',
-          signature = signature(samples = "character", 
+          signature = signature(samples = "character",
                                 sce = "SingleCellExperiment"),
           definition = function(samples, sce, sample.names = names(samples), barcode = 'Barcode'){
               # get TCR contigs
@@ -185,32 +185,32 @@ setGeneric(name = "writeVDJcontigs",
 
 
 #' @rdname writeVDJcontigs
-#' 
+#'
 #' @description Write V(D)J data to a series of directories, each containing a
 #'   CSV file with the data for an individual sample.
 #'
 #' @param path A string containing the path to the output directory.
 #' @param x A \code{SplitDataFrameList} object containing V(D)J contig
 #'   information, split by cell barcodes, as created by \code{readVDJcontigs}.
-#' 
-#' @returns 
+#'
+#' @returns
 #' Creates various subdirectories of the directory specified in \code{path}.
 #' Each subdirectory is named for a sample found in the dataset, \code{x}, and
 #' contains a CSV filed named \code{filtered_contig_annotations.csv}.
-#' 
-#' @examples 
+#'
+#' @examples
 #' data('example_contigs')
 #' loc <- tempdir()
 #' writeVDJcontigs(loc, contigs)
-#' 
+#'
 #' @importFrom utils write.csv
 #' @export
 setMethod(f = 'writeVDJcontigs',
           signature = signature(path = "character", x = "SplitDataFrameList"),
           definition = function(path, x){
-    
+
     contigs <- data.frame(unlist(x))
-    
+
     if(!dir.exists(path)){
         dir.create(path)
     }

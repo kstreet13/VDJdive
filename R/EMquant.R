@@ -15,11 +15,11 @@ setGeneric(name = "EMquant",
            def = function(x, ...) standardGeneric("EMquant"))
 
 #' @rdname EMquant
-#' 
+#'
 #' @description Assign each cell (with at least one V(D)J contig) to its most
 #'   likely clonotype with the EM algorithm. For ambiguous cells, this leads to
 #'   proportional (non-integer) assignment across multiple possible clonotypes.
-#' 
+#'
 #' @param x A \code{SplitDataFrameList} object containing V(D)J contig
 #'   information, split by cell barcodes, as created by \code{readVDJcontigs}.
 #'   Alternatively, a \code{SingleCellExperiment} object with such a
@@ -39,43 +39,43 @@ setGeneric(name = "EMquant",
 #' @param thresh Numeric threshold for convergence of the EM algorithm.
 #'   Indicates the maximum allowable deviation in a count between updates.
 #' @param iter.max Maximum number of iterations for the EM algorithm.
-#' 
+#'
 #' @details This quantification method defines a clonotype as a pair of specific
 #'   chains (alpha and beta for T cells, heavy and light for B cells) and
 #'   attempts to assign each cell to its most likely clonotype. Unlike other
 #'   quantification methods, this can lead to non-integer counts for cells with
 #'   ambiguous information (ie. only an alpha chain, or two alphas and one beta
 #'   chain).
-#'   
+#'
 #' @details We highly recommend providing information on each cell's sample of
 #'   origin, as this can speed up computation and provide more accurate results.
 #'   Because the EM algorithm shares information across cells, splitting by
 #'   sample can improve accuracy by removing extraneous clonotypes from the set
 #'   of possibilities for a particular cell.
-#' 
+#'
 #' @return Creates a sparse matrix (\code{dgRMatrix}) of cell-level clonotype
 #'   assignments (cells-by-clonotypes). If \code{x} is a
 #'   \code{SingleCellExperiment}, this matrix is added to the \code{colData}
 #'   under the name \code{clono}.
-#' 
-#' @examples 
-#' data('example_contigs')
+#'
+#' @examples
+#' data('contigs')
 #' counts <- EMquant(contigs)
-#' 
+#'
 #' @import IRanges
 #' @importFrom reticulate import
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop
 #' @importFrom Matrix Matrix colSums
 #' @importClassesFrom Matrix dgRMatrix
-#' 
+#'
 #' @export
 setMethod(f = "EMquant",
           signature = signature(x = "SplitDataFrameList"),
-          definition = function(x, sample = 'sample', 
+          definition = function(x, sample = 'sample',
                                 method = c('python','r'),
                                 thresh = .01, iter.max = 1000){
               contigs <- x
-              
+
               method <- match.arg(method)
               if(!is.null(sample)){
                   if(length(sample) == 1){
@@ -92,18 +92,18 @@ setMethod(f = "EMquant",
                   })
                   if(any(is.na(sampVar))){
                       # indicates elements of length 0
-                      clono.list[[length(clono.list)+1]] <- 
-                          Matrix(0, nrow = sum(is.na(sampVar)), 
+                      clono.list[[length(clono.list)+1]] <-
+                          Matrix(0, nrow = sum(is.na(sampVar)),
                                  ncol = ncol(clono.list[[1]]), sparse = TRUE)
-                      rownames(clono.list[[length(clono.list)]]) <- 
+                      rownames(clono.list[[length(clono.list)]]) <-
                           names(contigs)[is.na(sampVar)]
-                      colnames(clono.list[[length(clono.list)]]) <- 
+                      colnames(clono.list[[length(clono.list)]]) <-
                           colnames(clono.list[[1]])
                   }
                   all.clonotypes <- unique(unlist(lapply(clono.list, colnames)))
                   clono.list <- lapply(clono.list, function(mat){
                       missing <- all.clonotypes[! all.clonotypes %in% colnames(mat)]
-                      zeros <- Matrix(0, ncol = length(missing), nrow = nrow(mat), 
+                      zeros <- Matrix(0, ncol = length(missing), nrow = nrow(mat),
                                       sparse = TRUE)
                       colnames(zeros) <- missing
                       return(cbind(mat, zeros))
@@ -112,15 +112,15 @@ setMethod(f = "EMquant",
                   clono <- clono[names(contigs), ]
                   return(clono)
               }
-              
+
               # remove unproductive and 'Multi' contigs (for now?)
               contigs <- contigs[contigs[,'productive']=='True']
               contigs <- contigs[contigs[,'chain'] %in% c('TRA','TRB')]
-              
+
               # explore possible numbers of alpha and beta chains
               nAlpha <- sum(contigs[,"chain"] == 'TRA')
               nBeta <- sum(contigs[,"chain"] == 'TRB')
-              
+
               # find all unique alpha chains
               all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRA']))
               if(length(all.alphas)==0){
@@ -131,19 +131,19 @@ setMethod(f = "EMquant",
               if(length(all.betas)==0){
                   all.betas <- 'unknown'
               }
-              
+
               # initialize counts matrix (#alpha-by-#beta)
               counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), sparse = TRUE)
               rownames(counts) <- all.alphas
               colnames(counts) <- all.betas
-              
+
               # useful indices
               ind.unique <- which(nAlpha == 1 & nBeta == 1)
               ind.multiple <- which(nAlpha > 0 & nBeta > 0 & nAlpha+nBeta > 2)
               ind.noAlpha <- which(nAlpha == 0 & nBeta > 0)
               ind.noBeta <- which(nBeta == 0 & nAlpha > 0)
               ind.ambiguous <- sort(c(ind.multiple, ind.noAlpha, ind.noBeta))
-              
+
               # use which alpha sequence and which beta sequence each contig represents to calculate its (possible) index in the clonotype matrix
               wa <- match(contigs[,'cdr3'][contigs[,'chain']=='TRA'], all.alphas)
               wb <- match(contigs[,'cdr3'][contigs[,'chain']=='TRB'], all.betas)
@@ -169,50 +169,50 @@ setMethod(f = "EMquant",
                       sort(length(all.alphas)*(b.i-1) + a)
                   }))))
               })
-              
+
               # step 1: assign cells with 1 alpha, 1 beta
               ############################################
               temp <- contigs[ind.unique]
-              uniquecounts <- unclass(table(unlist(temp[temp[,'chain']=='TRA','cdr3']), 
+              uniquecounts <- unclass(table(unlist(temp[temp[,'chain']=='TRA','cdr3']),
                                             unlist(temp[temp[,'chain']=='TRB','cdr3'])))
               if(length(temp) > 0){
                   counts[rownames(uniquecounts), colnames(uniquecounts)] <- uniquecounts
               }
               uniquecounts <- counts <- as.numeric(counts)
-              
+
               # step 2: assign (multi-mapped) cells (equally across all possibilities)
               ############################################################
               temp <- contigs[ind.ambiguous]
               if(length(temp) > 0){
                   t.indices <- poss.indices[ind.ambiguous]
                   for(i in seq_along(temp)){
-                      counts[t.indices[[i]]] <- 
+                      counts[t.indices[[i]]] <-
                           counts[t.indices[[i]]] + 1/length(t.indices[[i]])
                   }
                   counts.old <- counts
               }
-              
+
               # repeat 2 (proportional to previous counts)
               #################
               if(method == 'python'){
                   # setup inputs
                   t.indices <- poss.indices[ind.ambiguous]
                   # so python takes it as a list of lists, not a dict:
-                  names(t.indices) <- NULL 
+                  names(t.indices) <- NULL
                   # force python to take length-1 vectors as lists
                   l1.idx <- which(lengths(t.indices) == 1)
                   for(ii in l1.idx){
                       t.indices[[ii]] <- list(as.integer(t.indices[[ii]]))
                   }
-                  
+
                   # iteration handled by python, via basilisk
                   cl <- basiliskStart(pyenv)
-                  counts <- basiliskRun(cl, function(uniquecounts, counts.old, t.indices, thresh, iter.max){ 
-                      mod <- reticulate::import("em_update_counts")
+                  counts <- basiliskRun(cl, function(uniquecounts, counts.old, t.indices, thresh, iter.max){
+                      mod <- reticulate::import(module = "em_update_counts", convert = TRUE)
                       return(mod$TCR_EM_counts(uniquecounts, counts.old, t.indices, thresh, iter.max))
                   }, uniquecounts = uniquecounts, counts.old = counts.old, t.indices = t.indices, thresh = thresh, iter.max = iter.max)
                   basiliskStop(cl)
-                  
+
               }else{
                   working <- TRUE
                   iters <- 0
@@ -221,16 +221,16 @@ setMethod(f = "EMquant",
                   while(working){
                       iters <- iters + 1
                       counts <- uniquecounts
-                      
+
                       # step 2 (proportional to counts.old)
                       #########
                       for(i in seq_along(temp)){
-                          counts[t.indices[[i]]] <- 
-                              counts[t.indices[[i]]] + 
-                              counts.old[t.indices[[i]]] / 
+                          counts[t.indices[[i]]] <-
+                              counts[t.indices[[i]]] +
+                              counts.old[t.indices[[i]]] /
                               sum(counts.old[t.indices[[i]]])
                       }
-                      
+
                       # check for convergence
                       diff <- max(abs(counts-counts.old))
                       #print(diff[length(diff)])
@@ -241,21 +241,21 @@ setMethod(f = "EMquant",
                       }
                   }
               }
-              
+
               # build full cells-by-clonotypes matrix
               clonoJ <- as.integer(unlist(poss.indices)-1)
               clonoP <- as.integer(c(0,cumsum(lengths(poss.indices))))
               clonoX <- unlist(sapply(which(lengths(poss.indices) > 0), function(i){
-                  counts[poss.indices[[i]]] / 
+                  counts[poss.indices[[i]]] /
                       sum(counts[poss.indices[[i]]])
               }))
               clono <- new('dgRMatrix', j = clonoJ, p = clonoP, x = clonoX,
                            Dim = as.integer(c(length(contigs), length(counts))))
-              colnames(clono) <- as.character(outer(all.alphas, all.betas, 
+              colnames(clono) <- as.character(outer(all.alphas, all.betas,
                                                     FUN = paste))
               clono <- clono[, which(colSums(clono) > 0), drop = FALSE]
               rownames(clono) <- names(contigs)
-              
+
               return(clono)
           })
 
@@ -280,7 +280,7 @@ setMethod(f = "EMquant",
                   # calculate cells x clonotypes matrix
                   clono <- EMquant(sce[[TCRcol]], ...)
               }
-              
+
               # update sce
               colData(sce)$clono <- clono
               return(sce)
