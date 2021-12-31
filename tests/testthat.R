@@ -1,4 +1,4 @@
 library(testthat)
-library(TCRseq)
+library(VDJdive)
 
-test_check("TCRseq")
+test_check("VDJdive")

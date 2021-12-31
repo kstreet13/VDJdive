@@ -3,6 +3,7 @@
 export(CRquant)
 export(EMquant)
 export(addVDJtoSCE)
+export(barVDJ)
 export(calculateDiversity)
 export(readVDJcontigs)
 export(runVDJPCA)

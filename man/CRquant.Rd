@@ -48,7 +48,7 @@ has V(D)J information, but these labels are not directly comparable across
 samples.
 }
 \examples{
-data('example_contigs')
+data('contigs')
 counts <- CRquant(contigs)
 
 }

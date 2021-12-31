@@ -5,18 +5,20 @@
 \alias{calculateDiversity,matrix-method}
 \title{Sample diversity estimation}
 \usage{
-calculateDiversity(k, ...)
+calculateDiversity(x, ...)
 
 \S4method{calculateDiversity}{matrix}(
-  k,
+  x,
   methods = c("all", "shannon", "simpson", "invsimpson", "chao1", "chaobunge"),
   scale_factor = 100,
   ...
 )
 }
 \arguments{
-\item{k}{A matrix of abundance values where rows are features (clonotypes)
-and columns are samples.}
+\item{x}{A matrix of abundance values where rows are features (clonotypes)
+and columns are samples. This is created with \code{summarizeClonotypes}
+using a sparse matrix computed with either \code{EMquant} or
+\code{CRquant}.}
 
 \item{...}{Additional arguments passed to external calculation methods.}
 
@@ -51,10 +53,10 @@ rounded to the nearest integer. The resulting estimate is then divided by
 with any input type.
 }
 \examples{
-data('example_contigs')
+data('contigs')
 samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
 counts <- EMquant(contigs)
-k <- t(summarizeClonotypes(counts, samples))
-calculateDiversity(k)
+x <- t(summarizeClonotypes(counts, samples))
+calculateDiversity(x)
 
 }

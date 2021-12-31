@@ -1,4 +1,4 @@
-Package: TCRseq
+Package: VDJdive
 Title: Analysis Tools for 10X V(D)J Data 
 Version: 0.0.1
 Authors@R: c(
@@ -25,7 +25,8 @@ Suggests:
     covr,
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    BiocStyle
 Remotes:
     adw96/breakaway
 License: Artistic-2.0
@@ -41,3 +42,5 @@ biocViews:
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
+StagedInstall: no
+VignetteBuilder: knitr
