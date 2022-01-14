@@ -3,7 +3,7 @@
 \docType{data}
 \name{contigs}
 \alias{contigs}
-\title{SplitDataFrameList containing TCR-seq data for six cells}
+\title{SplitDataFrameList containing AIRR-seq (TCR) data for six cells}
 \format{
 A SplitDataFrameList with six elements. Each list element
 contains the TCR-seq data for a single cell in a \code{DFrame}.

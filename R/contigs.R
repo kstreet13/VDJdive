@@ -1,4 +1,4 @@
-#' SplitDataFrameList containing TCR-seq data for six cells
+#' SplitDataFrameList containing AIRR-seq (TCR) data for six cells
 #'
 #' Data are a small subset of the TCR-seq data from the paper, "Progressive
 #' immune dysfunction with advancing disease stage in renal cell carcinoma"
