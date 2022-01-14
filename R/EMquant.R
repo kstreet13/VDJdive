@@ -1,6 +1,6 @@
 
 # TODO: parallelize it
-# TODO: make TCR/BCR setting
+# BCR assumption: alpha ~= IGH, beta ~= IGL or IGK
 
 #require(Matrix)
 #require(SingleCellExperiment)
@@ -34,6 +34,8 @@ setGeneric(name = "EMquant",
 #'   \code{ncol(x)}) indicating the sample of origin. Providing this information
 #'   can dramatically speed up computation and avoid unwanted cross-talk between
 #'   samples.
+#' @param type The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
+#'   \code{NULL}, whichever is most common in \code{x}.
 #' @param method Which implementation to use. Options are \code{'r'} or
 #'   \code{'python'} (default).
 #' @param thresh Numeric threshold for convergence of the EM algorithm.
@@ -71,12 +73,16 @@ setGeneric(name = "EMquant",
 #' @export
 setMethod(f = "EMquant",
           signature = signature(x = "SplitDataFrameList"),
-          definition = function(x, sample = 'sample',
+          definition = function(x, sample = 'sample', type = NULL,
                                 method = c('python','r'),
                                 thresh = .01, iter.max = 1000){
               contigs <- x
-
               method <- match.arg(method)
+              if(is.null(type)){
+                  tab <- table(unlist(contigs[,'type']))
+                  type <- names(tab)[which.max(tab)]
+              }
+              
               if(!is.null(sample)){
                   if(length(sample) == 1){
                       stopifnot(sample %in% colnames(contigs[[1]]))
@@ -87,7 +93,7 @@ setMethod(f = "EMquant",
                   }
                   clono.list <- lapply(levels(sampVar), function(lv){
                       EMquant(contigs[which(sampVar == lv)],
-                              sample = NULL, method = method,
+                              sample = NULL, type = type, method = method,
                               thresh = thresh, iter.max = iter.max)
                   })
                   if(any(is.na(sampVar))){
@@ -115,19 +121,36 @@ setMethod(f = "EMquant",
 
               # remove unproductive and 'Multi' contigs (for now?)
               contigs <- contigs[contigs[,'productive']=='True']
-              contigs <- contigs[contigs[,'chain'] %in% c('TRA','TRB')]
+              if(type == 'TCR'){
+                  type1 <- 'TRA'
+                  type2 <- 'TRB'
+              }
+              if(type == 'BCR'){
+                  type1 <- 'IGH'
+                  type2 <- c('IGL','IGK')
+                  # prepend "IGK" or "IGL" to distinguish?
+                  cellbarcodes <- names(contigs)
+                  contigs <- unlist(contigs)
+                  t2ind <- which(contigs$chain %in% type2)
+                  contigs$cdr3[t2ind] <- paste(contigs$chain[t2ind], 
+                                                contigs$cdr3[t2ind], sep = '-')
+                  contigs <- split(DataFrame(contigs), 
+                                   factor(contigs$barcode, cellbarcodes))
+              }
+              contigs <- contigs[contigs[,'chain'] %in% c(type1, type2)]
+
 
               # explore possible numbers of alpha and beta chains
-              nAlpha <- sum(contigs[,"chain"] == 'TRA')
-              nBeta <- sum(contigs[,"chain"] == 'TRB')
+              nAlpha <- sum(contigs[,"chain"] %in% type1)
+              nBeta <- sum(contigs[,"chain"] %in% type2)
 
               # find all unique alpha chains
-              all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRA']))
+              all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type1]))
               if(length(all.alphas)==0){
                   all.alphas <- 'unknown'
               }
               # find all unique beta chains
-              all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRB']))
+              all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type2]))
               if(length(all.betas)==0){
                   all.betas <- 'unknown'
               }
@@ -145,8 +168,8 @@ setMethod(f = "EMquant",
               ind.ambiguous <- sort(c(ind.multiple, ind.noAlpha, ind.noBeta))
 
               # use which alpha sequence and which beta sequence each contig represents to calculate its (possible) index in the clonotype matrix
-              wa <- match(contigs[,'cdr3'][contigs[,'chain']=='TRA'], all.alphas)
-              wb <- match(contigs[,'cdr3'][contigs[,'chain']=='TRB'], all.betas)
+              wa <- match(contigs[,'cdr3'][contigs[,'chain']%in%type1], all.alphas)
+              wb <- match(contigs[,'cdr3'][contigs[,'chain']%in%type2], all.betas)
               # this takes care of the 1-alpha + 1-beta indices without looping
               poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
               # others are incorrect, though
@@ -173,8 +196,8 @@ setMethod(f = "EMquant",
               # step 1: assign cells with 1 alpha, 1 beta
               ############################################
               temp <- contigs[ind.unique]
-              uniquecounts <- unclass(table(unlist(temp[temp[,'chain']=='TRA','cdr3']),
-                                            unlist(temp[temp[,'chain']=='TRB','cdr3'])))
+              uniquecounts <- unclass(table(unlist(temp[temp[,'chain']%in%type1,'cdr3']),
+                                            unlist(temp[temp[,'chain']%in%type2,'cdr3'])))
               if(length(temp) > 0){
                   counts[rownames(uniquecounts), colnames(uniquecounts)] <- uniquecounts
               }

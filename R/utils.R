@@ -81,7 +81,7 @@ setMethod(f = "splitClonotypes",
 #' @export
 setGeneric(name = "summarizeClonotypes",
            signature = c("x","by"),
-           def = function(x, by, ...) standardGeneric("summarizeClonotypes"))
+           def = function(x, by = "sample", ...) standardGeneric("summarizeClonotypes"))
 
 #' @rdname summarizeClonotypes
 #'

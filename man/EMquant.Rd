@@ -11,6 +11,7 @@ EMquant(x, ...)
 \S4method{EMquant}{SplitDataFrameList}(
   x,
   sample = "sample",
+  type = NULL,
   method = c("python", "r"),
   thresh = 0.01,
   iter.max = 1000
@@ -33,6 +34,9 @@ sample of origin. Alternatively, a vector of length equal to \code{x} (or
 \code{ncol(x)}) indicating the sample of origin. Providing this information
 can dramatically speed up computation and avoid unwanted cross-talk between
 samples.}
+
+\item{type}{The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
+\code{NULL}, whichever is most common in \code{x}.}
 
 \item{method}{Which implementation to use. Options are \code{'r'} or
 \code{'python'} (default).}

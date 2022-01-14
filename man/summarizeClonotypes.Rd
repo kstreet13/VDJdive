@@ -7,7 +7,7 @@
 \alias{summarizeClonotypes,matrix-method}
 \title{Get sample-level clonotype counts}
 \usage{
-summarizeClonotypes(x, by, ...)
+summarizeClonotypes(x, by = "sample", ...)
 
 \S4method{summarizeClonotypes}{Matrix}(x, by)
 
