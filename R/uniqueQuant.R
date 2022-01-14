@@ -27,6 +27,8 @@ setGeneric(name = "uniqueQuant",
 #'   \code{x}, for \code{SingleCellExperiment} objects) that stores each cell's
 #'   sample of origin. Alternatively, a vector of length equal to \code{x} (or
 #'   \code{ncol(x)}) indicating the sample of origin.
+#' @param type The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
+#'   \code{NULL}, whichever is most common in \code{x}.
 #'
 #' @details This quantification method defines a clonotype as a pair of specific
 #'   chains (alpha and beta for T cells, heavy and light for B cells) and only
@@ -48,7 +50,8 @@ setGeneric(name = "uniqueQuant",
 #' @export
 setMethod(f = "uniqueQuant",
           signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, TCRcol = 'contigs', sample = NULL){
+          definition = function(x, TCRcol = 'contigs', 
+                                sample = NULL, type = NULL){
               sce <- x
               if(!is.null(sample)){
                   if(length(sample) == 1){
@@ -59,10 +62,11 @@ setMethod(f = "uniqueQuant",
                       sampVar <- factor(sample)
                   }
                   # calculate cells x clonotypes matrix
-                  clono <- uniqueQuant(sce[[TCRcol]], sample = sampVar)
+                  clono <- uniqueQuant(sce[[TCRcol]], 
+                                       sample = sampVar, type = type)
               }else{
                   # calculate cells x clonotypes matrix
-                  clono <- uniqueQuant(sce[[TCRcol]])
+                  clono <- uniqueQuant(sce[[TCRcol]], type = type)
               }
 
               # update sce
@@ -77,10 +81,14 @@ setMethod(f = "uniqueQuant",
 #' @export
 setMethod(f = "uniqueQuant",
           signature = signature(x = "SplitDataFrameList"),
-          definition = function(x, sample = 'sample'){
+          definition = function(x, sample = 'sample', type = NULL){
 
               contigs <- x
-
+              if(is.null(type)){
+                  tab <- table(unlist(contigs[,'type']))
+                  type <- names(tab)[which.max(tab)]
+              }
+              
               if(!is.null(sample)){
                   if(length(sample) == 1){
                       stopifnot(sample %in% colnames(contigs[[1]]))
@@ -118,23 +126,40 @@ setMethod(f = "uniqueQuant",
 
               # remove unproductive and 'Multi' contigs (for now?)
               contigs <- contigs[contigs[,'productive']=='True']
-              contigs <- contigs[contigs[,'chain'] %in% c('TRA','TRB')]
+              if(type == 'TCR'){
+                  type1 <- 'TRA'
+                  type2 <- 'TRB'
+              }
+              if(type == 'BCR'){
+                  type1 <- 'IGH'
+                  type2 <- c('IGL','IGK')
+                  # prepend "IGK" or "IGL" to distinguish?
+                  cellbarcodes <- names(contigs)
+                  contigs <- unlist(contigs)
+                  t2ind <- which(contigs$chain %in% type2)
+                  contigs$cdr3[t2ind] <- paste(contigs$chain[t2ind], 
+                                               contigs$cdr3[t2ind], sep = '-')
+                  contigs <- split(DataFrame(contigs), 
+                                   factor(contigs$barcode, cellbarcodes))
+              }
+              contigs <- contigs[contigs[,'chain'] %in% c(type1, type2)]
 
+              
               # explore possible numbers of alpha and beta chains
-              nAlpha <- sum(contigs[,"chain"] == 'TRA')
-              nBeta <- sum(contigs[,"chain"] == 'TRB')
-
+              nAlpha <- sum(contigs[,"chain"] %in% type1)
+              nBeta <- sum(contigs[,"chain"] %in% type2)
+              
               # find all unique alpha chains
-              all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRA']))
+              all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type1]))
               if(length(all.alphas)==0){
                   all.alphas <- 'unknown'
               }
               # find all unique beta chains
-              all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']=='TRB']))
+              all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type2]))
               if(length(all.betas)==0){
                   all.betas <- 'unknown'
               }
-
+              
               # initialize counts matrix (#alpha-by-#beta)
               counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), sparse = TRUE)
               rownames(counts) <- all.alphas
@@ -144,8 +169,8 @@ setMethod(f = "uniqueQuant",
               ind.unique <- which(nAlpha == 1 & nBeta == 1)
 
               # use which alpha sequence and which beta sequence each contig represents to calculate its (possible) index in the clonotype matrix
-              wa <- match(contigs[,'cdr3'][contigs[,'chain']=='TRA'], all.alphas)
-              wb <- match(contigs[,'cdr3'][contigs[,'chain']=='TRB'], all.betas)
+              wa <- match(contigs[,'cdr3'][contigs[,'chain']%in%type1], all.alphas)
+              wb <- match(contigs[,'cdr3'][contigs[,'chain']%in%type2], all.betas)
               # this takes care of the 1-alpha + 1-beta indices without looping
               poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
               # others are incorrect, though
@@ -154,8 +179,8 @@ setMethod(f = "uniqueQuant",
               # step 1 (the only step): assign cells with 1 alpha, 1 beta
               ############################################
               temp <- contigs[ind.unique]
-              uniquecounts <- unclass(table(unlist(temp[temp[,'chain']=='TRA','cdr3']),
-                                            unlist(temp[temp[,'chain']=='TRB','cdr3'])))
+              uniquecounts <- unclass(table(unlist(temp[temp[,'chain']%in%type1,'cdr3']),
+                                            unlist(temp[temp[,'chain']%in%type2,'cdr3'])))
               if(length(temp) > 0){
                   counts[rownames(uniquecounts), colnames(uniquecounts)] <- uniquecounts
               }
