@@ -27,7 +27,7 @@ Write V(D)J data to a series of directories, each containing a
 CSV file with the data for an individual sample.
 }
 \examples{
-data('example_contigs')
+data('contigs')
 loc <- tempdir()
 writeVDJcontigs(loc, contigs)
 

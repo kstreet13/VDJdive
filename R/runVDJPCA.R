@@ -24,7 +24,7 @@ setGeneric(name = "runVDJPCA",
 #'   \code{\link[stats]{prcomp}}.
 #' 
 #' @examples 
-#' data('example_contigs')
+#' data('contigs')
 #' counts <- EMquant(contigs)
 #' k <- t(summarizeClonotypes(sce, 'sample'))
 #' runVDJPCA(k)

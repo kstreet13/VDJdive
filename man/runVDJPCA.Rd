@@ -29,7 +29,7 @@ sample-level clonotype abundances. In the context of clonotype analysis,
 this is a form of beta diversity.
 }
 \examples{
-data('example_contigs')
+data('contigs')
 counts <- EMquant(contigs)
 k <- t(summarizeClonotypes(sce, 'sample'))
 runVDJPCA(k)

@@ -31,6 +31,7 @@ of reads in the sample and colors the sample in accordance to the
 amount of diversity.
 }
 \examples{
+data('contigs')
 samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
 counts <- EMquant(contigs)
 x <- t(summarizeClonotypes(counts, samples))

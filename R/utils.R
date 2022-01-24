@@ -81,7 +81,7 @@ setMethod(f = "splitClonotypes",
 #' @export
 setGeneric(name = "summarizeClonotypes",
            signature = c("x","by"),
-           def = function(x, by = "sample", ...) standardGeneric("summarizeClonotypes"))
+           def = function(x, by, ...) standardGeneric("summarizeClonotypes"))
 
 #' @rdname summarizeClonotypes
 #'
@@ -126,7 +126,7 @@ setMethod(f = "summarizeClonotypes",
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, by, clonoCol = 'clono'){
+          definition = function(x, by = "sample", clonoCol = 'clono'){
               if(is.null(x[[clonoCol]])){
                   stop('No clonotype counts found.')
               }

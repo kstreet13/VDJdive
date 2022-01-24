@@ -17,6 +17,7 @@
 #' (expanded clonotype).
 #'
 #' @examples
+#' data('contigs')
 #' samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
 #' counts <- EMquant(contigs)
 #' x <- t(summarizeClonotypes(counts, samples))

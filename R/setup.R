@@ -199,7 +199,7 @@ setGeneric(name = "writeVDJcontigs",
 #' contains a CSV filed named \code{filtered_contig_annotations.csv}.
 #'
 #' @examples
-#' data('example_contigs')
+#' data('contigs')
 #' loc <- tempdir()
 #' writeVDJcontigs(loc, contigs)
 #'
