@@ -28,7 +28,8 @@ setGeneric(name = "uniqueQuant",
 #'   sample of origin. Alternatively, a vector of length equal to \code{x} (or
 #'   \code{ncol(x)}) indicating the sample of origin.
 #' @param type The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
-#'   \code{NULL}, whichever is most common in \code{x}.
+#'   \code{NULL}, this is determined by the most prevalent \code{chain} types in
+#'   \code{x}.
 #'
 #' @details This quantification method defines a clonotype as a pair of specific
 #'   chains (alpha and beta for T cells, heavy and light for B cells) and only
@@ -85,8 +86,13 @@ setMethod(f = "uniqueQuant",
 
               contigs <- x
               if(is.null(type)){
-                  tab <- table(unlist(contigs[,'type']))
-                  type <- names(tab)[which.max(tab)]
+                  chn <- unlist(contigs[,'chain'])
+                  if(sum(chn %in% c('IGH','IGL','IGK')) > 
+                     sum(chn %in% c('TRA','TRB','TRD','TRG'))){
+                      type <- 'BCR'
+                  }else{
+                      type <- 'TCR'
+                  }
               }
               
               if(!is.null(sample)){

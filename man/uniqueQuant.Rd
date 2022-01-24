@@ -31,7 +31,8 @@ sample of origin. Alternatively, a vector of length equal to \code{x} (or
 \code{ncol(x)}) indicating the sample of origin.}
 
 \item{type}{The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
-\code{NULL}, whichever is most common in \code{x}.}
+\code{NULL}, this is determined by the most prevalent \code{chain} types in
+\code{x}.}
 }
 \value{
 Creates a sparse matrix (\code{dgRMatrix}) of cell-level clonotype

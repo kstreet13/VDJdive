@@ -36,7 +36,8 @@ can dramatically speed up computation and avoid unwanted cross-talk between
 samples.}
 
 \item{type}{The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
-\code{NULL}, whichever is most common in \code{x}.}
+\code{NULL}, this is determined by the most prevalent \code{chain} types in
+\code{x}.}
 
 \item{method}{Which implementation to use. Options are \code{'r'} or
 \code{'python'} (default).}

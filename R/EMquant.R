@@ -35,7 +35,8 @@ setGeneric(name = "EMquant",
 #'   can dramatically speed up computation and avoid unwanted cross-talk between
 #'   samples.
 #' @param type The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
-#'   \code{NULL}, whichever is most common in \code{x}.
+#'   \code{NULL}, this is determined by the most prevalent \code{chain} types in
+#'   \code{x}.
 #' @param method Which implementation to use. Options are \code{'r'} or
 #'   \code{'python'} (default).
 #' @param thresh Numeric threshold for convergence of the EM algorithm.
@@ -79,8 +80,13 @@ setMethod(f = "EMquant",
               contigs <- x
               method <- match.arg(method)
               if(is.null(type)){
-                  tab <- table(unlist(contigs[,'type']))
-                  type <- names(tab)[which.max(tab)]
+                  chn <- unlist(contigs[,'chain'])
+                  if(sum(chn %in% c('IGH','IGL','IGK')) > 
+                     sum(chn %in% c('TRA','TRB','TRD','TRG'))){
+                      type <- 'BCR'
+                  }else{
+                      type <- 'TCR'
+                  }
               }
               
               if(!is.null(sample)){
