@@ -1,5 +1,6 @@
 context("Test VDJdive.")
 library(utils) # needed for data()
+library(stats) # for rpois() and runif()
 
 test_that("input/output functions work", {
     # load example data
