@@ -98,6 +98,10 @@ setGeneric(name = "summarizeClonotypes",
 #' @param clonoCol A character providing the name of the cell-level clonotype
 #'   counts matrix in the \code{colData} of \code{x} (default = \code{'clono'}).
 #'   Only applies when \code{x} is a \code{SingleCellExperiment} object.
+#' @param mode Type of summarization to perform. Default is \code{'sum'}, which
+#'   sums clonotype abundances within each sample (or level of \code{'by'}).
+#'   Alternative is \code{'tab'}, which constructs a table of clonotype
+#'   frequencies (ie. singletons, doubletons, etc.) by sample.
 #'
 #' @return A matrix clonotype counts where each row corresponds to a unique
 #'   value of \code{by} (if \code{by} denotes sample labels, this is a matrix of
@@ -111,13 +115,37 @@ setGeneric(name = "summarizeClonotypes",
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "Matrix"),
-          definition = function(x, by){
+          definition = function(x, by, mode = c('sum','tab')){
+              mode <- match.arg(mode)
               stopifnot(length(by) == nrow(x))
               by <- factor(by)
-              out <- t(sapply(sort(unique(by)), function(lv){
-                  colSums(x[which(by == lv), ,drop = FALSE])
-              }, USE.NAMES = TRUE))
-              rownames(out) <- as.character(sort(unique(by)))
+              if(mode == 'sum'){
+                  out <- t(sapply(sort(unique(by)), function(lv){
+                      colSums(x[which(by == lv), ,drop = FALSE])
+                  }, USE.NAMES = TRUE))
+                  rownames(out) <- as.character(sort(unique(by)))
+              }
+              if(mode == 'tab'){
+                  lim <- max(colSums(x > 0))
+                  out <- sapply(sort(unique(by)), function(lv){
+                      tab.lv <- rowSums(apply(x[which(by == lv), ,drop=FALSE], 
+                                           2, function(counts){
+                                               p.x <- rep(0,lim+1)
+                                               p.i <- counts[which(counts>0 & counts<1)]
+                                               base <- sum(counts==1)
+                                               prob <- 1
+                                               for(p in p.i){
+                                                   prob <- prob %*% c(1-p, p)
+                                                   prob <- matrix(c(prob[,1],0) + c(0,prob[,2]), ncol=1)
+                                               }
+                                               p.x[(base+1):(base+length(prob))] <- prob
+                                               return(p.x)
+                                           }))
+                      return(tab.lv)
+                  }, USE.NAMES = TRUE)
+                  rownames(out) <- 0:lim
+                  colnames(out) <- sort(unique(by))
+              }
               return(out)
           })
 
@@ -126,7 +154,7 @@ setMethod(f = "summarizeClonotypes",
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, by = "sample", clonoCol = 'clono'){
+          definition = function(x, by = "sample", clonoCol = 'clono', ...){
               if(is.null(x[[clonoCol]])){
                   stop('No clonotype counts found.')
               }
@@ -135,7 +163,7 @@ setMethod(f = "summarizeClonotypes",
               }else{
                   byVar <- factor(by)
               }
-              out <- summarizeClonotypes(x[[clonoCol]], byVar)
+              out <- summarizeClonotypes(x[[clonoCol]], byVar, ...)
               return(out)
           })
 
@@ -145,6 +173,6 @@ setMethod(f = "summarizeClonotypes",
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "matrix"),
           definition = function(x, by){
-              summarizeClonotypes(Matrix(x), by)
+              summarizeClonotypes(Matrix(x), by, ...)
           })
 

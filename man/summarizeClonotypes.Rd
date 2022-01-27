@@ -9,9 +9,9 @@
 \usage{
 summarizeClonotypes(x, by, ...)
 
-\S4method{summarizeClonotypes}{Matrix}(x, by)
+\S4method{summarizeClonotypes}{Matrix}(x, by, mode = c("sum", "tab"))
 
-\S4method{summarizeClonotypes}{SingleCellExperiment}(x, by = "sample", clonoCol = "clono")
+\S4method{summarizeClonotypes}{SingleCellExperiment}(x, by = "sample", clonoCol = "clono", ...)
 
 \S4method{summarizeClonotypes}{matrix}(x, by)
 }
@@ -27,6 +27,11 @@ be a character, giving the name of the column from the \code{colData} to
 use as this variable.}
 
 \item{...}{additional arguments.}
+
+\item{mode}{Type of summarization to perform. Default is \code{'sum'}, which
+sums clonotype abundances within each sample (or level of \code{'by'}).
+Alternative is \code{'tab'}, which constructs a table of clonotype
+frequencies (ie. singletons, doubletons, etc.) by sample.}
 
 \item{clonoCol}{A character providing the name of the cell-level clonotype
 counts matrix in the \code{colData} of \code{x} (default = \code{'clono'}).
