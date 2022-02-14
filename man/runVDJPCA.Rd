@@ -31,7 +31,8 @@ this is a form of beta diversity.
 \examples{
 data('contigs')
 counts <- EMquant(contigs)
-k <- t(summarizeClonotypes(sce, 'sample'))
+samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+k <- t(summarizeClonotypes(counts, samples))
 runVDJPCA(k)
 
 }
