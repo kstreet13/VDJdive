@@ -12,8 +12,10 @@ Imports:
     basilisk,
     breakaway,
     fossil,
+    ggplot2,
     IRanges,
     Matrix,
+    methods,
     reticulate,
     S4Vectors,
     SingleCellExperiment,
@@ -38,6 +40,7 @@ biocViews:
     RNASeq,
     TargetedResequencing
 Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 StagedInstall: no

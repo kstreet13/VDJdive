@@ -22,9 +22,10 @@
 #' counts <- EMquant(contigs)
 #' x <- t(summarizeClonotypes(counts, samples))
 #' barVDJ(x)
+#' 
+#' @importFrom ggplot2 ggplot geom_col aes scale_fill_continuous labs theme_bw
 #' @export
 #'
-
 barVDJ <- function(x, bySample = TRUE, title = NULL, legend = FALSE) {
   dat <- NULL
   nms <- colnames(x)
