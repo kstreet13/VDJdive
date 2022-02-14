@@ -17,7 +17,6 @@ Imports:
     reticulate,
     S4Vectors,
     SingleCellExperiment,
-    stats,
     SummarizedExperiment,
     utils,
     vegan
@@ -25,10 +24,9 @@ Suggests:
     covr,
     knitr,
     rmarkdown,
+    stats,
     testthat,
     BiocStyle
-Remotes:
-    adw96/breakaway
 License: Artistic-2.0
 URL: https://github.com/kstreet13/VDJdive
 BugReports: https://github.com/kstreet13/VDJdive/issues

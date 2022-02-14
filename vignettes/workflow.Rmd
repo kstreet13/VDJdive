@@ -1,5 +1,5 @@
 ---
-title: "VDJdive workflow"
+title: "VDJdive Workflow"
 author:
 - name: Kelly Street
   email: street.kelly@gmail.com
@@ -11,7 +11,7 @@ output:
 abstract: |
   Description of your vignette
 vignette: |
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{VDJdive Workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
