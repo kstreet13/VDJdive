@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/kstreet13/VDJdive/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/kstreet13/VDJdive/actions)
-[![Codecov test coverage](https://codecov.io/gh/kstreet13/VDJdive/branch/main/graph/badge.svg)](https://codecov.io/gh/kstreet13/VDJdive?branch=main)
+[![codecov](https://codecov.io/gh/kstreet13/VDJdive/branch/main/graph/badge.svg?token=J3ZIL2DWEW)](https://codecov.io/gh/kstreet13/VDJdive)
 <!-- badges: end -->
 
 ## Installation
