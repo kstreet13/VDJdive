@@ -1,5 +1,10 @@
 # VDJdive
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/kstreet13/VDJdive/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/kstreet13/VDJdive/actions)
+[![Codecov test coverage](https://codecov.io/gh/kstreet13/VDJdive/branch/main/graph/badge.svg)](https://codecov.io/gh/kstreet13/VDJdive?branch=main)
+<!-- badges: end -->
+
 ## Installation
 ```
 devtools::install_github('kstreet13/VDJdive')
