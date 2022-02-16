@@ -38,23 +38,46 @@ test_that("quantification functions work", {
     # load example data
     data("contigs")
 
-    counts <- uniqueQuant(contigs)
-    expect_equivalent(dim(counts), c(24, 7))
-    expect_equal(sum(counts), 12)
+    Uniqcounts <- uniqueQuant(contigs)
+    expect_equivalent(dim(Uniqcounts), c(24, 7))
+    expect_equal(sum(Uniqcounts), 12)
 
-    counts <- CRquant(contigs)
-    expect_equivalent(dim(counts), c(24, 19))
-    expect_equal(sum(counts), 22)
+    CRcounts <- CRquant(contigs)
+    expect_equivalent(dim(CRcounts), c(24, 19))
+    expect_equal(sum(CRcounts), 22)
 
-    counts <- EMquant(contigs)
-    expect_equivalent(dim(counts), c(24, 60))
-    expect_equal(sum(counts), 22)
+    EMcounts <- EMquant(contigs)
+    expect_equivalent(dim(EMcounts), c(24, 60))
+    expect_equal(sum(EMcounts), 22)
+    
+    EMcounts2 <- EMquant(contigs, method = 'r')
+    expect_equivalent(dim(EMcounts2), c(24, 60))
+    expect_equal(sum(EMcounts2), 22)
+    expect_true(max(abs(EMcounts2 - EMcounts)) < .0001)
 
-    counts2 <- EMquant(contigs, method = 'r')
-    expect_equivalent(dim(counts2), c(24, 60))
-    expect_equal(sum(counts2), 22)
-    expect_true(max(abs(counts2 - counts)) < .001)
-
+    # make SCE object with matching barcodes and sample IDs
+    ncells <- 24
+    u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
+    barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
+    samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+    sce <- SingleCellExperiment::SingleCellExperiment(
+        assays = list(counts = u),
+        colData = data.frame(Barcode = barcodes,
+                             sample = samples))
+    sce <- addVDJtoSCE(contigs, sce)
+    
+    sceUniq <- uniqueQuant(sce)
+    expect_true(max(abs(sceUniq$clono - Uniqcounts)) < .0001)
+    
+    sceCR <- CRquant(sce)
+    expect_true(max(abs(sceCR$clono - CRcounts)) < .0001)
+    
+    sceEM <- EMquant(sce)
+    expect_true(max(abs(sceEM$clono - EMcounts)) < .0001)
+    
+    sceEMsamp <- EMquant(sce, sample = 'sample')
+    sceEMsamp2 <- EMquant(sce, sample = sce$sample)
+    expect_true(max(abs(sceEMsamp$clono - sceEMsamp2$clono)) < .0001)
 })
 
 test_that("utility functions work", {
