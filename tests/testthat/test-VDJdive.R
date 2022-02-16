@@ -86,4 +86,16 @@ test_that("utility functions work", {
     expect_equivalent(rowSums(sampleLevelCounts), c(6, 6))
 })
 
-
+test_that("plotting functions work", {
+    # load example data
+    data("contigs")
+    
+    samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+    counts <- EMquant(contigs)
+    x <- t(summarizeClonotypes(counts, samples))
+    p1 <- barVDJ(x)
+    expect_equal(class(p1$layers[[1]]$geom)[1], 'GeomCol')
+    
+    p2 <- barVDJ(x, bySample = FALSE, title = 'bar plot', legend = TRUE)
+    expect_equal(class(p2$layers[[1]]$geom)[1], 'GeomCol')    
+})
