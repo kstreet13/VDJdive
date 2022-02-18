@@ -244,7 +244,7 @@ jobs:
       - name: Test coverage
         if: github.ref == 'refs/heads/master' && env.run_covr == 'true' && runner.os == 'Linux'
         run: |
-          covr::codecov()
+          covr::codecov(token = '654e1046-43d7-44a5-91fe-310dada8dddb')
         shell: Rscript {0}
 
       - name: Install package
