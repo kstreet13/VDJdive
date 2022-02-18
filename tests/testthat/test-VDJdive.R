@@ -29,6 +29,11 @@ test_that("utility functions work", {
     sampleLevelCounts <- summarizeClonotypes(sce, by = 'sample')
     expect_equivalent(dim(sampleLevelCounts), c(7, 2))
     expect_equivalent(colSums(sampleLevelCounts), c(6, 6))
+    
+    sampleLevelCounts <- summarizeClonotypes(sce, by = 'sample', mode = 'tab')
+    expect_equivalent(dim(sampleLevelCounts), c(5, 2))
+    expect_equivalent(colSums(sampleLevelCounts), c(7, 7))
+    expect_equivalent(rownames(sampleLevelCounts), as.character(0:4))
 })
 
 test_that("input/output functions work", {
@@ -112,15 +117,22 @@ test_that("assignment functions work", {
 test_that("diversity calculation works", {
     # load example data
     data("contigs")
-    
-    Uniqcounts <- uniqueQuant(contigs)
-    expect_equivalent(dim(Uniqcounts), c(24, 7))
-    expect_equal(sum(Uniqcounts), 12)
-    
     CRcounts <- CRquant(contigs)
-    expect_equivalent(dim(CRcounts), c(24, 19))
-    expect_equal(sum(CRcounts), 22)
+    EMcounts <- EMquant(contigs)
+    samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
     
+    kCR <- summarizeClonotypes(CRcounts, by = samples)
+    kEM <- summarizeClonotypes(EMcounts, by = samples)
+    
+    divCR <- calculateDiversity(kCR)
+    expect_equivalent(dim(divCR), c(6, 2))
+    expect_equivalent(colnames(divCR), c('sample1', 'sample2'))
+
+    expect_warning({
+        divEM <- calculateDiversity(kEM)
+    }, regexp = 'Cut-off was too low')
+    expect_equivalent(dim(divEM), c(6, 2))
+    expect_equivalent(colnames(divEM), c('sample1', 'sample2'))
 })
 
 test_that("plotting functions work", {
