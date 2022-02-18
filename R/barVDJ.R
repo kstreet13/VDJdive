@@ -20,7 +20,7 @@
 #' data('contigs')
 #' samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
 #' counts <- EMquant(contigs)
-#' x <- t(summarizeClonotypes(counts, samples))
+#' x <- summarizeClonotypes(counts, samples)
 #' barVDJ(x)
 #' 
 #' @importFrom ggplot2 ggplot geom_col aes scale_fill_continuous labs theme_bw

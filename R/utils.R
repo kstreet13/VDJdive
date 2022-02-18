@@ -120,10 +120,10 @@ setMethod(f = "summarizeClonotypes",
               stopifnot(length(by) == nrow(x))
               by <- factor(by)
               if(mode == 'sum'){
-                  out <- t(sapply(sort(unique(by)), function(lv){
+                  out <- sapply(sort(unique(by)), function(lv){
                       colSums(x[which(by == lv), ,drop = FALSE])
-                  }, USE.NAMES = TRUE))
-                  rownames(out) <- as.character(sort(unique(by)))
+                  }, USE.NAMES = TRUE)
+                  colnames(out) <- as.character(sort(unique(by)))
               }
               if(mode == 'tab'){
                   lim <- max(colSums(x > 0))

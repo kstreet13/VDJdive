@@ -15,7 +15,6 @@ Imports:
     ggplot2,
     IRanges,
     Matrix,
-    methods,
     reticulate,
     S4Vectors,
     SingleCellExperiment,

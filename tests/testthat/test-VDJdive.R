@@ -2,6 +2,35 @@ context("Test VDJdive.")
 library(utils) # needed for data()
 library(stats) # for rpois() and runif()
 
+test_that("utility functions work", {
+    # load example data
+    data("contigs")
+    
+    # make SCE object with matching barcodes and sample IDs
+    ncells <- 24
+    u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
+    barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
+    samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+    sce <- SingleCellExperiment::SingleCellExperiment(
+        assays = list(counts = u),
+        colData = data.frame(Barcode = barcodes,
+                             sample = samples))
+    sce <- addVDJtoSCE(contigs, sce)
+    sce <- uniqueQuant(sce)
+    
+    # splitClonotypes
+    countsList <- splitClonotypes(sce, by = 'sample')
+    expect_equal(length(countsList), 2)
+    expect_equivalent(dim(countsList[[1]]), c(12, 7))
+    expect_equivalent(dim(countsList[[2]]), c(12, 7))
+    expect_equal(sum(countsList[[1]]), 6)
+    
+    # summarizeClonotypes
+    sampleLevelCounts <- summarizeClonotypes(sce, by = 'sample')
+    expect_equivalent(dim(sampleLevelCounts), c(7, 2))
+    expect_equivalent(colSums(sampleLevelCounts), c(6, 6))
+})
+
 test_that("input/output functions work", {
     # load example data
     data("contigs")
@@ -34,7 +63,7 @@ test_that("input/output functions work", {
                       c(3,6,2,4,2,3,2,2,2,4,2,2,3,1,2,4,2,2,1,2,2,1,1,3))
 })
 
-test_that("quantification functions work", {
+test_that("assignment functions work", {
     # load example data
     data("contigs")
 
@@ -80,33 +109,18 @@ test_that("quantification functions work", {
     expect_true(max(abs(sceEMsamp$clono - sceEMsamp2$clono)) < .0001)
 })
 
-test_that("utility functions work", {
+test_that("diversity calculation works", {
     # load example data
     data("contigs")
-
-    # make SCE object with matching barcodes and sample IDs
-    ncells <- 24
-    u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
-    barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
-    samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-    sce <- SingleCellExperiment::SingleCellExperiment(
-        assays = list(counts = u),
-        colData = data.frame(Barcode = barcodes,
-                             sample = samples))
-    sce <- addVDJtoSCE(contigs, sce)
-    sce <- uniqueQuant(sce)
-
-    # splitClonotypes
-    countsList <- splitClonotypes(sce, by = 'sample')
-    expect_equal(length(countsList), 2)
-    expect_equivalent(dim(countsList[[1]]), c(12, 7))
-    expect_equivalent(dim(countsList[[2]]), c(12, 7))
-    expect_equal(sum(countsList[[1]]), 6)
-
-    # summarizeClonotypes
-    sampleLevelCounts <- summarizeClonotypes(sce, by = 'sample')
-    expect_equivalent(dim(sampleLevelCounts), c(2, 7))
-    expect_equivalent(rowSums(sampleLevelCounts), c(6, 6))
+    
+    Uniqcounts <- uniqueQuant(contigs)
+    expect_equivalent(dim(Uniqcounts), c(24, 7))
+    expect_equal(sum(Uniqcounts), 12)
+    
+    CRcounts <- CRquant(contigs)
+    expect_equivalent(dim(CRcounts), c(24, 19))
+    expect_equal(sum(CRcounts), 22)
+    
 })
 
 test_that("plotting functions work", {
@@ -115,7 +129,7 @@ test_that("plotting functions work", {
     
     samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
     counts <- EMquant(contigs)
-    x <- t(summarizeClonotypes(counts, samples))
+    x <- summarizeClonotypes(counts, samples)
     p1 <- barVDJ(x)
     expect_equal(class(p1$layers[[1]]$geom)[1], 'GeomCol')
     

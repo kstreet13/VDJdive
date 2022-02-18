@@ -3,7 +3,7 @@
 # usage:
 # sce <- readRDS('~/Desktop/toyTCRdata.rds')
 # sce <- EMquant(sce, sample = 'sample')
-# k <- t(summarizeClonotypes(sce, 'sample'))
+# k <- summarizeClonotypes(sce, 'sample')
 # calculateDiversity(k)
 
 .div_function <- function(x, method, ints, scale_factor, ...) {
@@ -82,7 +82,7 @@ setGeneric(name = "calculateDiversity",
 #' data('contigs')
 #' samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
 #' counts <- EMquant(contigs)
-#' x <- t(summarizeClonotypes(counts, samples))
+#' x <- summarizeClonotypes(counts, samples)
 #' calculateDiversity(x)
 #'
 #' @importFrom vegan diversity
