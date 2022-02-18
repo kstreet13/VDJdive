@@ -85,7 +85,7 @@ x$contigs
 
 ```{r}
 x <- EMquant(x, sample = "sample")
-sampleCounts <- t(summarizeClonotypes(x, by = "sample"))
+sampleCounts <- summarizeClonotypes(x, by = "sample")
 head(sampleCounts)
 ```
 
