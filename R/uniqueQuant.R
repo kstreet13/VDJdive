@@ -105,7 +105,7 @@ setMethod(f = "uniqueQuant",
                   }
                   clono.list <- lapply(levels(sampVar), function(lv){
                       uniqueQuant(contigs[which(sampVar == lv)],
-                                  sample = NULL)
+                                  sample = NULL, type = type)
                   })
                   if(any(is.na(sampVar))){
                       # indicates elements of length 0
@@ -131,7 +131,7 @@ setMethod(f = "uniqueQuant",
               }
 
               # remove unproductive and 'Multi' contigs (for now?)
-              contigs <- contigs[contigs[,'productive']=='True']
+              contigs <- contigs[contigs[,'productive']]
               if(type == 'TCR'){
                   type1 <- 'TRA'
                   type2 <- 'TRB'

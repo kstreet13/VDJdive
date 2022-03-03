@@ -59,6 +59,11 @@ setMethod(f = 'readVDJcontigs',
                   contigs <- rbind(contigs, tcr_ii)
               }
               rm(ii, tcr_ii)
+              # convert to logical ("None" treated as FALSE)
+              contigs$is_cell <- contigs$is_cell %in% c('true','True','TRUE')
+              contigs$high_confidence <- contigs$high_confidence %in% c('true','True','TRUE')
+              contigs$full_length <- contigs$full_length %in% c('true','True','TRUE')
+              contigs$productive <- contigs$productive %in% c('true','True','TRUE')
               # convert to SplitDataFrameList
               tcr.list <- split(DataFrame(contigs), factor(contigs$barcode))
 

@@ -117,7 +117,7 @@ setMethod(f = "CRquant",
               }
 
               # remove unproductive and 'Multi' contigs (for now?)
-              contigs <- contigs[contigs[,'productive']=='True']
+              contigs <- contigs[contigs[,'productive']]
               contigs <- contigs[contigs[,'chain'] %in% c('TRA','TRB')]
 
               all_clonotypes <- unique(unlist(contigs[,'raw_clonotype_id']))

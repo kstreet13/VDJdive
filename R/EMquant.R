@@ -126,7 +126,7 @@ setMethod(f = "EMquant",
               }
 
               # remove unproductive and 'Multi' contigs (for now?)
-              contigs <- contigs[contigs[,'productive']=='True']
+              contigs <- contigs[contigs[,'productive']]
               if(type == 'TCR'){
                   type1 <- 'TRA'
                   type2 <- 'TRB'
