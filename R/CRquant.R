@@ -25,7 +25,10 @@ setGeneric(name = "CRquant",
 #'   \code{x}, for \code{SingleCellExperiment} objects) that stores each cell's
 #'   sample of origin. Alternatively, a vector of length equal to \code{x} (or
 #'   \code{ncol(x)}) indicating the sample of origin.
-#'
+#' @param type The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
+#'   \code{NULL}, this is determined by the most prevalent \code{chain} types in
+#'   \code{x}.
+#'   
 #' @details This quantification method uses the clonotype labels provided by the
 #'   Cell Ranger V(D)J pipeline. This will provide a label for every cell that
 #'   has V(D)J information, but these labels are not directly comparable across
@@ -46,7 +49,8 @@ setGeneric(name = "CRquant",
 #' @export
 setMethod(f = "CRquant",
           signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, TCRcol = 'contigs', sample = NULL){
+          definition = function(x, TCRcol = 'contigs',
+                                sample = NULL, type = NULL){
               sce <- x
               if(!is.null(sample)){
                   if(length(sample) == 1){
@@ -57,7 +61,7 @@ setMethod(f = "CRquant",
                       sampVar <- factor(sample)
                   }
                   # calculate cells x clonotypes matrix
-                  clono <- CRquant(sce[[TCRcol]], sample = sampVar)
+                  clono <- CRquant(sce[[TCRcol]], sample = sampVar, type = type)
               }else{
                   # calculate cells x clonotypes matrix
                   clono <- CRquant(sce[[TCRcol]])
@@ -75,9 +79,18 @@ setMethod(f = "CRquant",
 #' @export
 setMethod(f = "CRquant",
           signature = signature(x = "SplitDataFrameList"),
-          definition = function(x, sample = 'sample'){
+          definition = function(x, sample = 'sample', type = NULL){
 
               contigs <- x
+              if(is.null(type)){
+                  chn <- unlist(contigs[,'chain'])
+                  if(sum(chn %in% c('IGH','IGL','IGK')) > 
+                     sum(chn %in% c('TRA','TRB','TRD','TRG'))){
+                      type <- 'BCR'
+                  }else{
+                      type <- 'TCR'
+                  }
+              }
 
               if(!is.null(sample)){
                   if(length(sample) == 1){
@@ -89,7 +102,7 @@ setMethod(f = "CRquant",
                   }
                   clono.list <- lapply(levels(sampVar), function(lv){
                       clono <- CRquant(contigs[which(sampVar == lv)],
-                                         sample = NULL)
+                                         sample = NULL, type = type)
                       colnames(clono) <- paste0(lv, '_', colnames(clono))
                       return(clono)
                   })
@@ -118,7 +131,24 @@ setMethod(f = "CRquant",
 
               # remove unproductive and 'Multi' contigs (for now?)
               contigs <- contigs[contigs[,'productive']]
-              contigs <- contigs[contigs[,'chain'] %in% c('TRA','TRB')]
+              if(type == 'TCR'){
+                  type1 <- 'TRA'
+                  type2 <- 'TRB'
+              }
+              if(type == 'BCR'){
+                  type1 <- 'IGH'
+                  type2 <- c('IGL','IGK')
+                  # prepend "IGK" or "IGL" to distinguish?
+                  cellbarcodes <- names(contigs)
+                  contigs <- unlist(contigs)
+                  t2ind <- which(contigs$chain %in% type2)
+                  contigs$cdr3[t2ind] <- paste(contigs$chain[t2ind], 
+                                               contigs$cdr3[t2ind], sep = '-')
+                  contigs <- split(DataFrame(contigs), 
+                                   factor(contigs$barcode, cellbarcodes))
+              }
+              contigs <- contigs[contigs[,'chain'] %in% c(type1, type2)]
+              
 
               all_clonotypes <- unique(unlist(contigs[,'raw_clonotype_id']))
 

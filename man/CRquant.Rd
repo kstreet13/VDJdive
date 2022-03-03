@@ -8,9 +8,9 @@
 \usage{
 CRquant(x, ...)
 
-\S4method{CRquant}{SingleCellExperiment}(x, TCRcol = "contigs", sample = NULL)
+\S4method{CRquant}{SingleCellExperiment}(x, TCRcol = "contigs", sample = NULL, type = NULL)
 
-\S4method{CRquant}{SplitDataFrameList}(x, sample = "sample")
+\S4method{CRquant}{SplitDataFrameList}(x, sample = "sample", type = NULL)
 }
 \arguments{
 \item{x}{A \code{SplitDataFrameList} object containing V(D)J contig
@@ -29,6 +29,10 @@ contains the VDJ contig data (only applies if \code{x} is a
 \code{x}, for \code{SingleCellExperiment} objects) that stores each cell's
 sample of origin. Alternatively, a vector of length equal to \code{x} (or
 \code{ncol(x)}) indicating the sample of origin.}
+
+\item{type}{The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
+\code{NULL}, this is determined by the most prevalent \code{chain} types in
+\code{x}.}
 }
 \value{
 Creates a sparse matrix (\code{dgRMatrix}) of cell-level clonotype
