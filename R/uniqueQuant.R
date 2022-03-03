@@ -158,12 +158,20 @@ setMethod(f = "uniqueQuant",
               # find all unique alpha chains
               all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type1]))
               if(length(all.alphas)==0){
-                  all.alphas <- 'unknown'
+                  # can't assign clonotypes
+                  # return empty matrix, in case this is just one sample of many
+                  clono <- Matrix(0, nrow = length(contigs), ncol = 0)
+                  rownames(clono) <- names(contigs)
+                  return(clono)
               }
               # find all unique beta chains
               all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type2]))
               if(length(all.betas)==0){
-                  all.betas <- 'unknown'
+                  # can't assign clonotypes
+                  # return empty matrix, in case this is just one sample of many
+                  clono <- Matrix(0, nrow = length(contigs), ncol = 0)
+                  rownames(clono) <- names(contigs)
+                  return(clono)
               }
               
               # initialize counts matrix (#alpha-by-#beta)

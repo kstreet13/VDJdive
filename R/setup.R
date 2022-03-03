@@ -153,11 +153,12 @@ setMethod(f = 'addVDJtoSCE',
               loss <- length(unique(contigs$barcode)) -
                   sum(lengths(tcr.list)>0)
               pct <- loss / length(unique(contigs$barcode))
-              message(loss, ' cells with V(D)J data were dropped because ',
-                      'they had no match in SingleCellExperiment object (',
-                      format(100 * pct, digits = 2),
-                      '% of V(D)J data).')
-
+              if(loss > 0){
+                  message(loss, ' cells with V(D)J data were dropped because ',
+                          'they had no match in SingleCellExperiment object (',
+                          format(100 * pct, digits = 2),
+                          '% of V(D)J data).')
+              }
               sce$contigs <- tcr.list
               return(sce)
           })

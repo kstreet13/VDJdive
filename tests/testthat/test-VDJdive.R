@@ -1,6 +1,6 @@
 context("Test VDJdive.")
 library(utils) # needed for data()
-library(stats) # for rpois() and runif()
+library(stats) # for rpois()
 
 test_that("utility functions work", {
     # load example data
@@ -112,6 +112,76 @@ test_that("assignment functions work", {
     sceEMsamp <- EMquant(sce, sample = 'sample')
     sceEMsamp2 <- EMquant(sce, sample = sce$sample)
     expect_true(max(abs(sceEMsamp$clono - sceEMsamp2$clono)) < .0001)
+})
+
+test_that("assignment functions handle edge cases", {
+    # load example data
+    data("contigs")
+    
+    # empty sample
+    sample <- factor(vapply(contigs[,'sample'], function(x){ x[1] }, 'A'))
+    levels(sample) <- c('sample1','sample2','sample3')
+    Uniqcounts <- uniqueQuant(contigs, sample = sample)
+    expect_equivalent(dim(Uniqcounts), c(24, 7))
+    expect_equal(sum(Uniqcounts), 12)
+    
+    # SCE object with EXTRA CELLS and SAMPLE
+    ncells <- 30
+    u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
+    barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
+    barcodes <- c(barcodes, LETTERS[1:6])
+    samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+    samples <- c(samples, rep(c('sample1','sample2','sample3'), each = 2))
+    sce <- SingleCellExperiment::SingleCellExperiment(
+        assays = list(counts = u),
+        colData = data.frame(Barcode = barcodes,
+                             sample = samples))
+    sce <- addVDJtoSCE(contigs, sce)
+    sceUniq <- uniqueQuant(sce, sample ='sample')
+    expect_equivalent(dim(sceUniq$clono), c(30, 7))
+    expect_equal(sum(sceUniq$clono), 12)
+    expect_equal(sum(sceUniq$clono[sce$sample=='sample3',]), 0)
+    
+    # BCR data and mixtures
+    Uniqcounts <- uniqueQuant(contigs, type = 'BCR')
+    expect_equivalent(dim(Uniqcounts), c(24, 0))
+    contigs[contigs[,'chain']=='TRA','chain'] <- 'IGH'
+    Uniqcounts <- uniqueQuant(contigs, type = 'BCR')
+    expect_equivalent(dim(Uniqcounts), c(24, 0))
+    contigs[contigs[,'chain']=='TRB','chain'] <- 'IGL'
+    
+    # let it detect BCR
+    Uniqcounts <- uniqueQuant(contigs)
+    expect_equivalent(dim(Uniqcounts), c(24, 7))
+    expect_equal(sum(Uniqcounts), 12)
+    
+    # reset
+    rm(contigs)
+    data("contigs")
+    
+    # empty sample
+    EMcounts <- EMquant(contigs, sample = sample)
+    expect_equivalent(dim(EMcounts), c(24, 60))
+    expect_equal(sum(EMcounts), 22)
+    
+    # SCE object with EXTRA CELLS and SAMPLE
+    sceEM <- EMquant(sce, sample ='sample')
+    expect_equivalent(dim(sceEM$clono), c(30, 60))
+    expect_equal(sum(sceEM$clono), 22)
+    expect_equal(sum(sceEM$clono[sce$sample=='sample3',]), 0)
+    
+    # BCR data and mixtures
+    EMcounts <- EMquant(contigs, type = 'BCR')
+    expect_equivalent(dim(EMcounts), c(24, 0))
+    contigs[contigs[,'chain']=='TRA','chain'] <- 'IGH'
+    EMcounts <- EMquant(contigs, type = 'BCR')
+    expect_equivalent(dim(EMcounts), c(24, 0))
+    contigs[contigs[,'chain']=='TRB','chain'] <- 'IGL'
+    
+    # let it detect BCR
+    EMcounts <- EMquant(contigs)
+    expect_equivalent(dim(EMcounts), c(24, 60))
+    expect_equal(sum(EMcounts), 22)
 })
 
 test_that("diversity calculation works", {
