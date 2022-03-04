@@ -125,6 +125,13 @@ test_that("assignment functions handle edge cases", {
     expect_equivalent(dim(Uniqcounts), c(24, 7))
     expect_equal(sum(Uniqcounts), 12)
     
+    # sample NAs
+    sampNA <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
+    sampNA <- factor(sampNA, levels = c('sample1','sample3'))
+    Uniqcounts <- uniqueQuant(contigs, sample = sampNA)
+    expect_equivalent(dim(Uniqcounts), c(24, 3))
+    expect_equal(sum(Uniqcounts), 6)
+    
     # SCE object with EXTRA CELLS and SAMPLE
     ncells <- 30
     u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
@@ -163,6 +170,11 @@ test_that("assignment functions handle edge cases", {
     EMcounts <- EMquant(contigs, sample = sample)
     expect_equivalent(dim(EMcounts), c(24, 60))
     expect_equal(sum(EMcounts), 22)
+    
+    # sample NAs
+    EMcounts <- EMquant(contigs, sample = sampNA)
+    expect_equivalent(dim(EMcounts), c(24, 28))
+    expect_equal(sum(EMcounts), 11)
     
     # SCE object with EXTRA CELLS and SAMPLE
     sceEM <- EMquant(sce, sample ='sample')
