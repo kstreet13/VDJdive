@@ -68,26 +68,47 @@ test_that("input/output functions work", {
                       c(3,6,2,4,2,3,2,2,2,4,2,2,3,1,2,4,2,2,1,2,2,1,1,3))
 })
 
-test_that("assignment functions work", {
+test_that("clonoStats function works as expected", {
     # load example data
     data("contigs")
 
-    Uniqcounts <- uniqueQuant(contigs)
-    expect_equivalent(dim(Uniqcounts), c(24, 7))
-    expect_equal(sum(Uniqcounts), 12)
+    uniq <- clonoStats(contigs, method = 'unique', assignment = TRUE)
+    expect_equivalent(names(uniq), c('abundance','frequency','assignment'))
+    expect_equivalent(dim(uniq$abundance), c(7,2))
+    expect_equal(sum(uniq$abundance), 12)
+    expect_equivalent(dim(uniq$frequency), c(4,2))
+    expect_equal(sum(uniq$frequency), 14)
+    expect_equivalent(dim(uniq$assignment), c(24, 7))
+    expect_equal(sum(uniq$assignment), 12)
 
-    CRcounts <- CRquant(contigs)
-    expect_equivalent(dim(CRcounts), c(24, 19))
-    expect_equal(sum(CRcounts), 22)
+    crng <- clonoStats(contigs, method = 'CellRanger', assignment = TRUE)
+    expect_equivalent(names(crng), c('abundance','frequency','assignment'))
+    expect_equivalent(dim(crng$abundance), c(17,2))
+    expect_equal(sum(crng$abundance), 22)
+    expect_equivalent(dim(crng$frequency), c(4,2))
+    expect_equal(sum(crng$frequency), 34)
+    expect_equivalent(dim(crng$assignment), c(24, 17))
+    expect_equal(sum(crng$assignment), 22)
 
-    EMcounts <- EMquant(contigs)
-    expect_equivalent(dim(EMcounts), c(24, 60))
-    expect_equal(sum(EMcounts), 22)
+    emal <- clonoStats(contigs, method = 'EM', assignment = TRUE)
+    expect_equivalent(names(emal), c('abundance','frequency','assignment'))
+    expect_equivalent(dim(emal$abundance), c(60,2))
+    expect_equal(sum(emal$abundance), 22)
+    expect_equivalent(dim(emal$frequency), c(4,2))
+    expect_equal(sum(emal$frequency), 120)
+    expect_equivalent(dim(emal$assignment), c(24, 60))
+    expect_equal(sum(emal$assignment), 22)
     
-    EMcounts2 <- EMquant(contigs, method = 'r')
-    expect_equivalent(dim(EMcounts2), c(24, 60))
-    expect_equal(sum(EMcounts2), 22)
-    expect_true(max(abs(EMcounts2 - EMcounts)) < .0001)
+    emal2 <- clonoStats(contigs, method = 'EM', 
+                        assignment = TRUE, EM_lang = 'r')
+    expect_equivalent(names(emal2), c('abundance','frequency','assignment'))
+    expect_equivalent(dim(emal2$abundance), c(60,2))
+    expect_equal(sum(emal2$abundance), 22)
+    expect_equivalent(dim(emal2$frequency), c(4,2))
+    expect_equal(sum(emal2$frequency), 120)
+    expect_equivalent(dim(emal2$assignment), c(24, 60))
+    expect_equal(sum(emal2$assignment), 22)
+    expect_true(max(abs(emal2$assignment - emal$assignment)) < .0001)
 
     # make SCE object with matching barcodes and sample IDs
     ncells <- 24
@@ -100,18 +121,19 @@ test_that("assignment functions work", {
                              sample = samples))
     sce <- addVDJtoSCE(contigs, sce)
     
-    sceUniq <- uniqueQuant(sce)
-    expect_true(max(abs(sceUniq$clono - Uniqcounts)) < .0001)
+    sceUniq <- clonoStats(sce, method = 'unique')
+    expect_identical(uniq[1:2], metadata(sceUniq)$clonoStats)
     
-    sceCR <- CRquant(sce)
-    expect_true(max(abs(sceCR$clono - CRcounts)) < .0001)
+    sceCR <- clonoStats(sce, method = 'CellRanger')
+    expect_identical(crng[1:2], metadata(sceCR)$clonoStats)
     
-    sceEM <- EMquant(sce)
-    expect_true(max(abs(sceEM$clono - EMcounts)) < .0001)
+    sceEM <- clonoStats(sce, method = 'EM')
+    expect_identical(emal[1:2], metadata(sceEM)$clonoStats)
     
-    sceEMsamp <- EMquant(sce, sample = 'sample')
-    sceEMsamp2 <- EMquant(sce, sample = sce$sample)
-    expect_true(max(abs(sceEMsamp$clono - sceEMsamp2$clono)) < .0001)
+    sceEMsamp <- clonoStats(sce, sample = 'sample')
+    sceEMsamp2 <- clonoStats(sce, sample = sce$sample)
+    expect_identical(metadata(sceEMsamp)$clonoStats, 
+                     metadata(sceEMsamp2)$clonoStats)
 })
 
 test_that("assignment functions handle edge cases", {
@@ -121,17 +143,23 @@ test_that("assignment functions handle edge cases", {
     # empty sample
     sample <- factor(vapply(contigs[,'sample'], function(x){ x[1] }, 'A'))
     levels(sample) <- c('sample1','sample2','sample3')
-    Uniqcounts <- uniqueQuant(contigs, sample = sample)
-    expect_equivalent(dim(Uniqcounts), c(24, 7))
-    expect_equal(sum(Uniqcounts), 12)
+    uniq <- clonoStats(contigs, sample = sample, method = 'unique')
+    expect_equivalent(names(uniq), c('abundance','frequency'))
+    expect_equivalent(dim(uniq$abundance), c(7,3))
+    expect_equal(sum(uniq$abundance), 12)
+    expect_equivalent(dim(uniq$frequency), c(4,3))
+    expect_equal(sum(uniq$frequency), 21)
     
     # sample NAs
     sampNA <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
     sampNA <- factor(sampNA, levels = c('sample1','sample3'))
-    Uniqcounts <- uniqueQuant(contigs, sample = sampNA)
-    expect_equivalent(dim(Uniqcounts), c(24, 3))
-    expect_equal(sum(Uniqcounts), 6)
-    
+    uniq <- clonoStats(contigs, sample = sampNA, method = 'unique')
+    expect_equivalent(names(uniq), c('abundance','frequency'))
+    expect_equivalent(dim(uniq$abundance), c(3,2))
+    expect_equal(sum(uniq$abundance), 6)
+    expect_equivalent(dim(uniq$frequency), c(4,2))
+    expect_equal(sum(uniq$frequency), 6)
+
     # SCE object with EXTRA CELLS and SAMPLE
     ncells <- 30
     u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
@@ -144,56 +172,35 @@ test_that("assignment functions handle edge cases", {
         colData = data.frame(Barcode = barcodes,
                              sample = samples))
     sce <- addVDJtoSCE(contigs, sce)
-    sceUniq <- uniqueQuant(sce, sample ='sample')
-    expect_equivalent(dim(sceUniq$clono), c(30, 7))
-    expect_equal(sum(sceUniq$clono), 12)
-    expect_equal(sum(sceUniq$clono[sce$sample=='sample3',]), 0)
+    sceUniq <- clonoStats(sce, sample ='sample', 
+                          method = 'unique', assignment = TRUE)
+    
+    expect_equivalent(names(metadata(sceUniq)$clonoStats), 
+                      c('abundance','frequency','assignment'))
+    expect_equivalent(dim(metadata(sceUniq)$clonoStats$assignment), c(30, 7))
+    expect_equal(sum(metadata(sceUniq)$clonoStats$assignment[
+        sce$sample=='sample3',]), 0)
     
     # BCR data and mixtures
-    Uniqcounts <- uniqueQuant(contigs, type = 'BCR')
-    expect_equivalent(dim(Uniqcounts), c(24, 0))
+    uniq <- clonoStats(contigs, type = 'BCR', 
+                       method = 'unique', assignment = TRUE)
+    expect_equivalent(dim(uniq$assignment), c(24, 0))
     contigs[contigs[,'chain']=='TRA','chain'] <- 'IGH'
-    Uniqcounts <- uniqueQuant(contigs, type = 'BCR')
-    expect_equivalent(dim(Uniqcounts), c(24, 0))
+    uniq <- clonoStats(contigs, type = 'BCR', 
+                       method = 'unique', assignment = TRUE)
+    expect_equivalent(dim(uniq$assignment), c(24, 0))
     contigs[contigs[,'chain']=='TRB','chain'] <- 'IGL'
     
     # let it detect BCR
-    Uniqcounts <- uniqueQuant(contigs)
-    expect_equivalent(dim(Uniqcounts), c(24, 7))
-    expect_equal(sum(Uniqcounts), 12)
-    
-    # reset
-    rm(contigs)
-    data("contigs")
-    
-    # empty sample
-    EMcounts <- EMquant(contigs, sample = sample)
-    expect_equivalent(dim(EMcounts), c(24, 60))
-    expect_equal(sum(EMcounts), 22)
-    
-    # sample NAs
-    EMcounts <- EMquant(contigs, sample = sampNA)
-    expect_equivalent(dim(EMcounts), c(24, 28))
-    expect_equal(sum(EMcounts), 11)
-    
-    # SCE object with EXTRA CELLS and SAMPLE
-    sceEM <- EMquant(sce, sample ='sample')
-    expect_equivalent(dim(sceEM$clono), c(30, 60))
-    expect_equal(sum(sceEM$clono), 22)
-    expect_equal(sum(sceEM$clono[sce$sample=='sample3',]), 0)
-    
-    # BCR data and mixtures
-    EMcounts <- EMquant(contigs, type = 'BCR')
-    expect_equivalent(dim(EMcounts), c(24, 0))
-    contigs[contigs[,'chain']=='TRA','chain'] <- 'IGH'
-    EMcounts <- EMquant(contigs, type = 'BCR')
-    expect_equivalent(dim(EMcounts), c(24, 0))
-    contigs[contigs[,'chain']=='TRB','chain'] <- 'IGL'
-    
-    # let it detect BCR
-    EMcounts <- EMquant(contigs)
-    expect_equivalent(dim(EMcounts), c(24, 60))
-    expect_equal(sum(EMcounts), 22)
+    uniq <- clonoStats(contigs, method = 'unique', assignment = TRUE)
+    expect_equivalent(names(uniq), c('abundance','frequency','assignment'))
+    expect_equivalent(dim(uniq$abundance), c(7,2))
+    expect_equal(sum(uniq$abundance), 12)
+    expect_equivalent(dim(uniq$frequency), c(4,2))
+    expect_equal(sum(uniq$frequency), 14)
+    expect_equivalent(dim(uniq$assignment), c(24, 7))
+    expect_equal(sum(uniq$assignment), 12)
+
 })
 
 test_that("diversity calculation works", {

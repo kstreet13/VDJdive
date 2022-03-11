@@ -36,10 +36,10 @@ setMethod(f = "splitClonotypes",
           signature = signature(x = "Matrix"),
           definition = function(x, by){
               stopifnot(length(by) == nrow(x))
-              out <- lapply(sort(unique(by)), function(lv){
+              out <- lapply(levels(by), function(lv){
                   x[which(by == lv), ,drop = FALSE]
               })
-              names(out) <- as.character(sort(unique(by)))
+              names(out) <- as.character(levels(by))
               return(out)
           })
 
@@ -117,34 +117,39 @@ setMethod(f = "summarizeClonotypes",
           signature = signature(x = "Matrix"),
           definition = function(x, by, mode = c('sum','tab')){
               mode <- match.arg(mode)
+              if(!is.factor(by)){
+                  by <- factor(by)
+              }
               stopifnot(length(by) == nrow(x))
-              by <- factor(by)
               if(mode == 'sum'){
-                  out <- sapply(sort(unique(by)), function(lv){
+                  out <- vapply(levels(by), function(lv){
                       colSums(x[which(by == lv), ,drop = FALSE])
-                  }, USE.NAMES = TRUE)
-                  colnames(out) <- as.character(sort(unique(by)))
+                  }, FUN.VALUE = rep(0,ncol(x)))
               }
               if(mode == 'tab'){
-                  lim <- max(colSums(x > 0))
-                  out <- sapply(sort(unique(by)), function(lv){
-                      tab.lv <- rowSums(apply(x[which(by == lv), ,drop=FALSE], 
-                                           2, function(counts){
-                                               p.x <- rep(0,lim+1)
-                                               p.i <- counts[which(counts>0 & counts<1)]
-                                               base <- sum(counts==1)
-                                               prob <- 1
-                                               for(p in p.i){
-                                                   prob <- prob %*% c(1-p, p)
-                                                   prob <- matrix(c(prob[,1],0) + c(0,prob[,2]), ncol=1)
-                                               }
-                                               p.x[(base+1):(base+length(prob))] <- prob
-                                               return(p.x)
-                                           }))
-                      return(tab.lv)
-                  }, USE.NAMES = TRUE)
+                  lim <- nrow(x)
+                  out <- vapply(levels(by), function(lv){
+                      lt <- rowSums(
+                          vapply(seq_len(ncol(x)), function(jj){
+                              counts <- x[which(by==lv), jj, drop=FALSE]
+                              p.x <- rep(0,lim+1)
+                              p.i <- counts[which(counts>0 & counts<1)]
+                              base <- sum(counts==1)
+                              prob <- 1
+                              for(p in p.i){
+                                  prob <- prob %*% c(1-p, p)
+                                  prob <- matrix(c(prob[,1],0) + c(0,prob[,2]), 
+                                                 ncol=1)
+                              }
+                              p.x[(base+1):(base+length(prob))] <- prob
+                              return(p.x)
+                          }, FUN.VALUE = rep(0,lim+1))
+                      )
+                      return(lt)
+                  }, FUN.VALUE = rep(0,lim+1))
                   rownames(out) <- 0:lim
-                  colnames(out) <- sort(unique(by))
+                  # trim excess 0s
+                  out <- out[seq_len(max(c(0,which(rowSums(out) > 0)))), ]
               }
               return(out)
           })
