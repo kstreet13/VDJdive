@@ -2,15 +2,15 @@
 % Please edit documentation in R/calculateDiversity.R
 \name{calculateDiversity}
 \alias{calculateDiversity}
-\alias{calculateDiversity,matrix-method}
+\alias{calculateDiversity,list-method}
 \title{Sample diversity estimation}
 \usage{
 calculateDiversity(x, ...)
 
-\S4method{calculateDiversity}{matrix}(
+\S4method{calculateDiversity}{list}(
   x,
-  methods = c("all", "shannon", "simpson", "invsimpson", "chao1", "chaobunge"),
-  scale_factor = 100,
+  methods = c("all", "shannon", "normentropy", "invsimpson", "ginisimpson", "chao1",
+    "chaobunge"),
   ...
 )
 }
@@ -24,9 +24,6 @@ using a sparse matrix computed with either \code{EMquant} or
 
 \item{methods}{A character vector specifying which diversity measures to use
 (default = \code{'all'}, see Details).}
-
-\item{scale_factor}{Numeric scaling factor for handling non-integer counts
-(see Details).}
 }
 \value{
 A matrix of diversity estimates for each sample. Note that the
@@ -54,9 +51,7 @@ with any input type.
 }
 \examples{
 data('contigs')
-samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-counts <- EMquant(contigs)
-x <- summarizeClonotypes(counts, samples)
+x <- clonoStats(contigs)
 calculateDiversity(x)
 
 }

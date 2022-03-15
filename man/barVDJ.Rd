@@ -32,9 +32,7 @@ amount of diversity.
 }
 \examples{
 data('contigs')
-samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-counts <- EMquant(contigs)
-x <- summarizeClonotypes(counts, samples)
-barVDJ(x)
+x <- clonoStats(contigs)
+barVDJ(x$abundance)
 
 }

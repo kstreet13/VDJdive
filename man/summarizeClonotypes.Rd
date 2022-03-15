@@ -13,7 +13,7 @@ summarizeClonotypes(x, by, ...)
 
 \S4method{summarizeClonotypes}{SingleCellExperiment}(x, by = "sample", clonoCol = "clono", ...)
 
-\S4method{summarizeClonotypes}{matrix}(x, by)
+\S4method{summarizeClonotypes}{matrix}(x, by, ...)
 }
 \arguments{
 \item{x}{A (usually sparse) matrix of cell-level clonotype counts (cells are
@@ -48,7 +48,7 @@ within groups (typically samples).
 }
 \examples{
 example(addVDJtoSCE)
-sce <- EMquant(sce, sample = "sample")
-sampleLevelCounts <- summarizeClonotypes(sce, by = "sample")
+sce <- clonoStats(sce, sample = "sample", assignment = TRUE)
+sampleLevelCounts <- summarizeClonotypes(metadata(sce)$clonoStats$assignment, by = "sample")
 
 }

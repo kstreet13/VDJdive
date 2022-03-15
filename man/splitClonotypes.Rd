@@ -42,7 +42,7 @@ into a list of group-specific counts (typically samples).
 }
 \examples{
 example(addVDJtoSCE)
-sce <- EMquant(sce, sample = "sample")
-sampleCountsList <- splitClonotypes(sce, by = "sample")
+sce <- clonoStats(sce, sample = "sample", assignment = TRUE)
+sampleCountsList <- splitClonotypes(metadata(sce)$clonoStats$assignment, by = "sample")
 
 }

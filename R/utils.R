@@ -27,8 +27,8 @@ setGeneric(name = "splitClonotypes",
 #'
 #' @examples
 #' example(addVDJtoSCE)
-#' sce <- EMquant(sce, sample = "sample")
-#' sampleCountsList <- splitClonotypes(sce, by = "sample")
+#' sce <- clonoStats(sce, sample = "sample", assignment = TRUE)
+#' sampleCountsList <- splitClonotypes(metadata(sce)$clonoStats$assignment, by = "sample")
 #'
 #' @importClassesFrom Matrix Matrix
 #' @export
@@ -109,8 +109,8 @@ setGeneric(name = "summarizeClonotypes",
 #'
 #' @examples
 #' example(addVDJtoSCE)
-#' sce <- EMquant(sce, sample = "sample")
-#' sampleLevelCounts <- summarizeClonotypes(sce, by = "sample")
+#' sce <- clonoStats(sce, sample = "sample", assignment = TRUE)
+#' sampleLevelCounts <- summarizeClonotypes(metadata(sce)$clonoStats$assignment, by = "sample")
 #'
 #' @export
 setMethod(f = "summarizeClonotypes",
@@ -178,7 +178,7 @@ setMethod(f = "summarizeClonotypes",
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "matrix"),
-          definition = function(x, by){
+          definition = function(x, by, ...){
               summarizeClonotypes(Matrix(x), by, ...)
           })
 

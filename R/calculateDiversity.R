@@ -143,8 +143,6 @@ setGeneric(name = "calculateDiversity",
 #'   \code{CRquant}.
 #' @param methods A character vector specifying which diversity measures to use
 #'   (default = \code{'all'}, see Details).
-#' @param scale_factor Numeric scaling factor for handling non-integer counts
-#'   (see Details).
 #'
 #' @details Available methods are Shannon entropy (\code{'shannon'}), Simpson
 #'   index (\code{'simpson'}), inverse Simpson index (\code{'invsimpson'}),
