@@ -1,40 +1,125 @@
-# devtools::install_github('adw96/breakaway')
 
-# usage:
-# sce <- readRDS('~/Desktop/toyTCRdata.rds')
-# sce <- EMquant(sce, sample = 'sample')
-# k <- summarizeClonotypes(sce, 'sample')
-# calculateDiversity(k)
 
-.div_function <- function(x, method, ints, scale_factor, ...) {
-    k <- x
-    if (method %in% c("simpson", "shannon", "invsimpson")) {
-        # simpson, shannon and invsimpson calculated using diversity() from vegan package
-        ret <- data.frame(t(vegan::diversity(t(k), ..., index=method)))
-    } else if (method == "chao1") {
-        # use fossil::chao1() for chao1
-        if(!ints){
-            k <- round(k * scale_factor)
-        }
-        ret <- data.frame(t(apply(k, 2, fossil::chao1, ...))) #apply chao1 function for every column
-        if(!ints){
-            ret <- ret / scale_factor
-        }
-    } else if (method == "chaobunge") {
-        # use breakaway() for chaobunge
-        if(!ints){
-            k <- round(k * scale_factor)
-        }
-        ret <- data.frame(apply(k, 2, function(x, ...) {
-            bw <- breakaway::breakaway(x, ...)
-            c(estimate=bw$estimate, error=bw$error)
-        }))
-        if(!ints){
-            ret <- ret / scale_factor
+
+
+# diversity functions
+.shannon <- function(p){
+    p <- p[p > 0]
+    p <- p / sum(p)
+    return(-sum(p * log(p)))
+}
+.normentropy <- function(p){
+    p <- p[p > 0]
+    p <- p / sum(p)
+    return(-sum(p * log(p)) / log(length(p)))
+}
+.invsimpson <- function(p){
+    p <- p / sum(p)
+    return(1 / sum(p^2))
+}
+.ginisimpson <- function(p){
+    p <- p / sum(p)
+    return(1 - sum(p^2))
+}
+.chao1 <- function(f){
+    # f is the table of singletons, doubletons, etc.
+    # for integer counts, if p = x/sum(x), then f = table(x)
+    return(sum(f) + f[1]*(f[1]-1) / (2*(f[2]+1)))
+}
+.chaobunge <- function(f, t = 10, conf = 0.95){
+    # adapted from jipingw/SPECIES::ChaoBunge()
+    
+    # f is the table of singletons, doubletons, etc.
+    # for integer counts, if p = x/sum(x), then f = table(x)
+    f <- f[seq_len(max(which(f>0)))] # trim trailing 0s
+    if (t!=round(t)||t<0){
+        stop("Error: The cutoff t to define less abundant species must be non-negative integer!")
+    } 
+    if(is.numeric(conf)==FALSE||conf>1||conf<0){
+        stop("Error: confidence level must be a numerical value between 0 and 1, e.g. 0.95")
+    } 
+    if(t > length(f)){
+        warning("The t that defines the abundant/rare species must be no larger than the most abundant species!","\n",
+                "We use t=", length(f), "in this calculation!")
+        t <- length(f)
+    }
+    m <- length(f)
+
+    ############################
+    A1 <- sum(f[seq_len(t)])
+    A2 <- sum(f[seq_len(t)])-f[1]
+    B1 <- sum(seq_len(t) * f[seq_len(t)])
+    #B2 <- B1 - f[1]
+    #C2 <- sum(seq_len(t) * (seq_len(t)-1) * f[seq_len(t)])
+    
+    ## point estimate (Equation 2, page 533 of Chao and Bunge 2002)
+    if(t == length(f)){
+        theta <- 1 - f[1]*sum(seq_len(m)^2*f) / (sum(seq_len(m)*f))^2
+        chao40 <- sum(f[seq_len(t)[-1]]) / theta
+        chao4 <- (1/theta-1) * sum(f[seq_len(m)[-1]]) - f[1]+sum(f)
+    }
+    if(t < length(f)){
+        theta <- 1 - f[1]*sum(seq_len(t)^2*f[seq_len(t)]) /
+            (sum(seq_len(t)*f[seq_len(t)]))^2
+        chao4 <- sum(f[t+seq_len(length(f)-t)]) +
+            sum(f[seq_len(t)[-1]]/theta)
+        chao40 <- sum(f[seq_len(t)[-1]])/theta
+    }
+    
+    ## duplication standard error(Unnumbered Eq. right below Eq. 2, page 534 of Chao and Bunge 2002)
+    D <- sum(seq_len(t)*seq_len(t)*f[seq_len(t)])
+    partial3 <- numeric(t)
+    partial3[1] <- sum(-f[seq_len(t)[-1]] / (1-f[1]*D/B1^2)^2 *
+                           (-(D+f[1])/(B1^2) + (2*f[1]*D/B1^3)))
+    
+    for (i in seq_len(t)[-1]){
+        partial3[i] <- 1/(1-f[1]*D/B1^2) - A2/(1-f[1]*D/B1^2)^2 *
+            (-f[1]*i^2/B1^2+2*f[1]*D*i/B1^3)
+    }
+    
+    cova3 <- matrix(0, nrow = t, ncol = t)
+    
+    for (i in seq_len(t)){
+        for (j in seq_len(t)){
+            if(i==j){
+                cova3[i,j] <- f[i]*(1-f[i]/chao40)		
+            }
+            if(i!=j){
+                cova3[i,j] <- -f[i]*f[j]/chao40	
+            }	
         }
     }
-    return(ret)
+    
+    SE <- 0
+    for (i in seq_len(t)){
+        for (j in seq_len(t)){
+            SE <- SE + partial3[i] * partial3[j] * cova3[i,j]
+        }   
+    }
+    SE <- partial3 %*% cova3 %*% partial3
+    SE4 <- sqrt(SE[1,1])
+    
+    ##confidence interval
+    coe <- qnorm(1-(1-conf)/2, 0, 1)
+    C <- exp(coe*log(1+SE4^2/(chao4-A1)^2)^0.5)
+    lb <- floor(A1+(chao4-A1)/C)
+    ub <- ceiling(A1+(chao4-A1)*C)
+    # CI0 <- matrix(c(lb,ub),1,2)
+    # colnames(CI0) <- c("lb","ub")
+    # return(list(est=chao4, CI=CI0))
+    return(c(est = chao4, CI.lower = lb, CI.upper = ub))
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 #' @title Sample diversity estimation
@@ -80,47 +165,73 @@ setGeneric(name = "calculateDiversity",
 #'
 #' @examples
 #' data('contigs')
-#' samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-#' counts <- EMquant(contigs)
-#' x <- summarizeClonotypes(counts, samples)
+#' x <- clonoStats(contigs)
 #' calculateDiversity(x)
-#'
-#' @importFrom vegan diversity
-#' @importFrom fossil chao1
-#' @importFrom breakaway breakaway
 #'
 #' @export
 setMethod(f = "calculateDiversity",
-          signature = signature(x = "matrix"),
-          definition = function(x, methods = c('all','shannon','simpson',
-                                               'invsimpson','chao1',
-                                               'chaobunge'),
-                                scale_factor = 100, ...){
-              k <- x
+          signature = signature(x = "list"),
+          definition = function(x, methods = c('all','shannon','normentropy',
+                                               'invsimpson','ginisimpson',
+                                               'chao1','chaobunge'),
+                                ...){
               methods <- match.arg(methods, several.ok = TRUE)
               if('all' %in% methods){
-                  methods <- c('shannon','simpson','invsimpson','chao1','chaobunge')
+                  methods <- c('shannon','normentropy','invsimpson',
+                               'ginisimpson','chao1','chaobunge')
               }
-              # any parm but k or methods is ... for e.g. cutoff for breakaway which will pass down
-              # function to calculate diversity for a given method
 
               # check if all counts are integers
-              ints <- all(k %% 1 == 0)
-
-              # loop over methods
-              results <- sapply(methods, function(method){
-                  .div_function(k, method, ints, scale_factor, ...)
-              })
-              colnames(results) <- paste0(colnames(results), '.estimate')
-              if('chaobunge' %in% methods){
-                  ests <- sapply(results[,'chaobunge.estimate'], function(x){x[1]})
-                  errs <- sapply(results[,'chaobunge.estimate'], function(x){x[2]})
-                  cbres <- cbind(chaobunge.estimate = ests, chaobunge.error = errs)
-                  results <- results[,colnames(results) != 'chaobunge.estimate']
-                  results <- cbind(results, cbres)
+              ints <- all(x$abundance %% 1 == 0)
+              if(!ints & any(c('chao1','chaobunge') %in% methods)){
+                  warning('Methods "chao1" and "chaobunge" are not valid with ',
+                          'non-integer abundances.')
               }
-
-              return(t(results))
+              
+              p <- x$abundance
+              f <- x$frequency
+              
+              # loop over methods
+              results <- lapply(methods, function(m){
+                  if(m == 'shannon'){
+                      return(vapply(seq_len(ncol(p)), function(j){
+                          .shannon(p[,j])
+                      }, FUN.VALUE = 0.0))
+                  }
+                  if(m == 'normentropy'){
+                      return(vapply(seq_len(ncol(p)), function(j){
+                          .normentropy(p[,j])
+                      }, FUN.VALUE = 0.0))
+                  }
+                  if(m == 'invsimpson'){
+                      return(vapply(seq_len(ncol(p)), function(j){
+                          .invsimpson(p[,j])
+                      }, FUN.VALUE = 0.0))
+                  }
+                  if(m == 'ginisimpson'){
+                      return(vapply(seq_len(ncol(p)), function(j){
+                          .ginisimpson(p[,j])
+                      }, FUN.VALUE = 0.0))
+                  }
+                  if(m == 'chao1'){
+                      return(vapply(seq_len(ncol(f)), function(j){
+                          .chao1(f[-1,j]) # remove the 0s row
+                      }, FUN.VALUE = 0.0))
+                  }
+                  if(m == 'chaobunge'){
+                      cb <- vapply(seq_len(ncol(f)), function(j){
+                          .chaobunge(f[-1,j]) # remove the 0s row
+                      }, FUN.VALUE = rep(0.0,3))
+                      rownames(cb) <- c('chaobunge.est','chaobunge.CI.lower',
+                                        'chaobunge.CI.upper')
+                      return(cb)
+                  }
+              })
+              names(results) <- methods
+              results <- do.call(rbind, results)
+              colnames(results) <- colnames(p)
+              
+              return(results)
           })
 
 

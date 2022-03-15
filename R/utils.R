@@ -149,7 +149,8 @@ setMethod(f = "summarizeClonotypes",
                   }, FUN.VALUE = rep(0,lim+1))
                   rownames(out) <- 0:lim
                   # trim excess 0s
-                  out <- out[seq_len(max(c(0,which(rowSums(out) > 0)))), ]
+                  out <- out[seq_len(max(c(0,which(rowSums(out) > 0)))), ,
+                             drop = FALSE]
               }
               return(out)
           })

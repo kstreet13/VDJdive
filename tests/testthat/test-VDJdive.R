@@ -1,6 +1,7 @@
 context("Test VDJdive.")
 library(utils) # needed for data()
 library(stats) # for rpois()
+library(S4Vectors) # for
 
 test_that("utility functions work", {
     # load example data
@@ -16,24 +17,27 @@ test_that("utility functions work", {
         colData = data.frame(Barcode = barcodes,
                              sample = samples))
     sce <- addVDJtoSCE(contigs, sce)
-    sce <- uniqueQuant(sce)
+    sce <- clonoStats(sce, method = 'unique', assignment = TRUE)
     
     # splitClonotypes
-    countsList <- splitClonotypes(sce, by = 'sample')
+    countsList <- splitClonotypes(metadata(sce)$clonoStats$assignment, 
+                                  by = factor(samples))
     expect_equal(length(countsList), 2)
     expect_equivalent(dim(countsList[[1]]), c(12, 7))
     expect_equivalent(dim(countsList[[2]]), c(12, 7))
     expect_equal(sum(countsList[[1]]), 6)
     
     # summarizeClonotypes
-    sampleLevelCounts <- summarizeClonotypes(sce, by = 'sample')
+    sampleLevelCounts <- summarizeClonotypes(metadata(sce)$clonoStats$assignment, by = factor(samples))
     expect_equivalent(dim(sampleLevelCounts), c(7, 2))
     expect_equivalent(colSums(sampleLevelCounts), c(6, 6))
     
-    sampleLevelCounts <- summarizeClonotypes(sce, by = 'sample', mode = 'tab')
-    expect_equivalent(dim(sampleLevelCounts), c(5, 2))
+    sampleLevelCounts <- summarizeClonotypes(metadata(sce)$clonoStats$assignment, 
+                                             by = factor(samples), 
+                                             mode = 'tab')
+    expect_equivalent(dim(sampleLevelCounts), c(4, 2))
     expect_equivalent(colSums(sampleLevelCounts), c(7, 7))
-    expect_equivalent(rownames(sampleLevelCounts), as.character(0:4))
+    expect_equivalent(rownames(sampleLevelCounts), as.character(0:3))
 })
 
 test_that("input/output functions work", {
@@ -206,21 +210,20 @@ test_that("assignment functions handle edge cases", {
 test_that("diversity calculation works", {
     # load example data
     data("contigs")
-    CRcounts <- CRquant(contigs)
-    EMcounts <- EMquant(contigs)
-    samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
     
-    kCR <- summarizeClonotypes(CRcounts, by = samples)
-    kEM <- summarizeClonotypes(EMcounts, by = samples)
+    xCR <- clonoStats(contigs, method = 'CellRanger')
+    xEM <- clonoStats(contigs, method = 'EM')
     
-    divCR <- calculateDiversity(kCR)
-    expect_equivalent(dim(divCR), c(6, 2))
+    expect_warning({
+        divCR <- calculateDiversity(xCR)
+    }, regexp = 'use t=3')
+    expect_equivalent(dim(divCR), c(8, 2))
     expect_equivalent(colnames(divCR), c('sample1', 'sample2'))
 
     expect_warning({
-        divEM <- calculateDiversity(kEM)
-    }, regexp = 'Cut-off was too low')
-    expect_equivalent(dim(divEM), c(6, 2))
+        divEM <- calculateDiversity(xEM)
+    }, regexp = 'not valid with non-integer')
+    expect_equivalent(dim(divEM), c(8, 2))
     expect_equivalent(colnames(divEM), c('sample1', 'sample2'))
 })
 
@@ -228,12 +231,11 @@ test_that("plotting functions work", {
     # load example data
     data("contigs")
     
-    samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-    counts <- EMquant(contigs)
-    x <- summarizeClonotypes(counts, samples)
-    p1 <- barVDJ(x)
+    x <- clonoStats(contigs)
+    p1 <- barVDJ(x$abundance)
     expect_equal(class(p1$layers[[1]]$geom)[1], 'GeomCol')
     
-    p2 <- barVDJ(x, bySample = FALSE, title = 'bar plot', legend = TRUE)
+    p2 <- barVDJ(x$abundance, bySample = FALSE, 
+                 title = 'bar plot', legend = TRUE)
     expect_equal(class(p2$layers[[1]]$geom)[1], 'GeomCol')    
 })
