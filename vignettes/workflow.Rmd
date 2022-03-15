@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-this is the intro to the package
+The `r Biocpkg("VDJdive")` package provides functionality for incorporating adaptive immune receptor sequencing (AIRR-seq) data into the Bioconductor single-cell ecosystem and analyzing it in a variety of ways. This vignette will give you a brief overview of the methods available in the package and demonstrate their usage on a simple dataset.
 
 ```{r loadPackage}
 require(utils)
@@ -56,14 +56,14 @@ contigs <- readVDJcontigs(c("path1", "path2"))
 
 ```{r}
 data("contigs")
-Ucounts <- uniqueQuant(contigs)
+Ucounts <- clonoStats(contigs, method = 'unique')
 class(Ucounts)
 ```
 
 The other method for quantifying clonotypes is EMquant. It uses the EM algorithm to assigne clonotype counts. Rather than filtering out any cells that do not have a productive alpha and productive beta chain, EMquant allows for partial assignment. For example, if a cell has one productive alpha chain and two productive beta chains, the EM algorithm will be used to make a partial clonotype assignment based on the prevalence of each clonotype in the sample. That means that a cell may have a count of 0.6 for one clonotype and 0.4 for a different clonotype rather than a count of 1 for a single clonotype. As with CRquant, a sparse matrix is returned. However, the matrix for EMquant contains fractional counts rather then solely whole number counts. EMquant is implemented as follows: 
 
 ```{r}
-EMcounts <- EMquant(contigs, sample = "sample")
+EMcounts <- clonoStats(contigs, method = "EM")
 class(EMcounts)
 ```
 
@@ -84,8 +84,8 @@ x$contigs
 
 
 ```{r}
-x <- EMquant(x, sample = "sample")
-sampleCounts <- summarizeClonotypes(x, by = "sample")
+x <- clonoStats(x, method = 'EM')
+sampleCounts <- metadata(x)$clonoStats$abundance
 head(sampleCounts)
 ```
 
@@ -97,7 +97,7 @@ Diversity can be computed with the sampleCounts matrix. The calculateDiversity f
 All of the diversity measures can be computed for each sample by doing the following: 
 
 ```{r}
-div <- calculateDiversity(sampleCounts, methods = "all")
+div <- calculateDiversity(metadata(x)$clonoStats, methods = "all")
 div
 ```
 
