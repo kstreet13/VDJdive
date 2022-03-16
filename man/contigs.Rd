@@ -60,6 +60,7 @@ phs002252.v1.p1.
 }
 \examples{
 data('contigs')
-counts <- EMquant(contigs)
+x <- clonoStats(contigs)
+
 }
 \keyword{datasets}

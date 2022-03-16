@@ -39,7 +39,6 @@ barcodes.
 \examples{
 # write the example data to a temporary directory
 example(writeVDJcontigs)
-
 # specify sample locations and read in data
 samples <- file.path(loc, c('sample1','sample2'))
 contigs <- readVDJcontigs(samples)

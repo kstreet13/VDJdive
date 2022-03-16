@@ -32,7 +32,6 @@ setGeneric(name = "readVDJcontigs",
 #' @examples
 #' # write the example data to a temporary directory
 #' example(writeVDJcontigs)
-#'
 #' # specify sample locations and read in data
 #' samples <- file.path(loc, c('sample1','sample2'))
 #' contigs <- readVDJcontigs(samples)
@@ -116,7 +115,6 @@ setGeneric(name = "addVDJtoSCE",
 #' @examples
 #' # load example V(D)J data
 #' data('contigs')
-#'
 #' # make SCE object with matching barcodes and sample IDs
 #' ncells <- 24
 #' u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
@@ -125,7 +123,6 @@ setGeneric(name = "addVDJtoSCE",
 #' sce <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = u),
 #'                             colData = data.frame(Barcode = barcodes,
 #'                                                  sample = samples))
-#'
 #' sce <- addVDJtoSCE(contigs, sce)
 #' sce$contigs
 #'

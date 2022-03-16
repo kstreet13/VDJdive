@@ -1,7 +1,4 @@
 
-
-
-
 # diversity functions
 .shannon <- function(p){
     p <- p[p > 0]
@@ -111,20 +108,10 @@
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 #' @title Sample diversity estimation
 #' @name calculateDiversity
 #' @param ... Additional arguments passed to external calculation methods.
+#' @import methods
 #' @export
 setGeneric(name = "calculateDiversity",
            signature = "x",

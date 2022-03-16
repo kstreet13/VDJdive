@@ -54,7 +54,6 @@ cell barcode, to ensure that each barcode is unique, across all samples. If
 \examples{
 # load example V(D)J data
 data('contigs')
-
 # make SCE object with matching barcodes and sample IDs
 ncells <- 24
 u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
@@ -63,7 +62,6 @@ samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
 sce <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = u),
                             colData = data.frame(Barcode = barcodes,
                                                  sample = samples))
-
 sce <- addVDJtoSCE(contigs, sce)
 sce$contigs
 

@@ -7,9 +7,7 @@ Authors@R: c(
     person("Jill", "Lundell", role = "aut", email = "jflundell@gmail.com", comment = c(ORCID = "0000-0002-6048-4700")))
 Description: Provides functions for handling and analyzing immune receptor repertoire data output by the CellRanger V(D)J pipeline. This includes reading the data into R, merging it with paired data, quantifying clonotype abundances, calculating diversity metrics, and producing common plots.
 Depends:
-    R (>= 4.0),
-    methods,
-    stats
+    R (>= 4.0)
 Imports:
     basilisk,
     ggplot2,

@@ -27,8 +27,8 @@ setGeneric(name = "splitClonotypes",
 #'
 #' @examples
 #' example(addVDJtoSCE)
-#' sce <- clonoStats(sce, sample = "sample", assignment = TRUE)
-#' sampleCountsList <- splitClonotypes(metadata(sce)$clonoStats$assignment, by = "sample")
+#' x <- clonoStats(contigs, assignment = TRUE)
+#' splitClonotypes(x$assignment, by = sce$sample)
 #'
 #' @importClassesFrom Matrix Matrix
 #' @export
@@ -109,8 +109,8 @@ setGeneric(name = "summarizeClonotypes",
 #'
 #' @examples
 #' example(addVDJtoSCE)
-#' sce <- clonoStats(sce, sample = "sample", assignment = TRUE)
-#' sampleLevelCounts <- summarizeClonotypes(metadata(sce)$clonoStats$assignment, by = "sample")
+#' x <- clonoStats(contigs, assignment = TRUE)
+#' summarizeClonotypes(x$assignment, by = sce$sample)
 #'
 #' @export
 setMethod(f = "summarizeClonotypes",

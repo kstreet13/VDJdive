@@ -42,9 +42,11 @@
 #' \item{sample}{Sample identifier. The data for contigs come from two
 #' different samples.}
 #' }
+#' 
 #' @examples
 #' data('contigs')
-#' counts <- EMquant(contigs)
+#' x <- clonoStats(contigs)
+#' 
 #' @source Braun, David A., Kelly Street, Kelly P. Burke, David L. Cookmeyer,
 #' Thomas Denize, Christina B. Pedersen, Satyen H. Gohil et al. "Progressive
 #' immune dysfunction with advancing disease stage in renal cell carcinoma."

@@ -42,7 +42,7 @@ into a list of group-specific counts (typically samples).
 }
 \examples{
 example(addVDJtoSCE)
-sce <- clonoStats(sce, sample = "sample", assignment = TRUE)
-sampleCountsList <- splitClonotypes(metadata(sce)$clonoStats$assignment, by = "sample")
+x <- clonoStats(contigs, assignment = TRUE)
+splitClonotypes(x$assignment, by = sce$sample)
 
 }

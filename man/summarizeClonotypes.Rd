@@ -48,7 +48,7 @@ within groups (typically samples).
 }
 \examples{
 example(addVDJtoSCE)
-sce <- clonoStats(sce, sample = "sample", assignment = TRUE)
-sampleLevelCounts <- summarizeClonotypes(metadata(sce)$clonoStats$assignment, by = "sample")
+x <- clonoStats(contigs, assignment = TRUE)
+summarizeClonotypes(x$assignment, by = sce$sample)
 
 }
