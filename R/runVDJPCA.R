@@ -28,7 +28,7 @@ setGeneric(name = "runVDJPCA",
 #' x <- clonoStats(contigs)
 #' runVDJPCA(x$abundance)
 #' 
-#' @import stats
+#' @importFrom stats prcomp
 #' @export
 setMethod(f = "runVDJPCA",
           signature = signature(k = "matrix"),

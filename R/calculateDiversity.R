@@ -23,6 +23,7 @@
     # for integer counts, if p = x/sum(x), then f = table(x)
     return(sum(f) + f[1]*(f[1]-1) / (2*(f[2]+1)))
 }
+#' @importFrom stats qnorm
 .chaobunge <- function(f, t = 10, conf = 0.95){
     # adapted from jipingw/SPECIES::ChaoBunge()
     
@@ -37,7 +38,7 @@
     } 
     if(t > length(f)){
         warning("The t that defines the abundant/rare species must be no larger than the most abundant species!","\n",
-                "We use t=", length(f), "in this calculation!")
+                "We use t=", length(f), " in this calculation!")
         t <- length(f)
     }
     m <- length(f)
