@@ -25,25 +25,27 @@
 #' @export
 #'
 barVDJ <- function(x, bySample = TRUE, title = NULL, legend = FALSE) {
-  dat <- NULL
-  nms <- colnames(x)
-  for (i in 1:ncol(x)) {
-    tmp <- x[x[, i] > 0.5, nms[i]]
-    tmp <- tmp[order(tmp, decreasing = TRUE)]
-    dat <- rbind(dat, data.frame(clonotype = 1:length(tmp), count = tmp, sample = nms[i]))
-  }
-  g <- ggplot2::ggplot(dat, ggplot2::aes(x = sample, y = count, weight = count, fill = log(count)))
-
-  if (legend) {
-    g <- g + ggplot2::geom_col(position = "stack")
-  } else {
-    g <- g + ggplot2::geom_col(position = "stack", show.legend = FALSE)
-  }
-
-  g <- g +
-    ggplot2::scale_fill_continuous(type = "viridis") +
-    ggplot2::labs(x = NULL, y = "Number of T cells", title = title) +
-    ggplot2::theme_bw()
-  g
+    dat <- NULL
+    nms <- colnames(x)
+    for (i in seq_len(ncol(x))) {
+        tmp <- x[x[, i] > 0.5, nms[i]]
+        tmp <- tmp[order(tmp, decreasing = TRUE)]
+        dat <- rbind(dat, data.frame(clonotype = seq_along(tmp), count = tmp, 
+                                     sample = nms[i]))
+    }
+    g <- ggplot2::ggplot(dat, ggplot2::aes(x = sample, y = count, 
+                                           weight = count, fill = log(count)))
+    
+    if (legend) {
+        g <- g + ggplot2::geom_col(position = "stack")
+    } else {
+        g <- g + ggplot2::geom_col(position = "stack", show.legend = FALSE)
+    }
+    
+    g <- g +
+        ggplot2::scale_fill_continuous(type = "viridis") +
+        ggplot2::labs(x = NULL, y = "Number of T cells", title = title) +
+        ggplot2::theme_bw()
+    g
 }
 

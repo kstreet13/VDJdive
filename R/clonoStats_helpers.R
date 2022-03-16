@@ -65,7 +65,8 @@
     }
     
     # initialize counts matrix (#alpha-by-#beta)
-    counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), sparse = TRUE)
+    counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), 
+                     sparse = TRUE)
     rownames(counts) <- all.alphas
     colnames(counts) <- all.betas
     
@@ -140,10 +141,14 @@
         
         # iteration handled by python, via basilisk
         cl <- basiliskStart(pyenv)
-        counts <- basiliskRun(cl, function(uniquecounts, counts.old, t.indices, thresh, iter.max){
-            mod <- reticulate::import(module = "em_update_counts", convert = TRUE)
-            return(mod$TCR_EM_counts(uniquecounts, counts.old, t.indices, thresh, iter.max))
-        }, uniquecounts = uniquecounts, counts.old = counts.old, t.indices = t.indices, thresh = thresh, iter.max = iter.max)
+        counts <- basiliskRun(cl, function(uniquecounts, counts.old, t.indices, 
+                                           thresh, iter.max){
+            mod <- reticulate::import(module = "em_update_counts", 
+                                      convert = TRUE)
+            return(mod$TCR_EM_counts(uniquecounts, counts.old, t.indices, 
+                                     thresh, iter.max))
+        }, uniquecounts = uniquecounts, counts.old = counts.old, 
+        t.indices = t.indices, thresh = thresh, iter.max = iter.max)
         basiliskStop(cl)
         
     }else{
@@ -260,14 +265,16 @@
     }
     
     # initialize counts matrix (#alpha-by-#beta)
-    counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), sparse = TRUE)
+    counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), 
+                     sparse = TRUE)
     rownames(counts) <- all.alphas
     colnames(counts) <- all.betas
     
     # useful indices
     ind.unique <- which(nAlpha == 1 & nBeta == 1)
     
-    # use which alpha sequence and which beta sequence each contig represents to calculate its (possible) index in the clonotype matrix
+    # use which alpha sequence and which beta sequence each contig represents 
+    # to calculate its (possible) index in the clonotype matrix
     wa <- match(contigs[,'cdr3'][contigs[,'chain']%in%type1], all.alphas)
     wb <- match(contigs[,'cdr3'][contigs[,'chain']%in%type2], all.betas)
     # this takes care of the 1-alpha + 1-beta indices without looping

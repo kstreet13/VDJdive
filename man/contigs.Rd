@@ -37,8 +37,9 @@ from multiple chains were present.}
 \item{cdr3_nt}{The predicted CDR3 nucleotide sequence.}
 \item{reads}{The number of reads aligned to this contig.}
 \item{umis}{The number of distinct UMIs aligned to this contig.}
-\item{raw_clonotype_id}{The ID of the clonotype to which this cell barcode was assigned.}
-\item{raw_consensus_id}{The ID of the consensus sequence to which this contig was assigned.}
+\item{raw_clonotype_id}{The ID of the clonotype to which this cell barcode
+was assigned.} \item{raw_consensus_id}{The ID of the consensus sequence to
+which this contig was assigned.}
 \item{sample}{Sample identifier. The data for contigs come from two
 different samples.}
 }

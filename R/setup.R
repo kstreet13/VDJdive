@@ -48,21 +48,25 @@ setMethod(f = 'readVDJcontigs',
               }
               # get TCR contigs
               contigs <- NULL
-              for (ii in 1:length(samples)) {
-                  tcr_ii <- read.csv(file.path(samples[ii],
-                                               "filtered_contig_annotations.csv"))
+              for (ii in seq_along(samples)) {
+                  tcr_ii <- read.csv(file.path(
+                      samples[ii], "filtered_contig_annotations.csv"))
                   tcr_ii$barcode <- gsub("1$", ii, tcr_ii$barcode)
                   #tcr_ii$type <- "TCR"
-                  #tcr_ii$clonotype_tcr <- paste0(sample_ids[ii], "-", tcr_ii$raw_clonotype_id)
+                  #tcr_ii$clonotype_tcr <- paste0(sample_ids[ii], "-", 
+                  #tcr_ii$raw_clonotype_id)
                   tcr_ii$sample <- sample.names[ii]
                   contigs <- rbind(contigs, tcr_ii)
               }
               rm(ii, tcr_ii)
               # convert to logical ("None" treated as FALSE)
               contigs$is_cell <- contigs$is_cell %in% c('true','True','TRUE')
-              contigs$high_confidence <- contigs$high_confidence %in% c('true','True','TRUE')
-              contigs$full_length <- contigs$full_length %in% c('true','True','TRUE')
-              contigs$productive <- contigs$productive %in% c('true','True','TRUE')
+              contigs$high_confidence <- contigs$high_confidence %in% 
+                  c('true','True','TRUE')
+              contigs$full_length <- contigs$full_length %in% 
+                  c('true','True','TRUE')
+              contigs$productive <- contigs$productive %in% 
+                  c('true','True','TRUE')
               # convert to SplitDataFrameList
               tcr.list <- split(DataFrame(contigs), factor(contigs$barcode))
 
@@ -165,10 +169,12 @@ setMethod(f = 'addVDJtoSCE',
 setMethod(f = 'addVDJtoSCE',
           signature = signature(samples = "character",
                                 sce = "SingleCellExperiment"),
-          definition = function(samples, sce, sample.names = names(samples), barcode = 'Barcode'){
+          definition = function(samples, sce, sample.names = names(samples), 
+                                barcode = 'Barcode'){
               # get TCR contigs
               contigs <- readVDJcontigs(samples, sample.names = sample.names)
-              return(addVDJtoSCE(contigs, sce, sample.names = sample.names, barcode = barcode))
+              return(addVDJtoSCE(contigs, sce, sample.names = sample.names, 
+                                 barcode = barcode))
           })
 
 

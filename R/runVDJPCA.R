@@ -33,12 +33,12 @@ setGeneric(name = "runVDJPCA",
 setMethod(f = "runVDJPCA",
           signature = signature(k = "matrix"),
           definition = function(k, unit = c("samples","clonotypes")){
-    unit <- match.arg(unit)
-    
-    if(unit == "clonotypes"){
-        PCA_ret <- prcomp(t(k))
-    } else {
-        PCA_ret <- prcomp(k) 
-    }
-    return(PCA_ret)
-})
+              unit <- match.arg(unit)
+              
+              if(unit == "clonotypes"){
+                  PCA_ret <- prcomp(t(k))
+              } else {
+                  PCA_ret <- prcomp(k) 
+              }
+              return(PCA_ret)
+          })

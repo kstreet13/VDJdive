@@ -28,8 +28,8 @@ use as this variable.}
 \item{...}{additional arguments.}
 
 \item{clonoCol}{The name of the column in the \code{colData} of \code{x} that
-contains the cell-level clonotype assignments (only applies if \code{x} is a
-\code{SingleCellExperiment}).}
+contains the cell-level clonotype assignments (only applies if \code{x} is
+a \code{SingleCellExperiment}).}
 }
 \value{
 A list of \code{Matrix} objects providing the cell-level counts for

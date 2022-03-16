@@ -31,13 +31,16 @@
     # for integer counts, if p = x/sum(x), then f = table(x)
     f <- f[seq_len(max(which(f>0)))] # trim trailing 0s
     if (t!=round(t)||t<0){
-        stop("Error: The cutoff t to define less abundant species must be non-negative integer!")
+        stop("The cutoff t to define less abundant species must be", 
+             " non-negative integer!")
     } 
     if(is.numeric(conf)==FALSE||conf>1||conf<0){
-        stop("Error: confidence level must be a numerical value between 0 and 1, e.g. 0.95")
+        stop("confidence level must be a numerical value between 0 and 1,",
+             " e.g. 0.95")
     } 
     if(t > length(f)){
-        warning("The t that defines the abundant/rare species must be no larger than the most abundant species!","\n",
+        warning("The t that defines the abundant/rare species must be no ", 
+                "larger than the most abundant species!","\n",
                 "We use t=", length(f), " in this calculation!")
         t <- length(f)
     }
@@ -64,7 +67,8 @@
         chao40 <- sum(f[seq_len(t)[-1]])/theta
     }
     
-    ## duplication standard error(Unnumbered Eq. right below Eq. 2, page 534 of Chao and Bunge 2002)
+    ## duplication standard error(Unnumbered Eq. right below Eq. 2, 
+    ## page 534 of Chao and Bunge 2002)
     D <- sum(seq_len(t)*seq_len(t)*f[seq_len(t)])
     partial3 <- numeric(t)
     partial3[1] <- sum(-f[seq_len(t)[-1]] / (1-f[1]*D/B1^2)^2 *

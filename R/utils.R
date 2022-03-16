@@ -55,8 +55,8 @@ setMethod(f = "splitClonotypes",
 
 #' @rdname splitClonotypes
 #' @param clonoCol The name of the column in the \code{colData} of \code{x} that
-#'   contains the cell-level clonotype assignments (only applies if \code{x} is a
-#'   \code{SingleCellExperiment}).
+#'   contains the cell-level clonotype assignments (only applies if \code{x} is
+#'   a \code{SingleCellExperiment}).
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #' @export
 setMethod(f = "splitClonotypes",

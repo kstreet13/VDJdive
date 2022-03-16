@@ -102,7 +102,9 @@ setMethod(f = "clonoStats",
     }else{
         if(length(sample) == 1){
             stopifnot(sample %in% colnames(contigs[[1]]))
-            sampVar <- factor(sapply(contigs[,sample], function(x){ x[1] }))
+            sampVar <- factor(vapply(seq_along(contigs), function(i){
+                contigs[[i]][,sample][1]
+            }, FUN.VALUE = 'a'))
         }else{
             if(!is.factor(sample)){
                 sampVar <- factor(sample)
