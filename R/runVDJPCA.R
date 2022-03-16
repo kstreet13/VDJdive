@@ -43,6 +43,7 @@ setMethod(f = "runVDJPCA",
               return(PCA_ret)
           })
 
+#' @rdname runVDJPCA
 #' @export
 setMethod(f = "runVDJPCA",
           signature = signature(x = "list"),
