@@ -5,12 +5,12 @@
 \alias{runVDJPCA,matrix-method}
 \title{Run PCA on clonotype abundance matrix}
 \usage{
-runVDJPCA(k, ...)
+runVDJPCA(x, ...)
 
-\S4method{runVDJPCA}{matrix}(k, unit = c("samples", "clonotypes"))
+\S4method{runVDJPCA}{matrix}(x, unit = c("samples", "clonotypes"))
 }
 \arguments{
-\item{k}{A matrix of abundance values where rows are features (clonotypes)
+\item{x}{A matrix of abundance values where rows are features (clonotypes)
 and columns are samples.}
 
 \item{...}{additional arguments.}

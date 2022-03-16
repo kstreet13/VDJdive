@@ -227,6 +227,22 @@ test_that("diversity calculation works", {
     expect_equivalent(colnames(divEM), c('sample1', 'sample2'))
 })
 
+test_that("PCA function works", {
+    # load example data
+    data("contigs")
+    
+    clono <- clonoStats(contigs)
+    
+    pca1 <- runVDJPCA(clono$abundance)
+    expect_equivalent(dim(pca1$x), c(2, 2))
+    
+    pca2 <- runVDJPCA(clono, unit = 'clonotypes')
+    expect_equivalent(dim(pca2$x), c(60, 2))
+    
+    expect_error(runVDJPCA(list(b = 1)), 
+                 regexp = 'No VDJ abundance data')
+})
+
 test_that("plotting functions work", {
     # load example data
     data("contigs")
