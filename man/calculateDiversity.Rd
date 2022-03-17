@@ -9,8 +9,8 @@ calculateDiversity(x, ...)
 
 \S4method{calculateDiversity}{list}(
   x,
-  methods = c("all", "count", "shannon", "normentropy", "invsimpson", "ginisimpson",
-    "chao1", "chaobunge"),
+  methods = c("all", "nCells", "nClonotypes", "shannon", "normentropy", "invsimpson",
+    "ginisimpson", "chao1", "chaobunge"),
   ...
 )
 }
@@ -35,7 +35,9 @@ diversity of samples based on a matrix of clonotype abundances (samples are
 columns).
 }
 \details{
-Available methods are total count (\code{'count'}), Shannon entropy
+Available methods are total cells with appropriate TCR data
+(\code{'nCells'}, not a diversity measure, but a useful point of
+comparison), total clonotypes (\code{'nClonotypes'}), Shannon entropy
 (\code{'shannon'}), Simpson index (\code{'simpson'}), inverse Simpson index
 (\code{'invsimpson'}), Chao1 richness (\code{'chao1'}), and Chao-Bunge
 richness (\code{'chaobunge'}). A special value of \code{'all'} is also

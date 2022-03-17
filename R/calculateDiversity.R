@@ -1,7 +1,10 @@
 
 # diversity functions
-.totalCount <- function(p){
+.nCells <- function(p){
     return(sum(p))
+}
+.nClonotypes <- function(f){
+    return(sum(f))
 }
 .shannon <- function(p){
     p <- p[p > 0]
@@ -139,7 +142,9 @@ setGeneric(name = "calculateDiversity",
 #' @param methods A character vector specifying which diversity measures to use
 #'   (default = \code{'all'}, see Details).
 #'
-#' @details Available methods are total count (\code{'count'}), Shannon entropy
+#' @details Available methods are total cells with appropriate TCR data
+#'   (\code{'nCells'}, not a diversity measure, but a useful point of
+#'   comparison), total clonotypes (\code{'nClonotypes'}), Shannon entropy
 #'   (\code{'shannon'}), Simpson index (\code{'simpson'}), inverse Simpson index
 #'   (\code{'invsimpson'}), Chao1 richness (\code{'chao1'}), and Chao-Bunge
 #'   richness (\code{'chaobunge'}). A special value of \code{'all'} is also
@@ -164,15 +169,16 @@ setGeneric(name = "calculateDiversity",
 #' @export
 setMethod(f = "calculateDiversity",
           signature = signature(x = "list"),
-          definition = function(x, methods = c('all','count','shannon',
-                                               'normentropy', 'invsimpson',
-                                               'ginisimpson', 'chao1',
-                                               'chaobunge'),
+          definition = function(x, methods = c('all','nCells','nClonotypes',
+                                               'shannon', 'normentropy', 
+                                               'invsimpson', 'ginisimpson',
+                                               'chao1', 'chaobunge'),
                                 ...){
               methods <- match.arg(methods, several.ok = TRUE)
               if('all' %in% methods){
-                  methods <- c('count', 'shannon','normentropy','invsimpson',
-                               'ginisimpson','chao1','chaobunge')
+                  methods <- c('nCells', 'nClonotypes', 'shannon', 
+                               'normentropy', 'invsimpson', 'ginisimpson',
+                               'chao1', 'chaobunge')
               }
 
               # check if all counts are integers
@@ -187,9 +193,14 @@ setMethod(f = "calculateDiversity",
               
               # loop over methods
               results <- lapply(methods, function(m){
-                  if(m == 'count'){
+                  if(m == 'nCells'){
                       return(vapply(seq_len(ncol(p)), function(j){
-                          .totalCount(p[,j])
+                          .nCells(p[,j])
+                      }, FUN.VALUE = 0.0))
+                  }
+                  if(m == 'nClonotypes'){
+                      return(vapply(seq_len(ncol(f)), function(j){
+                          .nClonotypes(f[-1,j])
                       }, FUN.VALUE = 0.0))
                   }
                   if(m == 'shannon'){
