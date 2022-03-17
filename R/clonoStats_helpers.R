@@ -85,23 +85,23 @@
     poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
     # others are incorrect, though
     poss.indices[ind.multiple] <- lapply(ind.multiple, function(i){
-        return(sort(as.integer(sapply(wa[[i]], function(a){
+        return(sort(unique(as.integer(sapply(wa[[i]], function(a){
             sapply(wb[[i]], function(b){
                 length(all.alphas)*(b-1) + a
             })
-        }))))
+        })))))
     })
     poss.indices[ind.noAlpha] <- lapply(ind.noAlpha, function(i){
         a.i <- seq_along(all.alphas)
-        return(sort(as.integer(sapply(wb[[i]], function(b){
+        return(sort(unique(as.integer(sapply(wb[[i]], function(b){
             length(all.alphas)*(b-1) + a.i
-        }))))
+        })))))
     })
     poss.indices[ind.noBeta] <- lapply(ind.noBeta, function(i){
         b.i <- seq_along(all.betas)
-        return(sort(as.integer(sapply(wa[[i]], function(a){
-            sort(length(all.alphas)*(b.i-1) + a)
-        }))))
+        return(sort(unique(as.integer(sapply(wa[[i]], function(a){
+            length(all.alphas)*(b.i-1) + a
+        })))))
     })
     
     # step 1: assign cells with 1 alpha, 1 beta
@@ -150,7 +150,6 @@
         }, uniquecounts = uniquecounts, counts.old = counts.old, 
         t.indices = t.indices, thresh = thresh, iter.max = iter.max)
         basiliskStop(cl)
-        
     }else{
         working <- TRUE
         iters <- 0
