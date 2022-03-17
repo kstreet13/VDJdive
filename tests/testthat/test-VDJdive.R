@@ -217,13 +217,13 @@ test_that("diversity calculation works", {
     expect_warning({
         divCR <- calculateDiversity(xCR)
     }, regexp = 'use t=3')
-    expect_equivalent(dim(divCR), c(8, 2))
+    expect_equivalent(dim(divCR), c(9, 2))
     expect_equivalent(colnames(divCR), c('sample1', 'sample2'))
 
     expect_warning({
         divEM <- calculateDiversity(xEM)
     }, regexp = 'not valid with non-integer')
-    expect_equivalent(dim(divEM), c(8, 2))
+    expect_equivalent(dim(divEM), c(9, 2))
     expect_equivalent(colnames(divEM), c('sample1', 'sample2'))
 })
 

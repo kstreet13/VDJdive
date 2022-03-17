@@ -9,8 +9,8 @@ calculateDiversity(x, ...)
 
 \S4method{calculateDiversity}{list}(
   x,
-  methods = c("all", "shannon", "normentropy", "invsimpson", "ginisimpson", "chao1",
-    "chaobunge"),
+  methods = c("all", "count", "shannon", "normentropy", "invsimpson", "ginisimpson",
+    "chao1", "chaobunge"),
   ...
 )
 }
@@ -35,11 +35,11 @@ diversity of samples based on a matrix of clonotype abundances (samples are
 columns).
 }
 \details{
-Available methods are Shannon entropy (\code{'shannon'}), Simpson
-index (\code{'simpson'}), inverse Simpson index (\code{'invsimpson'}),
-Chao1 richness (\code{'chao1'}), and Chao-Bunge richness
-(\code{'chaobunge'}). A special value of \code{'all'} is also allowed,
-which will run all methods listed above.
+Available methods are total count (\code{'count'}), Shannon entropy
+(\code{'shannon'}), Simpson index (\code{'simpson'}), inverse Simpson index
+(\code{'invsimpson'}), Chao1 richness (\code{'chao1'}), and Chao-Bunge
+richness (\code{'chaobunge'}). A special value of \code{'all'} is also
+allowed, which will run all methods listed above.
 
 The \code{'chao1'} and \code{'chaobunge'} estimates assume all
 abundances are integers. When this is not the case for the input matrix,

@@ -1,5 +1,8 @@
 
 # diversity functions
+.totalCount <- function(p){
+    return(sum(p))
+}
 .shannon <- function(p){
     p <- p[p > 0]
     p <- p / sum(p)
@@ -136,11 +139,11 @@ setGeneric(name = "calculateDiversity",
 #' @param methods A character vector specifying which diversity measures to use
 #'   (default = \code{'all'}, see Details).
 #'
-#' @details Available methods are Shannon entropy (\code{'shannon'}), Simpson
-#'   index (\code{'simpson'}), inverse Simpson index (\code{'invsimpson'}),
-#'   Chao1 richness (\code{'chao1'}), and Chao-Bunge richness
-#'   (\code{'chaobunge'}). A special value of \code{'all'} is also allowed,
-#'   which will run all methods listed above.
+#' @details Available methods are total count (\code{'count'}), Shannon entropy
+#'   (\code{'shannon'}), Simpson index (\code{'simpson'}), inverse Simpson index
+#'   (\code{'invsimpson'}), Chao1 richness (\code{'chao1'}), and Chao-Bunge
+#'   richness (\code{'chaobunge'}). A special value of \code{'all'} is also
+#'   allowed, which will run all methods listed above.
 #'
 #' @details The \code{'chao1'} and \code{'chaobunge'} estimates assume all
 #'   abundances are integers. When this is not the case for the input matrix,
@@ -161,13 +164,14 @@ setGeneric(name = "calculateDiversity",
 #' @export
 setMethod(f = "calculateDiversity",
           signature = signature(x = "list"),
-          definition = function(x, methods = c('all','shannon','normentropy',
-                                               'invsimpson','ginisimpson',
-                                               'chao1','chaobunge'),
+          definition = function(x, methods = c('all','count','shannon',
+                                               'normentropy', 'invsimpson',
+                                               'ginisimpson', 'chao1',
+                                               'chaobunge'),
                                 ...){
               methods <- match.arg(methods, several.ok = TRUE)
               if('all' %in% methods){
-                  methods <- c('shannon','normentropy','invsimpson',
+                  methods <- c('count', 'shannon','normentropy','invsimpson',
                                'ginisimpson','chao1','chaobunge')
               }
 
@@ -183,6 +187,11 @@ setMethod(f = "calculateDiversity",
               
               # loop over methods
               results <- lapply(methods, function(m){
+                  if(m == 'count'){
+                      return(vapply(seq_len(ncol(p)), function(j){
+                          .totalCount(p[,j])
+                      }, FUN.VALUE = 0.0))
+                  }
                   if(m == 'shannon'){
                       return(vapply(seq_len(ncol(p)), function(j){
                           .shannon(p[,j])
