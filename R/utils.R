@@ -74,6 +74,16 @@ setMethod(f = "splitClonotypes",
               return(splitClonotypes(x$clono, byVar))
           })
 
+# helper function for summarizeClonotypes,mode='tab'
+#' @importFrom Matrix sparseVector
+#' @importClassesFrom Matrix sparseVector
+.nonInt_tab <- function(probs, lim){
+    prob <- 1
+    for(p in probs[which(probs > 0)]){
+        prob <- c(prob*(1-p), 0) + c(0, prob*p)
+    }
+    return(sparseVector(prob, i = seq_along(prob), length = lim))
+}
 
 #' @title Get sample-level clonotype counts
 #' @name summarizeClonotypes
@@ -112,6 +122,8 @@ setGeneric(name = "summarizeClonotypes",
 #' x <- clonoStats(contigs, assignment = TRUE)
 #' summarizeClonotypes(x$assignment, by = sce$sample)
 #'
+#' @importClassesFrom Matrix sparseMatrix
+#' @importFrom Matrix rowSums
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "Matrix"),
@@ -127,30 +139,18 @@ setMethod(f = "summarizeClonotypes",
                   }, FUN.VALUE = rep(0,ncol(x)))
               }
               if(mode == 'tab'){
-                  lim <- nrow(x)
+                  lim <- nrow(x)+1
                   out <- vapply(levels(by), function(lv){
-                      lt <- rowSums(
-                          vapply(seq_len(ncol(x)), function(jj){
-                              counts <- x[which(by==lv), jj, drop=FALSE]
-                              p.x <- rep(0,lim+1)
-                              p.i <- counts[which(counts>0 & counts<1)]
-                              base <- sum(counts==1)
-                              prob <- 1
-                              for(p in p.i){
-                                  prob <- prob %*% c(1-p, p)
-                                  prob <- matrix(c(prob[,1],0) + c(0,prob[,2]), 
-                                                 ncol=1)
-                              }
-                              p.x[(base+1):(base+length(prob))] <- prob
-                              return(p.x)
-                          }, FUN.VALUE = rep(0,lim+1))
-                      )
-                      return(lt)
-                  }, FUN.VALUE = rep(0,lim+1))
-                  rownames(out) <- 0:lim
+                      ind <- which(by==lv)
+                      p.dists <- lapply(seq_len(ncol(x)), function(jj){
+                          as(.nonInt_tab(x[ind, jj], lim), 'sparseMatrix')
+                      })
+                      return(Matrix::rowSums(do.call(cbind, p.dists)))
+                  }, FUN.VALUE = rep(0,lim))
                   # trim excess 0s
                   out <- out[seq_len(max(c(0,which(rowSums(out) > 0)))), ,
                              drop = FALSE]
+                  rownames(out) <- seq(0,nrow(out)-1)
               }
               return(out)
           })

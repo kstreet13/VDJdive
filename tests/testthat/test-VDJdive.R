@@ -1,7 +1,7 @@
 context("Test VDJdive.")
 library(utils) # needed for data()
 library(stats) # for rpois()
-library(S4Vectors) # for
+library(S4Vectors) # for ?
 
 test_that("utility functions work", {
     # load example data
