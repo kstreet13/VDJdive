@@ -75,14 +75,12 @@ setMethod(f = "splitClonotypes",
           })
 
 # helper function for summarizeClonotypes,mode='tab'
-#' @importFrom Matrix sparseVector
-#' @importClassesFrom Matrix sparseVector
 .nonInt_tab <- function(probs, lim){
     prob <- 1
     for(p in probs[which(probs > 0)]){
         prob <- c(prob*(1-p), 0) + c(0, prob*p)
     }
-    return(sparseVector(prob, i = seq_along(prob), length = lim))
+    return(c(prob, rep(0, lim-length(prob))))
 }
 
 #' @title Get sample-level clonotype counts
@@ -122,7 +120,7 @@ setGeneric(name = "summarizeClonotypes",
 #' x <- clonoStats(contigs, assignment = TRUE)
 #' summarizeClonotypes(x$assignment, by = sce$sample)
 #'
-#' @importClassesFrom Matrix sparseMatrix
+#' @importClassesFrom Matrix Matrix
 #' @importFrom Matrix rowSums
 #' @export
 setMethod(f = "summarizeClonotypes",
@@ -142,15 +140,17 @@ setMethod(f = "summarizeClonotypes",
                   lim <- nrow(x)+1
                   out <- vapply(levels(by), function(lv){
                       ind <- which(by==lv)
-                      p.dists <- lapply(seq_len(ncol(x)), function(jj){
-                          as(.nonInt_tab(x[ind, jj], lim), 'sparseMatrix')
-                      })
-                      return(Matrix::rowSums(do.call(cbind, p.dists)))
+                      p.dists <- Matrix(0, nrow = lim, ncol = ncol(x), 
+                                        sparse = TRUE)
+                      for(jj in seq_len(ncol(x))){
+                          p.dists[,jj] <- .nonInt_tab(x[ind, jj], lim)
+                      }
+                      return(Matrix::rowSums(p.dists))
                   }, FUN.VALUE = rep(0,lim))
                   # trim excess 0s
                   out <- out[seq_len(max(c(0,which(rowSums(out) > 0)))), ,
                              drop = FALSE]
-                  rownames(out) <- seq(0,nrow(out)-1)
+                  rownames(out) <- seq_len(nrow(out))-1
               }
               return(out)
           })
