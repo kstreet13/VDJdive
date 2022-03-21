@@ -17,27 +17,39 @@ test_that("utility functions work", {
         colData = data.frame(Barcode = barcodes,
                              sample = samples))
     sce <- addVDJtoSCE(contigs, sce)
+    
+    # errors before running clonoStats
+    expect_error(splitClonotypes(sce, by = samples), 
+                 'No clonotype counts found')
+    expect_error(summarizeClonotypes(sce, by = samples), 
+                 'No clonotype counts found')
+    
     sce <- clonoStats(sce, method = 'unique', assignment = TRUE)
     
-    # splitClonotypes
-    countsList <- splitClonotypes(metadata(sce)$clonoStats$assignment, 
-                                  by = factor(samples))
-    expect_equal(length(countsList), 2)
-    expect_equivalent(dim(countsList[[1]]), c(12, 7))
-    expect_equivalent(dim(countsList[[2]]), c(12, 7))
-    expect_equal(sum(countsList[[1]]), 6)
+    # splitClonotypes (CL = counts list)
+    CL <- splitClonotypes(sce, by = 'sample')
+    expect_equal(length(CL), 2)
+    expect_equivalent(dim(CL[[1]]), c(12, 7))
+    expect_equivalent(dim(CL[[2]]), c(12, 7))
+    expect_equal(sum(CL[[1]]), 6)
     
-    # summarizeClonotypes
-    sampleLevelCounts <- summarizeClonotypes(metadata(sce)$clonoStats$assignment, by = factor(samples))
-    expect_equivalent(dim(sampleLevelCounts), c(7, 2))
-    expect_equivalent(colSums(sampleLevelCounts), c(6, 6))
+    CL2 <- splitClonotypes(as.matrix(metadata(sce)$clonoStats$assignment), 
+                           by = samples)
+    expect_identical(CL, CL2)
     
-    sampleLevelCounts <- summarizeClonotypes(metadata(sce)$clonoStats$assignment, 
-                                             by = factor(samples), 
-                                             mode = 'tab')
-    expect_equivalent(dim(sampleLevelCounts), c(4, 2))
-    expect_equivalent(colSums(sampleLevelCounts), c(7, 7))
-    expect_equivalent(rownames(sampleLevelCounts), as.character(0:3))
+    
+    # summarizeClonotypes (SLC = sample-level counts)
+    SLC <- summarizeClonotypes(sce, by = 'sample')
+    expect_equivalent(dim(SLC), c(7, 2))
+    expect_equivalent(colSums(SLC), c(6, 6))
+    
+    SLC2 <- summarizeClonotypes(as.matrix(metadata(sce)$clonoStats$assignment),
+                                by = samples)
+    expect_identical(SLC, SLC2)
+    
+    SLF <- summarizeClonotypes(sce, by = 'sample', mode = 'tab')
+    expect_equivalent(dim(SLF), c(4, 2))
+    expect_equivalent(rowSums(SLF), c(5,7,1,1))
 })
 
 test_that("input/output functions work", {
@@ -70,6 +82,15 @@ test_that("input/output functions work", {
     expect_true('contigs' %in% names(colData(sce)))
     expect_equivalent(lengths(sce$contigs),
                       c(3,6,2,4,2,3,2,2,2,4,2,2,3,1,2,4,2,2,1,2,2,1,1,3))
+    
+    # from file, with some loss
+    sce$contigs <- NULL
+    samples <- file.path(loc, c('sample1','sample2'))
+    sce <- sce[, -1]
+    expect_message({sce <- addVDJtoSCE(samples, sce)}, 
+                   regexp = '1 cells with V')
+    expect_equivalent(lengths(sce$contigs),
+                      c(6,2,4,2,3,2,2,2,4,2,2,3,1,2,4,2,2,1,2,2,1,1,3))
 })
 
 test_that("clonoStats function works as expected", {

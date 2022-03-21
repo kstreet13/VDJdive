@@ -11,7 +11,7 @@ summarizeClonotypes(x, by, ...)
 
 \S4method{summarizeClonotypes}{Matrix}(x, by, mode = c("sum", "tab"))
 
-\S4method{summarizeClonotypes}{SingleCellExperiment}(x, by = "sample", clonoCol = "clono", ...)
+\S4method{summarizeClonotypes}{SingleCellExperiment}(x, by = "sample", clonoStats = "clonoStats", ...)
 
 \S4method{summarizeClonotypes}{matrix}(x, by, ...)
 }
@@ -33,9 +33,10 @@ sums clonotype abundances within each sample (or level of \code{'by'}).
 Alternative is \code{'tab'}, which constructs a table of clonotype
 frequencies (ie. singletons, doubletons, etc.) by sample.}
 
-\item{clonoCol}{A character providing the name of the cell-level clonotype
-counts matrix in the \code{colData} of \code{x} (default = \code{'clono'}).
-Only applies when \code{x} is a \code{SingleCellExperiment} object.}
+\item{clonoStats}{character. If \code{x} is a \code{SingleCellExperiment},
+the name of the element in the \code{metadata} of \code{x} that contains
+the output of \code{clonoStats}. Must include cell-level clonotype
+assignments (ie. \code{assignment = TRUE}).}
 }
 \value{
 A matrix clonotype counts where each row corresponds to a unique

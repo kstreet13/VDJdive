@@ -13,7 +13,7 @@ splitClonotypes(x, by, ...)
 
 \S4method{splitClonotypes}{matrix}(x, by)
 
-\S4method{splitClonotypes}{SingleCellExperiment}(x, by, clonoCol = "clono")
+\S4method{splitClonotypes}{SingleCellExperiment}(x, by, clonoStats = "clonoStats")
 }
 \arguments{
 \item{x}{A \code{Matrix} of cell-level clonotype assignments
@@ -27,9 +27,10 @@ use as this variable.}
 
 \item{...}{additional arguments.}
 
-\item{clonoCol}{The name of the column in the \code{colData} of \code{x} that
-contains the cell-level clonotype assignments (only applies if \code{x} is
-a \code{SingleCellExperiment}).}
+\item{clonoStats}{character. If \code{x} is a \code{SingleCellExperiment},
+the name of the element in the \code{metadata} of \code{x} that contains
+the output of \code{clonoStats}. Must include cell-level clonotype
+assignments (ie. \code{assignment = TRUE}).}
 }
 \value{
 A list of \code{Matrix} objects providing the cell-level counts for

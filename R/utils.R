@@ -36,6 +36,9 @@ setMethod(f = "splitClonotypes",
           signature = signature(x = "Matrix"),
           definition = function(x, by){
               stopifnot(length(by) == nrow(x))
+              if(!is.factor(by)){
+                  by <- factor(by)
+              }
               out <- lapply(levels(by), function(lv){
                   x[which(by == lv), ,drop = FALSE]
               })
@@ -54,24 +57,25 @@ setMethod(f = "splitClonotypes",
           })
 
 #' @rdname splitClonotypes
-#' @param clonoCol The name of the column in the \code{colData} of \code{x} that
-#'   contains the cell-level clonotype assignments (only applies if \code{x} is
-#'   a \code{SingleCellExperiment}).
+#' @param clonoStats character. If \code{x} is a \code{SingleCellExperiment},
+#'   the name of the element in the \code{metadata} of \code{x} that contains
+#'   the output of \code{clonoStats}. Must include cell-level clonotype
+#'   assignments (ie. \code{assignment = TRUE}).
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #' @export
 setMethod(f = "splitClonotypes",
           signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, by, clonoCol = 'clono'){
-              if(is.null(x$clono)){
+          definition = function(x, by, clonoStats = 'clonoStats'){
+              if(is.null(metadata(x)[[clonoStats]])){
                   stop('No clonotype counts found.')
               }
               if(length(by) == 1){
                   byVar <- factor(x[[by]])
               }else{
-                  stopifnot(length(by) == ncol(x))
                   byVar <- factor(by)
               }
-              return(splitClonotypes(x$clono, byVar))
+              return(splitClonotypes(metadata(x)[[clonoStats]]$assignment, 
+                                     byVar))
           })
 
 # helper function for summarizeClonotypes,mode='tab'
@@ -103,9 +107,10 @@ setGeneric(name = "summarizeClonotypes",
 #'   counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 #'   be a character, giving the name of the column from the \code{colData} to
 #'   use as this variable.
-#' @param clonoCol A character providing the name of the cell-level clonotype
-#'   counts matrix in the \code{colData} of \code{x} (default = \code{'clono'}).
-#'   Only applies when \code{x} is a \code{SingleCellExperiment} object.
+#' @param clonoStats character. If \code{x} is a \code{SingleCellExperiment},
+#'   the name of the element in the \code{metadata} of \code{x} that contains
+#'   the output of \code{clonoStats}. Must include cell-level clonotype
+#'   assignments (ie. \code{assignment = TRUE}).
 #' @param mode Type of summarization to perform. Default is \code{'sum'}, which
 #'   sums clonotype abundances within each sample (or level of \code{'by'}).
 #'   Alternative is \code{'tab'}, which constructs a table of clonotype
@@ -160,8 +165,9 @@ setMethod(f = "summarizeClonotypes",
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, by = "sample", clonoCol = 'clono', ...){
-              if(is.null(x[[clonoCol]])){
+          definition = function(x, by = "sample", 
+                                clonoStats = 'clonoStats', ...){
+              if(is.null(metadata(x)[[clonoStats]])){
                   stop('No clonotype counts found.')
               }
               if(length(by) == 1){
@@ -169,8 +175,8 @@ setMethod(f = "summarizeClonotypes",
               }else{
                   byVar <- factor(by)
               }
-              out <- summarizeClonotypes(x[[clonoCol]], byVar, ...)
-              return(out)
+              return(summarizeClonotypes(metadata(x)[[clonoStats]]$assignment,
+                                         byVar, ...))
           })
 
 #' @rdname summarizeClonotypes
