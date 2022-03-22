@@ -33,8 +33,8 @@ setGeneric(name = "clonoStats",
 #'   nClonotypes} sparse matrix of clonotype assignments (default =
 #'   \code{FALSE})
 #' @param method Which method to use for assigning cell-level clonotypes.
-#'   Options are \code{"EM"} (default), \code{"unique"}, and
-#'   \code{"CellRanger"}. See Details.
+#'   Options are \code{"EM"} (default), \code{"unique"}, \code{"CellRanger"}, or
+#'   any \code{chain} type in \code{x}. See Details.
 #' @param EM_lang Indicates which implementation of the EM algorithm to use.
 #'   Options are \code{'r'} or \code{'python'} (default). Only used if
 #'   \code{method = "EM"}.
@@ -81,11 +81,12 @@ setMethod(f = "clonoStats",
           signature = signature(x = "SplitDataFrameList"),
           definition = function(x, sample = 'sample', type = NULL,
                                 assignment = FALSE, 
-                                method = c('EM','unique','CellRanger'), 
+                                method = 'EM', 
                                 EM_lang = c('python','r'),
                                 thresh = .01, iter.max = 1000){
     contigs <- x
-    method <- match.arg(method)
+    method <- match.arg(method, choices = c('EM','unique','CellRanger',
+                                            unique(unlist(x[,'chain']))))
     EM_lang <- match.arg(EM_lang)
     if(is.null(type)){
         chn <- unlist(contigs[,'chain'])
@@ -123,17 +124,19 @@ setMethod(f = "clonoStats",
                        type = type, EM_lang = EM_lang,
                        thresh = thresh, iter.max = iter.max)
         })
-    }
-    if(method == 'CellRanger'){
+    }else if(method == 'CellRanger'){
         clono.list <- lapply(levels(sampVar), function(lv){
             .CR_sample(contigs[which(sampVar == lv)],
                        type = type)
         })
-    }
-    if(method == 'unique'){
+    }else if(method == 'unique'){
         clono.list <- lapply(levels(sampVar), function(lv){
             .UNIQ_sample(contigs[which(sampVar == lv)],
                          type = type)
+        })
+    }else{
+        clono.list <- lapply(levels(sampVar), function(lv){
+            .CHN_sample(contigs[which(sampVar == lv)], method = method)
         })
     }
     if(any(is.na(sampVar))){

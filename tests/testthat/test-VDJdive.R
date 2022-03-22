@@ -1,7 +1,7 @@
 context("Test VDJdive.")
 library(utils) # needed for data()
 library(stats) # for rpois()
-library(S4Vectors) # for ?
+library(S4Vectors) # for metadata()
 
 test_that("utility functions work", {
     # load example data
@@ -115,6 +115,15 @@ test_that("clonoStats function works as expected", {
     expect_equivalent(dim(crng$assignment), c(24, 17))
     expect_equal(sum(crng$assignment), 22)
 
+    alph <- clonoStats(contigs, method = 'TRA', assignment = TRUE)
+    expect_equivalent(names(alph), c('abundance','frequency','assignment'))
+    expect_equivalent(dim(alph$abundance), c(18,2))
+    expect_equal(sum(alph$abundance), 24)
+    expect_equivalent(dim(alph$frequency), c(4,2))
+    expect_equal(sum(alph$frequency), 36)
+    expect_equivalent(dim(alph$assignment), c(24, 18))
+    expect_equal(sum(alph$assignment), 24)
+    
     emal <- clonoStats(contigs, method = 'EM', assignment = TRUE)
     expect_equivalent(names(emal), c('abundance','frequency','assignment'))
     expect_equivalent(dim(emal$abundance), c(60,2))

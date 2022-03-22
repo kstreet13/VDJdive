@@ -13,7 +13,7 @@ clonoStats(x, ...)
   sample = "sample",
   type = NULL,
   assignment = FALSE,
-  method = c("EM", "unique", "CellRanger"),
+  method = "EM",
   EM_lang = c("python", "r"),
   thresh = 0.01,
   iter.max = 1000

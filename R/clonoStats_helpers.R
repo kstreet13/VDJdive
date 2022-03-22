@@ -307,5 +307,32 @@
 }
 
 
+.CHN_sample <- function(contigs, method){
+    # in this case, 'method' indicates the type of chain being quantified
+    contigs <- contigs[contigs[,'productive']]
+    contigs <- contigs[contigs[,'chain'] == method]
+    
+    # find all unique chains (not necessarily alphas)
+    all.alphas <- unique(unlist(contigs[,'cdr3']))
+    if(length(all.alphas)==0){
+        # can't assign clonotypes
+        # return empty matrix, in case this is just one sample of many
+        clono <- Matrix(0, nrow = length(contigs), ncol = 0)
+        rownames(clono) <- names(contigs)
+        return(clono)
+    }
+    
+    # build full cells-by-clonotypes matrix
+    clono <- Matrix(0, nrow = length(contigs), ncol = length(all.alphas))
+    for(i in seq_along(contigs)){
+        clono[i,] <- as.numeric(all.alphas %in% contigs[[i]][,'cdr3'])
+    }
+    colnames(clono) <- all.alphas
+    rownames(clono) <- names(contigs)
+    
+    return(clono)
+}
+
+
 
 
