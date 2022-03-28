@@ -46,8 +46,8 @@ samples.}
 \code{FALSE})}
 
 \item{method}{Which method to use for assigning cell-level clonotypes.
-Options are \code{"EM"} (default), \code{"unique"}, and
-\code{"CellRanger"}. See Details.}
+Options are \code{"EM"} (default), \code{"unique"}, \code{"CellRanger"}, or
+any \code{chain} type in \code{x}. See Details.}
 
 \item{EM_lang}{Indicates which implementation of the EM algorithm to use.
 Options are \code{'r'} or \code{'python'} (default). Only used if

@@ -78,14 +78,9 @@ setMethod(f = "splitClonotypes",
                                      byVar))
           })
 
-# helper function for summarizeClonotypes,mode='tab'
-.nonInt_tab <- function(probs, lim){
-    prob <- 1
-    for(p in probs[which(probs > 0)]){
-        prob <- c(prob*(1-p), 0) + c(0, prob*p)
-    }
-    return(c(prob, rep(0, lim-length(prob))))
-}
+
+
+
 
 #' @title Get sample-level clonotype counts
 #' @name summarizeClonotypes
@@ -142,16 +137,52 @@ setMethod(f = "summarizeClonotypes",
                   }, FUN.VALUE = rep(0,ncol(x)))
               }
               if(mode == 'tab'){
-                  lim <- nrow(x)+1
-                  out <- vapply(levels(by), function(lv){
-                      ind <- which(by==lv)
-                      p.dists <- Matrix(0, nrow = lim, ncol = ncol(x), 
-                                        sparse = TRUE)
-                      for(jj in seq_len(ncol(x))){
-                          p.dists[,jj] <- .nonInt_tab(x[ind, jj], lim)
-                      }
-                      return(Matrix::rowSums(p.dists))
-                  }, FUN.VALUE = rep(0,lim))
+                  lim <- max(table(by))+1
+                  if(all(x@x %% 1 == 0)){ # integer counts
+                      out <- vapply(levels(by), function(lv){
+                          ind <- which(by==lv)
+                          return(table(factor(colSums(x[ind, ,drop=FALSE]),
+                                              levels = seq_len(lim)-1)))
+                      }, FUN.VALUE = rep(0,lim))
+                  }else{ # non-integer counts
+                      out <- vapply(levels(by), function(lv){
+                          sub.x <- x[which(by==lv), ,drop=FALSE]
+                          # I tried putting the following code in a function,
+                          # but it didn't work for some mysterious reason:
+                          # Error in intI(i, n = x@Dim[1], dn[[1]], give.dn = FALSE) : 
+                          #     index larger than maximal 1
+                          # from "p.dists[2, ind1] <- EX[ind1]"
+                          nz <- unname(Matrix::colSums(sub.x > 0)) # non-zero count
+                          EX <- unname(Matrix::colSums(sub.x)) # sum of probs
+                          p.dists <- Matrix(0, nrow = lim, ncol = ncol(sub.x), 
+                                            sparse = TRUE)
+                          # absent clonotypes
+                          ind0 <- unname(which(nz == 0))
+                          p.dists[1, ind0] <- 1
+                          # clonotypes that could only be in one cell
+                          ind1 <- unname(which(nz == 1))
+                          p.dists[1, ind1] <- 1 - EX[ind1]
+                          p.dists[2, ind1] <- EX[ind1]
+                          # clonotypees that could only be in (up to) two cells
+                          ind2 <- unname(which(nz == 2))
+                          P2 <- matrix(sub.x[, ind2, drop = FALSE]@x, nrow = 2)
+                          p.dists[1, ind2] <- exp(colSums(log(1-P2)))
+                          p.dists[3, ind2] <- exp(colSums(log(P2)))
+                          p.dists[2, ind2] <- 1 - p.dists[1, ind2] - 
+                              p.dists[3, ind2]
+                          # then do the rest the slow way
+                          for(jj in which(nz > 2)){
+                              probs <- sub.x[, jj, drop=FALSE]@x
+                              distr <- 1
+                              for(p in probs){
+                                  distr <- c(distr*(1-p), 0) + c(0, distr*p)
+                              }
+                              p.dists[,jj] <- c(distr, rep(0, 
+                                                           lim-length(distr)))
+                          }
+                          return(Matrix::rowSums(p.dists))
+                      }, FUN.VALUE = rep(0,lim))
+                  }
                   # trim excess 0s
                   out <- out[seq_len(max(c(0,which(rowSums(out) > 0)))), ,
                              drop = FALSE]
