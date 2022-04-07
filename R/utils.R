@@ -177,8 +177,8 @@ setMethod(f = "summarizeClonotypes",
                               for(p in probs){
                                   distr <- c(distr*(1-p), 0) + c(0, distr*p)
                               }
-                              p.dists[,jj] <- c(distr, rep(0, 
-                                                           lim-length(distr)))
+                              p.dists[,jj] <- c(distr, 
+                                                rep(0, lim-length(distr)))
                           }
                           return(Matrix::rowSums(p.dists))
                       }, FUN.VALUE = rep(0,lim))

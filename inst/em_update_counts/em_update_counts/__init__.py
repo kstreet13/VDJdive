@@ -20,3 +20,19 @@ def TCR_EM_counts(unique_counts, counts_old, t_indices, thresh, max_iters):
             counts_old = list(counts)
     return counts
 
+
+def make_distrs(probs_list):
+    distrs = list()
+    for ps in probs_list:
+        d = [1]
+        for p in ps:
+            y = [p*x for x in d]
+            y.insert(0,0)
+            n = [(1-p)*x for x in d]
+            n.append(0)
+            d = [y[i] + n[i] for i in range(len(y))]
+        distrs.append(d)
+    return distrs
+
+
+
