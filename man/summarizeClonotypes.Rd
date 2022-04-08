@@ -9,7 +9,7 @@
 \usage{
 summarizeClonotypes(x, by, ...)
 
-\S4method{summarizeClonotypes}{Matrix}(x, by, mode = c("sum", "tab"))
+\S4method{summarizeClonotypes}{Matrix}(x, by, mode = c("sum", "tab"), lang = c("r", "python"))
 
 \S4method{summarizeClonotypes}{SingleCellExperiment}(x, by = "sample", clonoStats = "clonoStats", ...)
 
@@ -32,6 +32,10 @@ use as this variable.}
 sums clonotype abundances within each sample (or level of \code{'by'}).
 Alternative is \code{'tab'}, which constructs a table of clonotype
 frequencies (ie. singletons, doubletons, etc.) by sample.}
+
+\item{lang}{Indicates which implementation of the \code{"tab"} summarization
+to use. Options are \code{'r'} (default) or \code{'python'}. Only used if
+non-integer clonotype abundances are present and \code{mode = "tab"}.}
 
 \item{clonoStats}{character. If \code{x} is a \code{SingleCellExperiment},
 the name of the element in the \code{metadata} of \code{x} that contains

@@ -1,41 +1,62 @@
 
-.nonInt_tab <- function(x, lim){
+.nonInt_tab <- function(x, lim, lang = c("r","python")){
+    lang <- match.arg(lang)
     nz <- unname(Matrix::colSums(x > 0)) # non-zero count
     EX <- unname(Matrix::colSums(x)) # sum of probs
-    p.dists <- Matrix(0, nrow = lim, ncol = ncol(x), 
-                      sparse = TRUE)
-    # absent clonotypes
-    ind0 <- unname(which(nz == 0))
-    p.dists[1, ind0] <- 1
-    # clonotypes that could only be in one cell
-    ind1 <- unname(which(nz == 1))
-    p.dists[1, ind1] <- 1 - EX[ind1]
-    p.dists[2, ind1] <- EX[ind1]
-    # clonotypees that could only be in (up to) two cells
-    ind2 <- unname(which(nz == 2))
-    P2 <- matrix(x[, ind2, drop = FALSE]@x, nrow = 2)
-    p.dists[1, ind2] <- exp(colSums(log(1-P2)))
-    p.dists[3, ind2] <- exp(colSums(log(P2)))
-    p.dists[2, ind2] <- 1 - p.dists[1, ind2] - p.dists[3, ind2]
-    # then do the rest in python
-    ind3p <- unname(which(nz > 2))
-    counts <- x[, ind3p, drop = FALSE]@x
-    probs_list <- unname(split(counts, 
-                               factor(rep(seq_len(length(ind3p)), 
-                                          times = nz[ind3p]))))
-    cl <- basiliskStart(pyenv)
-    distrs_list <- basiliskRun(proc = cl, function(probs_list){
-        mod <- reticulate::import(module = "em_update_counts", 
-                                  convert = TRUE)
-        return(mod$make_distrs(probs_list))
-    }, probs_list = probs_list)
-    basiliskStop(cl)
-    tmpI <- as.integer(unlist(lapply(lengths(distrs_list), function(l){ seq_len(l)-1 })))
-    tmpP <- as.integer(c(0,cumsum(lengths(distrs_list))))
-    tmp <- new('dgCMatrix', i = tmpI, p = tmpP, x = as.numeric(unlist(distrs_list)),
-                 Dim = as.integer(c(lim, length(distrs_list))))
-    p.dists[,ind3p] <- tmp
-    return(Matrix::rowSums(p.dists))
+    if(lim >= 2){
+        # clonotypes that could only be in zero or one cell
+        ind1 <- which(nz == 1)
+        # skip straight to the row sums
+        RS1 <- c(sum(nz == 0) + length(ind1) - sum(EX[ind1]), 
+                 sum(EX[ind1]), rep(0, lim-2))
+    }else{
+        RS1 <- rep(0,lim)
+    }
+    if(lim >= 3){
+        # clonotypes that could only be in (up to) two cells
+        ind2 <- which(nz == 2)
+        P2 <- matrix(x[, ind2, drop = FALSE]@x, nrow = 2)
+        RS2 <- c(sum(exp(colSums(log(1-P2)))), 0,
+                 sum(exp(colSums(log(P2)))), rep(0, lim-3))
+        RS2[2] <- length(ind2) - RS2[1] - RS2[3]
+    }else{
+        RS2 <- rep(0, lim)
+    }
+    if(lim >= 4){
+        # then do the rest (either in python or R)
+        ind3p <- which(nz >= 3)
+        counts <- x[, ind3p, drop = FALSE]@x
+        probs_list <- unname(split(counts, 
+                                   factor(rep(seq_len(length(ind3p)), 
+                                              times = nz[ind3p]))))
+        if(lang == 'python'){
+            cl <- basiliskStart(pyenv)
+            distrs_list <- basiliskRun(proc = cl, function(probs_list){
+                mod <- reticulate::import(module = "em_update_counts", 
+                                          convert = TRUE)
+                return(mod$make_distrs(probs_list))
+            }, probs_list = probs_list)
+            basiliskStop(cl)
+        }
+        if(lang == 'r'){
+            # this might cause memory problems
+            distrs_list <- lapply(probs_list, function(probs){
+                distr <- 1
+                for(p in probs){
+                    distr <- c(distr*(1-p), 0) + c(0, distr*p)
+                }
+                return(distr)
+            })
+        }
+        tmpI <- as.integer(unlist(lapply(lengths(distrs_list), function(l){ seq_len(l)-1 })))
+        tmpP <- as.integer(c(0,cumsum(lengths(distrs_list))))
+        tmp <- new('dgCMatrix', i = tmpI, p = tmpP, x = as.numeric(unlist(distrs_list)),
+                   Dim = as.integer(c(lim, length(distrs_list))))
+        RS3 <- Matrix::rowSums(tmp)
+    }else{
+        RS3 <- rep(0, lim)
+    }
+    return(RS1+RS2+RS3)
 }
 
 
@@ -69,6 +90,9 @@ setGeneric(name = "summarizeClonotypes",
 #'   sums clonotype abundances within each sample (or level of \code{'by'}).
 #'   Alternative is \code{'tab'}, which constructs a table of clonotype
 #'   frequencies (ie. singletons, doubletons, etc.) by sample.
+#' @param lang Indicates which implementation of the \code{"tab"} summarization
+#'   to use. Options are \code{'r'} (default) or \code{'python'}. Only used if
+#'   non-integer clonotype abundances are present and \code{mode = "tab"}.
 #'
 #' @return A matrix clonotype counts where each row corresponds to a unique
 #'   value of \code{by} (if \code{by} denotes sample labels, this is a matrix of
@@ -84,8 +108,10 @@ setGeneric(name = "summarizeClonotypes",
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "Matrix"),
-          definition = function(x, by, mode = c('sum','tab')){
+          definition = function(x, by, mode = c('sum','tab'), 
+                                lang = c('r','python')){
               mode <- match.arg(mode)
+              lang <- match.arg(lang)
               if(!is.factor(by)){
                   by <- factor(by)
               }
@@ -106,7 +132,7 @@ setMethod(f = "summarizeClonotypes",
                   }else{ # non-integer counts
                       out <- vapply(levels(by), function(lv){
                           sub.x <- x[which(by==lv), ,drop=FALSE]
-                          return(.nonInt_tab(sub.x, lim))
+                          return(.nonInt_tab(sub.x, lim, lang))
                       }, FUN.VALUE = rep(0,lim))
                   }
                   # trim excess 0s

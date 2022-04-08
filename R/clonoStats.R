@@ -164,7 +164,7 @@ setMethod(f = "clonoStats",
     
     # summarize clonotype assignments
     t1 <- summarizeClonotypes(clono, sampVar, mode = 'sum')
-    t2 <- summarizeClonotypes(clono, sampVar, mode = 'tab')
+    t2 <- summarizeClonotypes(clono, sampVar, mode = 'tab', lang = EM_lang)
     out <- list(abundance = t1, frequency = t2)
     if(assignment){
         out$assignment <- clono
