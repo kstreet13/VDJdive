@@ -32,7 +32,7 @@
         if(lang == 'python'){
             cl <- basiliskStart(pyenv)
             distrs_list <- basiliskRun(proc = cl, function(probs_list){
-                mod <- reticulate::import(module = "em_update_counts", 
+                mod <- reticulate::import(module = "vdjHelpers", 
                                           convert = TRUE)
                 return(mod$make_distrs(probs_list))
             }, probs_list = probs_list)

@@ -143,7 +143,7 @@
         cl <- basiliskStart(pyenv)
         counts <- basiliskRun(cl, function(uniquecounts, counts.old, t.indices, 
                                            thresh, iter.max){
-            mod <- reticulate::import(module = "em_update_counts", 
+            mod <- reticulate::import(module = "vdjHelpers", 
                                       convert = TRUE)
             return(mod$TCR_EM_counts(uniquecounts, counts.old, t.indices, 
                                      thresh, iter.max))
