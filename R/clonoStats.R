@@ -151,13 +151,15 @@ setMethod(f = "clonoStats",
     }
     # supplement each matrix with 0s so they have same number of columns
     all.clonotypes <- unique(unlist(lapply(clono.list, colnames)))
-    clono.list <- lapply(clono.list, function(mat){
-        missing <- all.clonotypes[! all.clonotypes %in% colnames(mat)]
-        zeros <- Matrix(0, ncol = length(missing), nrow = nrow(mat),
-                        sparse = TRUE)
-        colnames(zeros) <- missing
-        return(cbind(mat, zeros))
-    })
+    if(length(all.clonotypes) > 0){ # can't index by empty set
+        clono.list <- lapply(clono.list, function(mat){
+            missing <- all.clonotypes[! all.clonotypes %in% colnames(mat)]
+            zeros <- Matrix(0, ncol = length(missing), nrow = nrow(mat),
+                            sparse = TRUE)
+            colnames(zeros) <- missing
+            return(cbind(mat, zeros)[,all.clonotypes])
+        })
+    }
     # combine matrices
     clono <- do.call(rbind, clono.list)
     clono <- clono[names(contigs), ]
