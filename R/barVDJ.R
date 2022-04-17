@@ -29,7 +29,7 @@ barVDJ <- function(x, bySample = TRUE, title = NULL, legend = FALSE) {
     nms <- colnames(x)
     for (i in seq_len(ncol(x))) {
         tmp <- x[x[, i] > 0.5, nms[i]]
-        tmp <- tmp[order(tmp, decreasing = TRUE)]
+        tmp <- c(sort(tmp, decreasing = TRUE),0)
         dat <- rbind(dat, data.frame(clonotype = seq_along(tmp), count = tmp, 
                                      sample = nms[i]))
     }
