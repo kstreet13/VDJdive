@@ -22,7 +22,6 @@
 #' pieVDJ(x)
 #' @export
 #'
-
 pieVDJ <- function(x, legend = "bottom") {
   
   pieG <- NULL
@@ -33,7 +32,7 @@ pieVDJ <- function(x, legend = "bottom") {
     nm <- colnames(x)[i]
     if (!(numcells - singletons[1])) {
       dat <- data.frame(count = 1, col = 1, clonotype = 1)
-      warning(paste("Sample", nm, "only contains singletons"))
+      warning("Sample ", nm, " only contains singletons")
     } else {
       cl <- x[x[, i] > 1, i]
       dat <- data.frame(count = cl[order(cl)])

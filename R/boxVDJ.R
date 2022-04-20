@@ -31,7 +31,6 @@
 #'        title = "Shannon diversity", legend = FALSE)
 #' @export
 #'
-
 boxVDJ <- function(d, 
                    sampleGroups = NULL, 
                    method = c("shannon", "simpson", "invsimpson", "chao1", "chaobunge"), 

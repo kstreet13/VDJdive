@@ -2,8 +2,11 @@
 
 export(addVDJtoSCE)
 export(barVDJ)
+export(boxVDJ)
 export(calculateDiversity)
 export(clonoStats)
+export(divLineVDJ)
+export(pieVDJ)
 export(readVDJcontigs)
 export(runVDJPCA)
 export(splitClonotypes)
