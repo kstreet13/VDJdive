@@ -7,21 +7,27 @@
     return(sum(f))
 }
 .shannon <- function(p){
-    p <- p[p > 0]
+    p <- p[which(p > 0)]
     p <- p / sum(p)
+    p <- p[which(p > 0)]
     return(-sum(p * log(p)))
 }
 .normentropy <- function(p){
-    p <- p[p > 0]
+    p <- p[which(p > 0)]
     p <- p / sum(p)
+    p <- p[which(p > 0)]
     return(-sum(p * log(p)) / log(length(p)))
 }
 .invsimpson <- function(p){
+    p <- p[which(p > 0)]
     p <- p / sum(p)
+    p <- p[which(p > 0)]
     return(1 / sum(p^2))
 }
 .ginisimpson <- function(p){
+    p <- p[which(p > 0)]
     p <- p / sum(p)
+    p <- p[which(p > 0)]
     return(1 - sum(p^2))
 }
 .chao1 <- function(f){
