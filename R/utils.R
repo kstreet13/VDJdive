@@ -104,7 +104,7 @@ setGeneric(name = "summarizeClonotypes",
 #' summarizeClonotypes(x$assignment, by = sce$sample)
 #'
 #' @importClassesFrom Matrix Matrix
-#' @importFrom Matrix rowSums
+#' @importFrom Matrix Matrix rowSums
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "Matrix"),
@@ -140,7 +140,7 @@ setMethod(f = "summarizeClonotypes",
                              drop = FALSE]
                   rownames(out) <- seq_len(nrow(out))-1
               }
-              return(out)
+              return(Matrix(out, sparse = TRUE))
           })
 
 #' @rdname summarizeClonotypes

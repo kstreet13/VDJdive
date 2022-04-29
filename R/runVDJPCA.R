@@ -31,7 +31,7 @@ setGeneric(name = "runVDJPCA",
 #' @importFrom stats prcomp
 #' @export
 setMethod(f = "runVDJPCA",
-          signature = signature(x = "matrix"),
+          signature = signature(x = "ANY"),
           definition = function(x, unit = c("samples","clonotypes")){
               unit <- match.arg(unit)
               

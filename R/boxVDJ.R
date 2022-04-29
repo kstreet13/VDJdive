@@ -20,20 +20,20 @@
 #'
 #' @examples
 #' data(contigs)
-#' samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-#' counts <- EMquant(contigs)
-#' x <- t(summarizeClonotypes(counts, samples))
+#' x <- clonoStats(contigs)
 #' d <- calculateDiversity(x)
-#' 
 #' sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 
 #'                            Group = c("Cancer", "Normal"))
 #' boxVDJ(d, sampleGroups = sampleGroups, method = "shannon", 
 #'        title = "Shannon diversity", legend = FALSE)
+#' 
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom ggplot2 ggplot aes geom_boxplot geom_jitter scale_color_manual theme_bw labs
 #' @export
-#'
 boxVDJ <- function(d, 
                    sampleGroups = NULL, 
-                   method = c("shannon", "simpson", "invsimpson", "chao1", "chaobunge"), 
+                   method = c("shannon", "simpson", "invsimpson", "chao1",
+                              "chaobunge"), 
                    title = NULL, 
                    legend = FALSE) {
   
@@ -47,15 +47,18 @@ boxVDJ <- function(d,
   
   if (!is.null(sampleGroups)) {
     d1 <- t(d[grepl(method, dimnames(d)[[1]], ignore.case = TRUE), ])
-    sampleGroups$Diversity <- unlist(d1[match(dimnames(d1)[[2]], sampleGroups$sample)])
+    sampleGroups$Diversity <- unlist(d1[match(dimnames(d1)[[2]], 
+                                              sampleGroups$sample)])
   } else {
     d1 <- t(d[grepl(method, dimnames(d)[[1]], ignore.case = TRUE), ])
     sampleGroups <- data.frame(Diversity = unlist(d1), group = " ")
   }
   
-  cols <- RColorBrewer::brewer.pal(8, name = "Dark2")[1:length(unique(sampleGroups$group))]
+  cols <- RColorBrewer::brewer.pal(8, name = "Dark2")[seq_along(
+      unique(sampleGroups$group))]
   
-  g <- ggplot2::ggplot(sampleGroups, ggplot2::aes(x = group, y = Diversity, color = group)) 
+  g <- ggplot2::ggplot(sampleGroups, ggplot2::aes(x = group, y = Diversity, 
+                                                  color = group)) 
   
   if (legend) {
     g <- g +

@@ -15,6 +15,7 @@ Imports:
     IRanges,
     Matrix,
     methods,
+    RColorBrewer,
     reticulate,
     S4Vectors,
     SingleCellExperiment,

@@ -27,9 +27,8 @@ for each clonotype with darker colors being clonotypes with a single cell
 shows the the level of epxansion in each clonotype.
 }
 \examples{
-data(contigs)
-samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-counts <- EMquant(contigs)
-x <- t(summarizeClonotypes(counts, samples))
-pieVDJ(x)
+data('contigs')
+x <- clonoStats(contigs)
+pieVDJ(x$abundance)
+
 }

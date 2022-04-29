@@ -41,13 +41,11 @@ plotted on the box plots.
 }
 \examples{
 data(contigs)
-samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-counts <- EMquant(contigs)
-x <- t(summarizeClonotypes(counts, samples))
+x <- clonoStats(contigs)
 d <- calculateDiversity(x)
-
 sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 
                            Group = c("Cancer", "Normal"))
 boxVDJ(d, sampleGroups = sampleGroups, method = "shannon", 
        title = "Shannon diversity", legend = FALSE)
+
 }

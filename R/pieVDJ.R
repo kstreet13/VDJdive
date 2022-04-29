@@ -15,18 +15,17 @@
 #' (expanded clonotype).
 #'
 #' @examples
-#' data(contigs)
-#' samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-#' counts <- EMquant(contigs)
-#' x <- t(summarizeClonotypes(counts, samples))
-#' pieVDJ(x)
+#' data('contigs')
+#' x <- clonoStats(contigs)
+#' pieVDJ(x$abundance)
+#' 
+#' @importFrom ggplot2 ggplot aes geom_col coord_polar scale_fill_continuous labs theme_void theme
 #' @export
-#'
 pieVDJ <- function(x, legend = "bottom") {
   
   pieG <- NULL
   
-  for (i in 1:ncol(x)) {
+  for (i in seq_len(ncol(x))) {
     numcells <- sum(x[, i], na.rm = TRUE)
     singletons <- c(sum(x[x[, i] <= 1, i]), 1)
     nm <- colnames(x)[i]
@@ -38,7 +37,7 @@ pieVDJ <- function(x, legend = "bottom") {
       dat <- data.frame(count = cl[order(cl)])
       dat$col <- dat$count
       dat <- rbind(singletons, dat)
-      dat$clonotype <- 1:nrow(dat)
+      dat$clonotype <- seq_len(nrow(dat))
     }
     
     pieG[[i]] <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = count, fill = log(col), weight = count))
@@ -62,7 +61,7 @@ pieVDJ <- function(x, legend = "bottom") {
   }
   
   # Make legend
-  # datL <- data.frame(values = 1:100)
+  # datL <- data.frame(values = seq_len(100))
   # pieL <- ggplot2::ggplot(datL, ggplot2::aes(x = "", y = values, fill = values, weight = values)) +
   #   ggplot2::geom_col(position = "stack") +
   #   ggplot2::scale_fill_continuous("", type = "viridis", breaks = c(1, 100), 
