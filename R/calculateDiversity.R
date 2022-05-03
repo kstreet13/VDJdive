@@ -252,4 +252,11 @@ setMethod(f = "calculateDiversity",
               return(results)
           })
 
-
+#' @rdname calculateDiversity
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @export
+setMethod(f = "calculateDiversity",
+          signature = signature(x = "SingleCellExperiment"),
+          definition = function(x, ...){
+              calculateDiversity(metdata(x)$clonoStats)
+          })

@@ -3,14 +3,18 @@
 \name{clonoNames}
 \alias{clonoNames}
 \alias{clonoNames,clonoStats-method}
+\alias{clonoNames,SingleCellExperiment-method}
 \title{Get clonotype names}
 \usage{
-clonoNames(cs)
+clonoNames(object)
 
-\S4method{clonoNames}{clonoStats}(cs)
+\S4method{clonoNames}{clonoStats}(object)
+
+\S4method{clonoNames}{SingleCellExperiment}(object)
 }
 \arguments{
-\item{cs}{a \code{\link{clonoStats}} object.}
+\item{object}{a \code{\link{clonoStats}} object or
+\code{SingleCellExperiment} object containing \code{clonoStats} results.}
 }
 \value{
 The names of the clonotypes summarized in the input \code{clonoStats}

@@ -50,6 +50,9 @@ test_that("utility functions work", {
     SLF <- summarizeClonotypes(sce, by = 'sample', mode = 'tab')
     expect_equivalent(dim(SLF), c(4, 2))
     expect_equivalent(rowSums(SLF), c(5,7,1,1))
+    
+    cn <- clonoNames(sce)
+    expect_equal(length(unlist(strsplit(cn,split=' '))), 2 * length(cn))
 })
 
 test_that("input/output functions work", {
@@ -123,6 +126,7 @@ test_that("clonoStats function works as expected", {
     expect_equal(sum(alph@frequency), 36)
     expect_equivalent(dim(alph@assignment), c(24, 18))
     expect_equal(sum(alph@assignment), 24)
+    expect_equivalent(grep('\\s$', clonoNames(alph)), seq_len(18))
     
     emal <- clonoStats(contigs, method = 'EM', assignment = TRUE)
     expect_is(emal, 'clonoStats')

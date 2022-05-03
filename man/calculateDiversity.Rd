@@ -3,6 +3,7 @@
 \name{calculateDiversity}
 \alias{calculateDiversity}
 \alias{calculateDiversity,clonoStats-method}
+\alias{calculateDiversity,SingleCellExperiment-method}
 \title{Sample diversity estimation}
 \usage{
 calculateDiversity(x, ...)
@@ -13,6 +14,8 @@ calculateDiversity(x, ...)
     "ginisimpson", "chao1", "chaobunge"),
   ...
 )
+
+\S4method{calculateDiversity}{SingleCellExperiment}(x, ...)
 }
 \arguments{
 \item{x}{A matrix of abundance values where rows are features (clonotypes)

@@ -280,11 +280,12 @@ setMethod(f = "splitClonotypes",
 #' @name clonoNames
 #' @export
 setGeneric(name = "clonoNames",
-           signature = c("cs"),
-           def = function(cs) standardGeneric("clonoNames"))
+           signature = c("object"),
+           def = function(object) standardGeneric("clonoNames"))
 
 #' @rdname clonoNames
-#' @param cs a \code{\link{clonoStats}} object.
+#' @param object a \code{\link{clonoStats}} object or
+#'   \code{SingleCellExperiment} object containing \code{clonoStats} results.
 #' @return The names of the clonotypes summarized in the input \code{clonoStats}
 #'   object.
 #' 
@@ -295,9 +296,19 @@ setGeneric(name = "clonoNames",
 #' 
 #' @export
 setMethod(f = "clonoNames",
-          signature = signature(cs = "clonoStats"),
-          definition = function(cs){
-              paste(cs@names1, cs@names2)
+          signature = signature(object = "clonoStats"),
+          definition = function(object){
+              paste(object@names1, object@names2)
+          })
+
+#' @rdname clonoNames
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @importFrom S4Vectors metadata
+#' @export
+setMethod(f = "clonoNames",
+          signature = signature(object = "SingleCellExperiment"),
+          definition = function(object){
+              clonoNames(metadata(object)$clonoStats)
           })
 
 

@@ -9,7 +9,7 @@ package: VDJdive
 output:
   BiocStyle::html_document
 abstract: |
-  Description of your vignette
+  This vignette demonstrates the utility of the `VDJdive` package. The package provides functions for handling and analyzing immune receptor repertoire data, as produced by the CellRanger V(D)J pipeline. This includes reading the data into R, merging it with paired single-cell RNA-seq data, assigning clonotype labels, calculating diversity metrics, and producing common plots.
 vignette: |
   %\VignetteIndexEntry{VDJdive Workflow}
   %\VignetteEngine{knitr::rmarkdown}
@@ -36,9 +36,9 @@ require(VDJdive)
 
 # Read in 10X data
 
-The 10X data are in a file called contig\_annotations.csv. The functions in `r Biocpkg("VDJdive")` require that the data are a CompressedSplitDFrameList. The following snippet demonstrates how to read in the filtered\_contig\_annotations.csv file and convert it to a CompressedSplitDFrameList for downstream use. 
+The 10X data are in a file called `filtered_contig_annotations.csv`, containing one entry (row) for each unique contig in each cell. When we read this data into R, we could produce a single `data.frame`, but we want to keep entries from the same cell together. Hence, we read the data in as a `SplitDataFrameList`, which efficiently stores a collection of data frames all containing the same column names. The following snippet demonstrates how to read in the `filtered_contig_annotations.csv` file and convert it to a `CompressedSplitDFrameList` for downstream use. 
 
-The function readVDJcontigs takes a character vector that contains directory names. Each directory should contain a file called filtered\_contig\_annotations.csv. readVDJcontics will read in the 10X files from the directory, split by cell barcode, and create a SplitDataFrameList from the files. The barcodes will be unique across samples because the sample name is appended to the barcode. 
+The function `readVDJcontigs` takes a character vector that contains directory names. Each directory should contain a file called `filtered_contig_annotations.csv`. `readVDJcontigs` will read in the 10X files from the directory, split by cell barcode, and create a `SplitDataFrameList` from the files. The barcodes will be unique across samples because the sample name is appended to the barcode. 
 
 ```{r, eval = FALSE}
 # Read in a single file
@@ -50,24 +50,14 @@ path2 <- "sample2"
 contigs <- readVDJcontigs(c("path1", "path2"))
 ```
 
-# Create counts matrix
-
-`r Biocpkg("VDJdive")` contains two methods for obtaining clonotype counts. The first is done with the function uniqueQuant which produces whole number counts. This method considers only cells with complete, productive alpha and beta chains. Cells that do not meet this criteria are not included in the counts. If two cells have identical amino acids in their CDR3 regions, they are considered to be the same clonotype. uniqueQuant produces a sparse matrix that can be used for downstream analysis. 
-
-```{r}
+```{r, echo = FALSE}
 data("contigs")
-Ucounts <- clonoStats(contigs, method = 'unique')
-class(Ucounts)
 ```
 
-The other method for quantifying clonotypes is EMquant. It uses the EM algorithm to assigne clonotype counts. Rather than filtering out any cells that do not have a productive alpha and productive beta chain, EMquant allows for partial assignment. For example, if a cell has one productive alpha chain and two productive beta chains, the EM algorithm will be used to make a partial clonotype assignment based on the prevalence of each clonotype in the sample. That means that a cell may have a count of 0.6 for one clonotype and 0.4 for a different clonotype rather than a count of 1 for a single clonotype. As with CRquant, a sparse matrix is returned. However, the matrix for EMquant contains fractional counts rather then solely whole number counts. EMquant is implemented as follows: 
 
-```{r}
-EMcounts <- clonoStats(contigs, method = "EM")
-class(EMcounts)
-```
+# Merging V(D)J and scRNAseq Data
 
-The sparse matrix itself is not used for downstream analysis. The function summarizeClonotypes creates a matrix where the *columns* represent each clonotype and the values are the counts for that clonotype. The *rows* represent each of the samples. However, the data need to be put in the format of a singleCellExperiment prior to using summarizeClonotypes. This can be done for contigs with the following code: 
+Besides keeping data on the same cells together, the primary advantage of the `SplitDataFrameList` is that it has length equal to the number of cells and can therefore be added to the column data of a `SingleCellExperiment` object. Cells are matched between the two objects by their barcodes. However, this merging can lead to information loss, as cells that are not already represented in the SCE object will be dropped from the `SplitDataFrameList`. When this happens, `addVDJtoSCE` will issue a warning with the number of cells that have been dropped.
 
 ```{r}
 require(SingleCellExperiment)
@@ -75,31 +65,62 @@ ncells <- 24
 u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
 barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
 samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
-x <- SingleCellExperiment(assays = list(counts = u),
+sce <- SingleCellExperiment(assays = list(counts = u),
                             colData = data.frame(Barcode = barcodes,
                                                  sample = samples))
-x <- addVDJtoSCE(contigs, x)
-x$contigs
+sce <- addVDJtoSCE(contigs, sce)
+sce$contigs
 ```
 
 
+# Assign Clonotypes and Calculate Summaries
+
+`r Biocpkg("VDJdive")` contains two methods for assigning clonotype lables. The first considers only cells with complete, productive alpha and beta chains (exactly one of each). These are the cells which can only be assigned a single, unique clonotype label and the resulting abudances are always whole numbers. Cells that do not meet this criteria are not assigned a clonotype and do not contribute to downstream analysis. If two cells have identical amino acid sequences in their CDR3 regions, they are considered to be the same clonotype. We assign clonotypes in this manner by running `clonoStats` with the option `method = 'unique'`:
+
 ```{r}
-x <- clonoStats(x, method = 'EM')
-sampleCounts <- metadata(x)$clonoStats@abundance
-head(sampleCounts)
+UNstats <- clonoStats(contigs, method = 'unique')
+class(UNstats)
+```
+
+The other method for assigning clonotype lables is probabalistic and makes use of the Expectation-Maximization (EM) algorithm. Rather than filtering out ambiguous cells (ie. cells with no alpha chain, no beta chain, or more than one of either), this method allows for partial assignment. For example, if a cell has one productive alpha chain and two productive beta chains, the EM algorithm will be used to make a partial clonotype assignment based on the prevalence of each clonotype in the sample. That means that a cell may have a count of 0.6 for one clonotype and 0.4 for a different clonotype rather than a count of 1 for a single clonotype. We assign clonotypes in this manner by running `clonoStats` with the option `method = 'EM'` (which is the default): 
+
+```{r}
+EMstats <- clonoStats(contigs, method = "EM")
+class(EMstats)
+```
+
+Similarly, we can call `clonoStats` on a `SingleCellExperiment` object that contains V(D)J data. This will add a `clonoStats` object to the metadata of the SCE:
+```{r}
+sce <- clonoStats(sce, method = 'EM')
+metadata(sce)
 ```
 
 
 # Diversity
 
-Diversity can be computed with the sampleCounts matrix. The calculateDiversity function can compute Shannon entropy, Simpson entropy, inverse-Simpson entropy, Chao diversity, and Chao-Bunge diversity. The Chao and Chao-Bunge diversity measures require integer counts. Thus, the results for the EM counts are multiplied by 100 and then rounded prior to calculation. The resulting diversity measure is then rescaled back by dividing by 100. The entropy measures do not require integer counts so no transformation is needed for those measures. 
+Diversity metrics can be computed from the `clonoStats` object or a `SingleCellExperiment` object containing the relevant output. The `calculateDiversity` function can compute (normalized) Shannon entropy, Simpson index, inverse-Simpson index, Chao diversity, and Chao-Bunge diversity. The Chao and Chao-Bunge diversity measures require clonotype frequencies that may be philosophically incompatible with the expected counts generated by the EM algorithm. In these cases, the results for the EM counts are taken as Bernoulli probabilities and we calculate the expected number of singletons, doubletons, etc. The entropy measures and Simpson indices do not require integer counts so no additional calculation is needed for those measures. 
 
-All of the diversity measures can be computed for each sample by doing the following: 
+All of the diversity measures can be computed for each sample with the following: 
 
 ```{r}
-div <- calculateDiversity(metadata(x)$clonoStats, methods = "all")
+div <- calculateDiversity(EMstats, methods = "all")
 div
 ```
+
+# Cluster Diversity
+
+Rather than grouping cells by sample, we may be interested in other groupings, such as clusters based on RNA expression. In this case, if we have the original clonotype assignment matrix, we can calculate new summary statistics based on a different grouping variable. This is preferable to grouping by cluster in the original call to `clonoStats` because the most accurate clonotype assignment is achieved cells are grouped by sample. Otherwise, we may see unwanted crosstalk between samples leading to nonsensical counts (ie. a clonotype that never appears in a particular sample may receive non-zero counts from some ambiguous cells in that sample).
+
+```{r}
+EMstats <- clonoStats(contigs, method = "EM", assignment = TRUE)
+
+clus <- sample(1:2, 24, replace = TRUE)
+
+EMstats.clus <- clonoStats(EMstats, sample = clus)
+```
+
+To reiterate: we always recommend running `clonoStats` by sample of origin first, to get the most accurate clonotype assignment. It is easy to re-calculate summary statistics for other grouping variables later.
+
 
 # Visualization
 
@@ -108,6 +129,11 @@ div
 ## Barplot
 
 ```{r}
-barVDJ(sampleCounts, bySample = TRUE, title = "contigs", legend = TRUE)
+barVDJ(EMstats, bySample = TRUE, title = "contigs", legend = TRUE)
 ```
 
+## Pie Chart
+
+```{r}
+pieVDJ(EMstats)
+```
