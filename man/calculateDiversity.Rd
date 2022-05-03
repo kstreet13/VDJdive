@@ -2,12 +2,12 @@
 % Please edit documentation in R/calculateDiversity.R
 \name{calculateDiversity}
 \alias{calculateDiversity}
-\alias{calculateDiversity,list-method}
+\alias{calculateDiversity,clonoStats-method}
 \title{Sample diversity estimation}
 \usage{
 calculateDiversity(x, ...)
 
-\S4method{calculateDiversity}{list}(
+\S4method{calculateDiversity}{clonoStats}(
   x,
   methods = c("all", "nCells", "nClonotypes", "shannon", "normentropy", "invsimpson",
     "ginisimpson", "chao1", "chaobunge"),

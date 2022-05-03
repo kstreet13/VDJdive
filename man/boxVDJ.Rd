@@ -2,9 +2,12 @@
 % Please edit documentation in R/boxVDJ.R
 \name{boxVDJ}
 \alias{boxVDJ}
-\title{boxVDJ creates a box plot for diversity measures}
+\alias{boxVDJ,matrix-method}
+\title{Create a box plot for diversity measures}
 \usage{
-boxVDJ(
+boxVDJ(d, ...)
+
+\S4method{boxVDJ}{matrix}(
   d,
   sampleGroups = NULL,
   method = c("shannon", "simpson", "invsimpson", "chao1", "chaobunge"),
@@ -14,6 +17,8 @@ boxVDJ(
 }
 \arguments{
 \item{d}{A \code{matrix} created with \code{calculateDiversity}.}
+
+\item{...}{additional arguments.}
 
 \item{sampleGroups}{A \code{matrix} or \code{data.frame} that
 identifies the groups that each sample belongs to. The matrix must contain

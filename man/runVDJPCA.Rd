@@ -3,14 +3,14 @@
 \name{runVDJPCA}
 \alias{runVDJPCA}
 \alias{runVDJPCA,ANY-method}
-\alias{runVDJPCA,list-method}
+\alias{runVDJPCA,clonoStats-method}
 \title{Run PCA on clonotype abundance matrix}
 \usage{
 runVDJPCA(x, ...)
 
 \S4method{runVDJPCA}{ANY}(x, unit = c("samples", "clonotypes"))
 
-\S4method{runVDJPCA}{list}(x, ...)
+\S4method{runVDJPCA}{clonoStats}(x, ...)
 }
 \arguments{
 \item{x}{A matrix of abundance values where rows are features (clonotypes)
@@ -34,6 +34,6 @@ this is a form of beta diversity.
 \examples{
 data('contigs')
 x <- clonoStats(contigs)
-runVDJPCA(x$abundance)
+runVDJPCA(x)
 
 }

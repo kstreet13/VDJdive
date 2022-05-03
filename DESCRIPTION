@@ -44,3 +44,16 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 StagedInstall: no
 VignetteBuilder: knitr
+Collate: 
+    'clonoStats_class.R'
+    'barVDJ.R'
+    'basilisk.R'
+    'boxVDJ.R'
+    'calculateDiversity.R'
+    'clonoStats.R'
+    'clonoStats_helpers.R'
+    'contigs.R'
+    'pieVDJ.R'
+    'runVDJPCA.R'
+    'setup.R'
+    'utils.R'

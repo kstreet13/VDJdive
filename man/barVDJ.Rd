@@ -2,12 +2,23 @@
 % Please edit documentation in R/barVDJ.R
 \name{barVDJ}
 \alias{barVDJ}
-\title{barVDJ creates a bar graph for clonotype expansion}
+\alias{barVDJ,Matrix-method}
+\alias{barVDJ,matrix-method}
+\alias{barVDJ,clonoStats-method}
+\title{Create a bar graph for clonotype expansion}
 \usage{
-barVDJ(x, bySample = TRUE, title = NULL, legend = FALSE)
+barVDJ(x, ...)
+
+\S4method{barVDJ}{Matrix}(x, bySample = TRUE, title = NULL, legend = FALSE)
+
+\S4method{barVDJ}{matrix}(x, ...)
+
+\S4method{barVDJ}{clonoStats}(x, ...)
 }
 \arguments{
 \item{x}{A \code{matrix} created with \code{summarizeClonotypes}.}
+
+\item{...}{additional arguments.}
 
 \item{bySample}{If TRUE, the plot will be separated by sample. If FALSE,
 all samples will be combined as if they were one sample.}
@@ -26,13 +37,13 @@ for each clonotype with darker colors being clonotypes with a single cell
 (expanded clonotype).
 }
 \description{
-\code{barVDJ} creates a barplot using ggplot that shows the number
-of reads in the sample and colors the sample in accordance to the
+\code{barVDJ} creates a barplot using ggplot that shows the
+number of reads in the sample and colors the sample in accordance to the
 amount of diversity.
 }
 \examples{
 data('contigs')
 x <- clonoStats(contigs)
-barVDJ(x$abundance)
+barVDJ(x)
 
 }

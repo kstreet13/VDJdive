@@ -1,3 +1,5 @@
+#' @include clonoStats_class.R
+NULL
 
 # diversity functions
 .nCells <- function(p){
@@ -174,7 +176,7 @@ setGeneric(name = "calculateDiversity",
 #'
 #' @export
 setMethod(f = "calculateDiversity",
-          signature = signature(x = "list"),
+          signature = signature(x = "clonoStats"),
           definition = function(x, methods = c('all','nCells','nClonotypes',
                                                'shannon', 'normentropy', 
                                                'invsimpson', 'ginisimpson',
@@ -188,14 +190,14 @@ setMethod(f = "calculateDiversity",
               }
 
               # check if all counts are integers
-              ints <- all(x$abundance %% 1 == 0)
+              ints <- all(x@abundance %% 1 == 0)
               if(!ints & any(c('chao1','chaobunge') %in% methods)){
                   warning('Methods "chao1" and "chaobunge" are not valid with ',
                           'non-integer abundances.')
               }
               
-              p <- x$abundance
-              f <- x$frequency
+              p <- x@abundance
+              f <- x@frequency
               
               # loop over methods
               results <- lapply(methods, function(m){

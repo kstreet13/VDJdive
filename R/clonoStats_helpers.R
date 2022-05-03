@@ -85,22 +85,23 @@
     poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
     # others are incorrect, though
     poss.indices[ind.multiple] <- lapply(ind.multiple, function(i){
-        return(sort(unique(as.integer(sapply(wa[[i]], function(a){
-            sapply(wb[[i]], function(b){
-                length(all.alphas)*(b-1) + a
-            })
+        return(sort(unique(as.integer(outer(wa[[i]], wb[[i]], 
+                                            FUN = function(a,b){
+            length(all.alphas)*(b-1) + a
         })))))
     })
     poss.indices[ind.noAlpha] <- lapply(ind.noAlpha, function(i){
         a.i <- seq_along(all.alphas)
-        return(sort(unique(as.integer(sapply(wb[[i]], function(b){
-            length(all.alphas)*(b-1) + a.i
+        return(sort(unique(as.integer(outer(a.i, wb[[i]], 
+                                            FUN = function(a,b){
+            length(all.alphas)*(b-1) + a
         })))))
     })
     poss.indices[ind.noBeta] <- lapply(ind.noBeta, function(i){
         b.i <- seq_along(all.betas)
-        return(sort(unique(as.integer(sapply(wa[[i]], function(a){
-            length(all.alphas)*(b.i-1) + a
+        return(sort(unique(as.integer(outer(wa[[i]], b.i, 
+                                            FUN = function(a,b){
+            length(all.alphas)*(b-1) + a
         })))))
     })
     
@@ -182,7 +183,7 @@
     # build full cells-by-clonotypes matrix
     clonoJ <- as.integer(unlist(poss.indices)-1)
     clonoP <- as.integer(c(0,cumsum(lengths(poss.indices))))
-    clonoX <- unlist(sapply(which(lengths(poss.indices) > 0), function(i){
+    clonoX <- unlist(lapply(which(lengths(poss.indices) > 0), function(i){
         counts[poss.indices[[i]]] /
             sum(counts[poss.indices[[i]]])
     }))
@@ -200,12 +201,12 @@
 .CR_sample <- function(contigs, type){
     contigs <- .prepContigs(contigs, type)    
     
-    clonoID <- sapply(contigs, function(x){
+    clonoID <- vapply(contigs, function(x){
         alphas <- sort(x$cdr3[x$chain=='TRA'])
         betas <- sort(x$cdr3[x$chain=='TRB'])
         return(paste(paste(alphas, collapse = ','),
                      paste(betas, collapse = ',')))
-    })
+    }, FUN.VALUE = 'A')
     
     all_clonotypes <- unique(clonoID)
     

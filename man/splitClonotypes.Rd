@@ -5,6 +5,7 @@
 \alias{splitClonotypes,Matrix-method}
 \alias{splitClonotypes,matrix-method}
 \alias{splitClonotypes,SingleCellExperiment-method}
+\alias{splitClonotypes,clonoStats-method}
 \title{Split cell-level clonotype counts by sample}
 \usage{
 splitClonotypes(x, by, ...)
@@ -14,13 +15,15 @@ splitClonotypes(x, by, ...)
 \S4method{splitClonotypes}{matrix}(x, by)
 
 \S4method{splitClonotypes}{SingleCellExperiment}(x, by, clonoStats = "clonoStats")
+
+\S4method{splitClonotypes}{clonoStats}(x, by)
 }
 \arguments{
 \item{x}{A \code{Matrix} of cell-level clonotype assignments
 (cells-by-clonotypes) or a \code{SingleCellExperiment} object with such a
 matrix stored in the \code{clono} slot of the \code{colData}.}
 
-\item{by}{A character vector or factor by which to split the clonotype
+\item{by}{A chadracter vector or factor by which to split the clonotype
 counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 be a character, giving the name of the column from the \code{colData} to
 use as this variable.}
@@ -44,6 +47,6 @@ into a list of group-specific counts (typically samples).
 \examples{
 example(addVDJtoSCE)
 x <- clonoStats(contigs, assignment = TRUE)
-splitClonotypes(x$assignment, by = sce$sample)
+splitClonotypes(x, by = sce$sample)
 
 }

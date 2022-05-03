@@ -4,6 +4,7 @@
 \alias{clonoStats}
 \alias{clonoStats,SplitDataFrameList-method}
 \alias{clonoStats,SingleCellExperiment-method}
+\alias{clonoStats,clonoStats-method}
 \title{Assign cell-level clonotypes and calculate abundances}
 \usage{
 clonoStats(x, ...)
@@ -20,6 +21,8 @@ clonoStats(x, ...)
 )
 
 \S4method{clonoStats}{SingleCellExperiment}(x, TCRcol = "contigs", sample = NULL, ...)
+
+\S4method{clonoStats}{clonoStats}(x, sample = NULL, EM_lang = c("python", "r"))
 }
 \arguments{
 \item{x}{A \code{SplitDataFrameList} object containing V(D)J contig
@@ -76,7 +79,7 @@ Assign clonotypes to cells and produce two summary tables: the
   samples} table of clonotype frequencies.
 }
 \details{
-#' Assign each cell (with at least one V(D)J contig) to its most
+Assign each cell (with at least one V(D)J contig) to its most
 likely clonotype with the EM algorithm. For ambiguous cells, this leads to
 proportional (non-integer) assignment across multiple possible clonotypes.
 

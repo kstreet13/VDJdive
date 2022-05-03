@@ -1,3 +1,5 @@
+#' @include clonoStats_class.R
+NULL
 
 .nonInt_tab <- function(x, lim, lang = c("r","python")){
     lang <- match.arg(lang)
@@ -59,9 +61,6 @@
     return(RS1+RS2+RS3)
 }
 
-
-
-
 #' @title Get sample-level clonotype counts
 #' @name summarizeClonotypes
 #' @param ... additional arguments.
@@ -101,7 +100,7 @@ setGeneric(name = "summarizeClonotypes",
 #' @examples
 #' example(addVDJtoSCE)
 #' x <- clonoStats(contigs, assignment = TRUE)
-#' summarizeClonotypes(x$assignment, by = sce$sample)
+#' summarizeClonotypes(x, by = sce$sample)
 #'
 #' @importClassesFrom Matrix Matrix
 #' @importFrom Matrix Matrix rowSums
@@ -158,7 +157,7 @@ setMethod(f = "summarizeClonotypes",
               }else{
                   byVar <- factor(by)
               }
-              return(summarizeClonotypes(metadata(x)[[clonoStats]]$assignment,
+              return(summarizeClonotypes(metadata(x)[[clonoStats]]@assignment,
                                          byVar, ...))
           })
 
@@ -171,7 +170,17 @@ setMethod(f = "summarizeClonotypes",
               summarizeClonotypes(Matrix(x), by, ...)
           })
 
-
+#' @rdname summarizeClonotypes
+#' @export
+setMethod(f = "summarizeClonotypes",
+          signature = signature(x = "clonoStats"),
+          definition = function(x, by, ...){
+              if(is.null(x@assignment)){
+                  stop('"x" must contain cell-level clonotype assignment',
+                       ' matrix')
+              }
+              summarizeClonotypes(x@assignment, by, ...)
+          })
 
 
 
@@ -196,7 +205,7 @@ setGeneric(name = "splitClonotypes",
 #' @param x A \code{Matrix} of cell-level clonotype assignments
 #'   (cells-by-clonotypes) or a \code{SingleCellExperiment} object with such a
 #'   matrix stored in the \code{clono} slot of the \code{colData}.
-#' @param by A character vector or factor by which to split the clonotype
+#' @param by A chadracter vector or factor by which to split the clonotype
 #'   counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 #'   be a character, giving the name of the column from the \code{colData} to
 #'   use as this variable.
@@ -208,7 +217,7 @@ setGeneric(name = "splitClonotypes",
 #' @examples
 #' example(addVDJtoSCE)
 #' x <- clonoStats(contigs, assignment = TRUE)
-#' splitClonotypes(x$assignment, by = sce$sample)
+#' splitClonotypes(x, by = sce$sample)
 #'
 #' @importClassesFrom Matrix Matrix
 #' @export
@@ -254,9 +263,59 @@ setMethod(f = "splitClonotypes",
               }else{
                   byVar <- factor(by)
               }
-              return(splitClonotypes(metadata(x)[[clonoStats]]$assignment, 
+              return(splitClonotypes(metadata(x)[[clonoStats]]@assignment, 
                                      byVar))
           })
 
+#' @rdname splitClonotypes
+#' @export
+setMethod(f = "splitClonotypes",
+          signature = signature(x = "clonoStats"),
+          definition = function(x, by){
+              splitClonotypes(x@assignment, by)
+          })
+
+
+#' @title Get clonotype names
+#' @name clonoNames
+#' @export
+setGeneric(name = "clonoNames",
+           signature = c("cs"),
+           def = function(cs) standardGeneric("clonoNames"))
+
+#' @rdname clonoNames
+#' @param cs a \code{\link{clonoStats}} object.
+#' @return The names of the clonotypes summarized in the input \code{clonoStats}
+#'   object.
+#' 
+#' @examples 
+#' data('contigs')
+#' cs <- clonoStats(contigs)
+#' clonoNames(cs)
+#' 
+#' @export
+setMethod(f = "clonoNames",
+          signature = signature(cs = "clonoStats"),
+          definition = function(cs){
+              paste(cs@names1, cs@names2)
+          })
+
+
+#' @describeIn clonoStats-class a short summary of a \code{clonoStats}
+#'   object.
+#' @param object a \code{\link{clonoStats}} object.
+#' @return Displays a summary of the input \code{clonoStats} object.
+#' @importFrom S4Vectors coolcat
+#' @export
+setMethod(f = "show",
+          signature = signature(object = "clonoStats"),
+          definition = function(object){
+              cat('An object of class "clonoStats"\n')
+              cat('clonotypes:', length(object@names1), '\n')
+              cat('cells:', length(object@group), '\n')
+              groups <- levels(object@group)
+              coolcat("groups(%d): %s\n", groups)
+              cat('has assignment:', !is.null(object@assignment))
+          })
 
 

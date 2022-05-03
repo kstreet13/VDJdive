@@ -2,17 +2,28 @@
 % Please edit documentation in R/pieVDJ.R
 \name{pieVDJ}
 \alias{pieVDJ}
-\title{pieVDJ creates a pie chart for clonotype expansion}
+\alias{pieVDJ,Matrix-method}
+\alias{pieVDJ,matrix-method}
+\alias{pieVDJ,clonoStats-method}
+\title{Create a pie chart for clonotype expansion}
 \usage{
-pieVDJ(x, legend = "bottom")
+pieVDJ(x, ...)
+
+\S4method{pieVDJ}{Matrix}(x, legend = "bottom")
+
+\S4method{pieVDJ}{matrix}(x, ...)
+
+\S4method{pieVDJ}{clonoStats}(x, ...)
 }
 \arguments{
 \item{x}{A \code{matrix} created with \code{summarizeClonotypes}.}
 
+\item{...}{additional arguments.}
+
 \item{legend}{Can take on the values use in the legend.position command
 in ggplot ("left","top", "right", "bottom", or a numeric vector) to
 indicate where the legend should be placed. If left NULL, no legend will
-be created. .}
+be created.}
 }
 \value{
 If \code{x} contains more than one sample, a list of pie charts
@@ -23,12 +34,12 @@ for each clonotype with darker colors being clonotypes with a single cell
 (expanded clonotype).
 }
 \description{
-\code{pieVDJ} creates a list of pie charts created using ggplot that
-shows the the level of epxansion in each clonotype.
+\code{pieVDJ} creates a list of pie charts created using ggplot
+that shows the the level of epxansion in each clonotype.
 }
 \examples{
 data('contigs')
 x <- clonoStats(contigs)
-pieVDJ(x$abundance)
+pieVDJ(x)
 
 }

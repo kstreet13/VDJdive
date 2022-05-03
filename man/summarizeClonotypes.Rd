@@ -5,6 +5,7 @@
 \alias{summarizeClonotypes,Matrix-method}
 \alias{summarizeClonotypes,SingleCellExperiment-method}
 \alias{summarizeClonotypes,matrix-method}
+\alias{summarizeClonotypes,clonoStats-method}
 \title{Get sample-level clonotype counts}
 \usage{
 summarizeClonotypes(x, by, ...)
@@ -14,6 +15,8 @@ summarizeClonotypes(x, by, ...)
 \S4method{summarizeClonotypes}{SingleCellExperiment}(x, by = "sample", clonoStats = "clonoStats", ...)
 
 \S4method{summarizeClonotypes}{matrix}(x, by, ...)
+
+\S4method{summarizeClonotypes}{clonoStats}(x, by, ...)
 }
 \arguments{
 \item{x}{A (usually sparse) matrix of cell-level clonotype counts (cells are
@@ -54,6 +57,6 @@ within groups (typically samples).
 \examples{
 example(addVDJtoSCE)
 x <- clonoStats(contigs, assignment = TRUE)
-summarizeClonotypes(x$assignment, by = sce$sample)
+summarizeClonotypes(x, by = sce$sample)
 
 }

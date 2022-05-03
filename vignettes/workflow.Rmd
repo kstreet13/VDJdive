@@ -85,7 +85,7 @@ x$contigs
 
 ```{r}
 x <- clonoStats(x, method = 'EM')
-sampleCounts <- metadata(x)$clonoStats$abundance
+sampleCounts <- metadata(x)$clonoStats@abundance
 head(sampleCounts)
 ```
 

@@ -1,3 +1,5 @@
+#' @include clonoStats_class.R
+NULL
 
 #' @title Run PCA on clonotype abundance matrix
 #' @param ... additional arguments.
@@ -26,7 +28,7 @@ setGeneric(name = "runVDJPCA",
 #' @examples 
 #' data('contigs')
 #' x <- clonoStats(contigs)
-#' runVDJPCA(x$abundance)
+#' runVDJPCA(x)
 #' 
 #' @importFrom stats prcomp
 #' @export
@@ -46,11 +48,7 @@ setMethod(f = "runVDJPCA",
 #' @rdname runVDJPCA
 #' @export
 setMethod(f = "runVDJPCA",
-          signature = signature(x = "list"),
+          signature = signature(x = "clonoStats"),
           definition = function(x, ...){
-              if('abundance' %in% names(x)){
-                  return(runVDJPCA(x$abundance, ...))
-              }else{
-                  stop('No VDJ abundance data found in input to runVDJPCA.')
-              }
+              runVDJPCA(x@abundance, ...)
           })

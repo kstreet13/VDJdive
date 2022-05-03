@@ -33,7 +33,7 @@ test_that("utility functions work", {
     expect_equivalent(dim(CL[[2]]), c(12, 7))
     expect_equal(sum(CL[[1]]), 6)
     
-    CL2 <- splitClonotypes(as.matrix(metadata(sce)$clonoStats$assignment), 
+    CL2 <- splitClonotypes(as.matrix(metadata(sce)$clonoStats@assignment), 
                            by = samples)
     expect_identical(CL, CL2)
     
@@ -43,7 +43,7 @@ test_that("utility functions work", {
     expect_equivalent(dim(SLC), c(7, 2))
     expect_equivalent(colSums(SLC), c(6, 6))
     
-    SLC2 <- summarizeClonotypes(as.matrix(metadata(sce)$clonoStats$assignment),
+    SLC2 <- summarizeClonotypes(as.matrix(metadata(sce)$clonoStats@assignment),
                                 by = samples)
     expect_identical(SLC, SLC2)
     
@@ -98,51 +98,51 @@ test_that("clonoStats function works as expected", {
     data("contigs")
 
     uniq <- clonoStats(contigs, method = 'unique', assignment = TRUE)
-    expect_equivalent(names(uniq), c('abundance','frequency','assignment'))
-    expect_equivalent(dim(uniq$abundance), c(7,2))
-    expect_equal(sum(uniq$abundance), 12)
-    expect_equivalent(dim(uniq$frequency), c(4,2))
-    expect_equal(sum(uniq$frequency), 14)
-    expect_equivalent(dim(uniq$assignment), c(24, 7))
-    expect_equal(sum(uniq$assignment), 12)
+    expect_is(uniq, 'clonoStats')
+    expect_equivalent(dim(uniq@abundance), c(7,2))
+    expect_equal(sum(uniq@abundance), 12)
+    expect_equivalent(dim(uniq@frequency), c(4,2))
+    expect_equal(sum(uniq@frequency), 14)
+    expect_equivalent(dim(uniq@assignment), c(24, 7))
+    expect_equal(sum(uniq@assignment), 12)
 
     crng <- clonoStats(contigs, method = 'CellRanger', assignment = TRUE)
-    expect_equivalent(names(crng), c('abundance','frequency','assignment'))
-    expect_equivalent(dim(crng$abundance), c(17,2))
-    expect_equal(sum(crng$abundance), 22)
-    expect_equivalent(dim(crng$frequency), c(4,2))
-    expect_equal(sum(crng$frequency), 34)
-    expect_equivalent(dim(crng$assignment), c(24, 17))
-    expect_equal(sum(crng$assignment), 22)
+    expect_is(crng, 'clonoStats')
+    expect_equivalent(dim(crng@abundance), c(17,2))
+    expect_equal(sum(crng@abundance), 22)
+    expect_equivalent(dim(crng@frequency), c(4,2))
+    expect_equal(sum(crng@frequency), 34)
+    expect_equivalent(dim(crng@assignment), c(24, 17))
+    expect_equal(sum(crng@assignment), 22)
 
     alph <- clonoStats(contigs, method = 'TRA', assignment = TRUE)
-    expect_equivalent(names(alph), c('abundance','frequency','assignment'))
-    expect_equivalent(dim(alph$abundance), c(18,2))
-    expect_equal(sum(alph$abundance), 24)
-    expect_equivalent(dim(alph$frequency), c(4,2))
-    expect_equal(sum(alph$frequency), 36)
-    expect_equivalent(dim(alph$assignment), c(24, 18))
-    expect_equal(sum(alph$assignment), 24)
+    expect_is(alph, 'clonoStats')
+    expect_equivalent(dim(alph@abundance), c(18,2))
+    expect_equal(sum(alph@abundance), 24)
+    expect_equivalent(dim(alph@frequency), c(4,2))
+    expect_equal(sum(alph@frequency), 36)
+    expect_equivalent(dim(alph@assignment), c(24, 18))
+    expect_equal(sum(alph@assignment), 24)
     
     emal <- clonoStats(contigs, method = 'EM', assignment = TRUE)
-    expect_equivalent(names(emal), c('abundance','frequency','assignment'))
-    expect_equivalent(dim(emal$abundance), c(60,2))
-    expect_equal(sum(emal$abundance), 22)
-    expect_equivalent(dim(emal$frequency), c(4,2))
-    expect_equal(sum(emal$frequency), 120)
-    expect_equivalent(dim(emal$assignment), c(24, 60))
-    expect_equal(sum(emal$assignment), 22)
+    expect_is(emal, 'clonoStats')
+    expect_equivalent(dim(emal@abundance), c(60,2))
+    expect_equal(sum(emal@abundance), 22)
+    expect_equivalent(dim(emal@frequency), c(4,2))
+    expect_equal(sum(emal@frequency), 120)
+    expect_equivalent(dim(emal@assignment), c(24, 60))
+    expect_equal(sum(emal@assignment), 22)
     
     emal2 <- clonoStats(contigs, method = 'EM', 
                         assignment = TRUE, EM_lang = 'r')
-    expect_equivalent(names(emal2), c('abundance','frequency','assignment'))
-    expect_equivalent(dim(emal2$abundance), c(60,2))
-    expect_equal(sum(emal2$abundance), 22)
-    expect_equivalent(dim(emal2$frequency), c(4,2))
-    expect_equal(sum(emal2$frequency), 120)
-    expect_equivalent(dim(emal2$assignment), c(24, 60))
-    expect_equal(sum(emal2$assignment), 22)
-    expect_true(max(abs(emal2$assignment - emal$assignment)) < .0001)
+    expect_is(emal2, 'clonoStats')
+    expect_equivalent(dim(emal2@abundance), c(60,2))
+    expect_equal(sum(emal2@abundance), 22)
+    expect_equivalent(dim(emal2@frequency), c(4,2))
+    expect_equal(sum(emal2@frequency), 120)
+    expect_equivalent(dim(emal2@assignment), c(24, 60))
+    expect_equal(sum(emal2@assignment), 22)
+    expect_true(max(abs(emal2@assignment - emal@assignment)) < .0001)
 
     # make SCE object with matching barcodes and sample IDs
     ncells <- 24
@@ -155,14 +155,14 @@ test_that("clonoStats function works as expected", {
                              sample = samples))
     sce <- addVDJtoSCE(contigs, sce)
     
-    sceUniq <- clonoStats(sce, method = 'unique')
-    expect_identical(uniq[1:2], metadata(sceUniq)$clonoStats)
+    sceUniq <- clonoStats(sce, method = 'unique', assignment = TRUE)
+    expect_identical(uniq, metadata(sceUniq)$clonoStats)
     
-    sceCR <- clonoStats(sce, method = 'CellRanger')
-    expect_identical(crng[1:2], metadata(sceCR)$clonoStats)
+    sceCR <- clonoStats(sce, method = 'CellRanger', assignment = TRUE)
+    expect_identical(crng, metadata(sceCR)$clonoStats)
     
-    sceEM <- clonoStats(sce, method = 'EM')
-    expect_identical(emal[1:2], metadata(sceEM)$clonoStats)
+    sceEM <- clonoStats(sce, method = 'EM', assignment = TRUE)
+    expect_identical(emal, metadata(sceEM)$clonoStats)
     
     sceEMsamp <- clonoStats(sce, sample = 'sample')
     sceEMsamp2 <- clonoStats(sce, sample = sce$sample)
@@ -178,21 +178,21 @@ test_that("assignment functions handle edge cases", {
     sample <- factor(vapply(contigs[,'sample'], function(x){ x[1] }, 'A'))
     levels(sample) <- c('sample1','sample2','sample3')
     uniq <- clonoStats(contigs, sample = sample, method = 'unique')
-    expect_equivalent(names(uniq), c('abundance','frequency'))
-    expect_equivalent(dim(uniq$abundance), c(7,3))
-    expect_equal(sum(uniq$abundance), 12)
-    expect_equivalent(dim(uniq$frequency), c(4,3))
-    expect_equal(sum(uniq$frequency), 21)
+    expect_is(uniq, 'clonoStats')
+    expect_equivalent(dim(uniq@abundance), c(7,3))
+    expect_equal(sum(uniq@abundance), 12)
+    expect_equivalent(dim(uniq@frequency), c(4,3))
+    expect_equal(sum(uniq@frequency), 21)
     
     # sample NAs
     sampNA <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
     sampNA <- factor(sampNA, levels = c('sample1','sample3'))
     uniq <- clonoStats(contigs, sample = sampNA, method = 'unique')
-    expect_equivalent(names(uniq), c('abundance','frequency'))
-    expect_equivalent(dim(uniq$abundance), c(3,2))
-    expect_equal(sum(uniq$abundance), 6)
-    expect_equivalent(dim(uniq$frequency), c(4,2))
-    expect_equal(sum(uniq$frequency), 6)
+    expect_is(uniq, 'clonoStats')
+    expect_equivalent(dim(uniq@abundance), c(3,2))
+    expect_equal(sum(uniq@abundance), 6)
+    expect_equivalent(dim(uniq@frequency), c(4,2))
+    expect_equal(sum(uniq@frequency), 6)
 
     # SCE object with EXTRA CELLS and SAMPLE
     ncells <- 30
@@ -209,31 +209,30 @@ test_that("assignment functions handle edge cases", {
     sceUniq <- clonoStats(sce, sample ='sample', 
                           method = 'unique', assignment = TRUE)
     
-    expect_equivalent(names(metadata(sceUniq)$clonoStats), 
-                      c('abundance','frequency','assignment'))
-    expect_equivalent(dim(metadata(sceUniq)$clonoStats$assignment), c(30, 7))
-    expect_equal(sum(metadata(sceUniq)$clonoStats$assignment[
+    expect_is(metadata(sceUniq)$clonoStats, 'clonoStats')
+    expect_equivalent(dim(metadata(sceUniq)$clonoStats@assignment), c(30, 7))
+    expect_equal(sum(metadata(sceUniq)$clonoStats@assignment[
         sce$sample=='sample3',]), 0)
     
     # BCR data and mixtures
     uniq <- clonoStats(contigs, type = 'BCR', 
                        method = 'unique', assignment = TRUE)
-    expect_equivalent(dim(uniq$assignment), c(24, 0))
+    expect_equivalent(dim(uniq@assignment), c(24, 0))
     contigs[contigs[,'chain']=='TRA','chain'] <- 'IGH'
     uniq <- clonoStats(contigs, type = 'BCR', 
                        method = 'unique', assignment = TRUE)
-    expect_equivalent(dim(uniq$assignment), c(24, 0))
+    expect_equivalent(dim(uniq@assignment), c(24, 0))
     contigs[contigs[,'chain']=='TRB','chain'] <- 'IGL'
     
     # let it detect BCR
     uniq <- clonoStats(contigs, method = 'unique', assignment = TRUE)
-    expect_equivalent(names(uniq), c('abundance','frequency','assignment'))
-    expect_equivalent(dim(uniq$abundance), c(7,2))
-    expect_equal(sum(uniq$abundance), 12)
-    expect_equivalent(dim(uniq$frequency), c(4,2))
-    expect_equal(sum(uniq$frequency), 14)
-    expect_equivalent(dim(uniq$assignment), c(24, 7))
-    expect_equal(sum(uniq$assignment), 12)
+    expect_is(uniq, 'clonoStats')
+    expect_equivalent(dim(uniq@abundance), c(7,2))
+    expect_equal(sum(uniq@abundance), 12)
+    expect_equivalent(dim(uniq@frequency), c(4,2))
+    expect_equal(sum(uniq@frequency), 14)
+    expect_equivalent(dim(uniq@assignment), c(24, 7))
+    expect_equal(sum(uniq@assignment), 12)
 
 })
 
@@ -263,14 +262,11 @@ test_that("PCA function works", {
     
     clono <- clonoStats(contigs)
     
-    pca1 <- runVDJPCA(clono$abundance)
+    pca1 <- runVDJPCA(clono)
     expect_equivalent(dim(pca1$x), c(2, 2))
     
     pca2 <- runVDJPCA(clono, unit = 'clonotypes')
     expect_equivalent(dim(pca2$x), c(60, 2))
-    
-    expect_error(runVDJPCA(list(b = 1)), 
-                 regexp = 'No VDJ abundance data')
 })
 
 test_that("plotting functions work", {
@@ -278,10 +274,10 @@ test_that("plotting functions work", {
     data("contigs")
     
     x <- clonoStats(contigs)
-    p1 <- barVDJ(x$abundance)
+    p1 <- barVDJ(x)
     expect_equal(class(p1$layers[[1]]$geom)[1], 'GeomCol')
     
-    p2 <- barVDJ(x$abundance, bySample = FALSE, 
+    p2 <- barVDJ(x, bySample = FALSE, 
                  title = 'bar plot', legend = TRUE)
     expect_equal(class(p2$layers[[1]]$geom)[1], 'GeomCol')    
 })

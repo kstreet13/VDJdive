@@ -1,3 +1,6 @@
+#' @include clonoStats_class.R
+NULL
+
 #' @title Assign cell-level clonotypes and calculate abundances
 #' @param ... additional arguments.
 #' @name clonoStats
@@ -44,7 +47,7 @@ setGeneric(name = "clonoStats",
 #' @param iter.max Maximum number of iterations for the EM algorithm. Only used
 #'   if \code{method = "EM"}.
 #'
-#' @details #' Assign each cell (with at least one V(D)J contig) to its most
+#' @details Assign each cell (with at least one V(D)J contig) to its most
 #'   likely clonotype with the EM algorithm. For ambiguous cells, this leads to
 #'   proportional (non-integer) assignment across multiple possible clonotypes.
 
@@ -84,95 +87,120 @@ setMethod(f = "clonoStats",
                                 method = 'EM', 
                                 EM_lang = c('python','r'),
                                 thresh = .01, iter.max = 1000){
-    contigs <- x
-    method <- match.arg(method, choices = c('EM','unique','CellRanger',
-                                            unique(unlist(x[,'chain']))))
-    EM_lang <- match.arg(EM_lang)
-    if(is.null(type)){
-        chn <- unlist(contigs[,'chain'])
-        if(sum(chn %in% c('IGH','IGL','IGK')) > 
-           sum(chn %in% c('TRA','TRB','TRD','TRG'))){
-            type <- 'BCR'
-        }else{
-            type <- 'TCR'
-        }
-    }
-    
-    if(is.null(sample)){
-        sampVar <- factor(rep('sample1', length(contigs)))
-    }else{
-        if(length(sample) == 1){
-            stopifnot(sample %in% colnames(contigs[[1]]))
-            sampVar <- factor(vapply(seq_along(contigs), function(i){
-                contigs[[i]][,sample][1]
-            }, FUN.VALUE = 'a'))
-        }else{
-            if(!is.factor(sample)){
-                sampVar <- factor(sample)
-            }else{ # keep samples with no TCR data (factor() drops empty levels)
-                sampVar <- sample
-            }
-            stopifnot(length(sampVar) == length(contigs))
-        }
-    }
-    
-    # select appropriate method and quantify each sample individually #
-    ###################################################################
-    if(method == 'EM'){
-        clono.list <- lapply(levels(sampVar), function(lv){
-            .EM_sample(contigs[which(sampVar == lv)],
-                       type = type, EM_lang = EM_lang,
-                       thresh = thresh, iter.max = iter.max)
-        })
-    }else if(method == 'CellRanger'){
-        clono.list <- lapply(levels(sampVar), function(lv){
-            .CR_sample(contigs[which(sampVar == lv)],
-                       type = type)
-        })
-    }else if(method == 'unique'){
-        clono.list <- lapply(levels(sampVar), function(lv){
-            .UNIQ_sample(contigs[which(sampVar == lv)],
-                         type = type)
-        })
-    }else{
-        clono.list <- lapply(levels(sampVar), function(lv){
-            .CHN_sample(contigs[which(sampVar == lv)], method = method)
-        })
-    }
-    if(any(is.na(sampVar))){
-        # indicates elements of length 0
-        clono.list[[length(clono.list)+1]] <-
-            Matrix(0, nrow = sum(is.na(sampVar)),
-                   ncol = ncol(clono.list[[1]]), sparse = TRUE)
-        rownames(clono.list[[length(clono.list)]]) <-
-            names(contigs)[is.na(sampVar)]
-        colnames(clono.list[[length(clono.list)]]) <-
-            colnames(clono.list[[1]])
-    }
-    # supplement each matrix with 0s so they have same number of columns
-    all.clonotypes <- unique(unlist(lapply(clono.list, colnames)))
-    if(length(all.clonotypes) > 0){ # can't index by empty set
-        clono.list <- lapply(clono.list, function(mat){
-            missing <- all.clonotypes[! all.clonotypes %in% colnames(mat)]
-            zeros <- Matrix(0, ncol = length(missing), nrow = nrow(mat),
-                            sparse = TRUE)
-            colnames(zeros) <- missing
-            return(cbind(mat, zeros)[,all.clonotypes])
-        })
-    }
-    # combine matrices
-    clono <- do.call(rbind, clono.list)
-    clono <- clono[names(contigs), ]
-    
-    # summarize clonotype assignments
-    t1 <- summarizeClonotypes(clono, sampVar, mode = 'sum')
-    t2 <- summarizeClonotypes(clono, sampVar, mode = 'tab', lang = EM_lang)
-    out <- list(abundance = t1, frequency = t2)
-    if(assignment){
-        out$assignment <- clono
-    }
-    return(out)
-    })
+              contigs <- x
+              method <- match.arg(method, 
+                                  choices = c('EM','unique','CellRanger',
+                                              unique(unlist(x[,'chain']))))
+              EM_lang <- match.arg(EM_lang)
+              if(is.null(type)){
+                  chn <- unlist(contigs[,'chain'])
+                  if(sum(chn %in% c('IGH','IGL','IGK')) > 
+                     sum(chn %in% c('TRA','TRB','TRD','TRG'))){
+                      type <- 'BCR'
+                  }else{
+                      type <- 'TCR'
+                  }
+              }
+              
+              if(is.null(sample)){
+                  sampVar <- factor(rep('sample1', length(contigs)))
+              }else{
+                  if(length(sample) == 1){
+                      stopifnot(sample %in% colnames(contigs[[1]]))
+                      sampVar <- factor(vapply(seq_along(contigs), function(i){
+                          contigs[[i]][,sample][1]
+                      }, FUN.VALUE = 'a'))
+                  }else{
+                      if(!is.factor(sample)){
+                          sampVar <- factor(sample)
+                      }else{ # keep samples with no TCR data
+                          # (factor() drops empty levels)
+                          sampVar <- sample
+                      }
+                      stopifnot(length(sampVar) == length(contigs))
+                  }
+              }
+              
+              # select appropriate method and quantify each sample individually
+              #################################################################
+              if(method == 'EM'){
+                  clono.list <- lapply(levels(sampVar), function(lv){
+                      .EM_sample(contigs[which(sampVar == lv)],
+                                 type = type, EM_lang = EM_lang,
+                                 thresh = thresh, iter.max = iter.max)
+                  })
+              }else if(method == 'CellRanger'){
+                  clono.list <- lapply(levels(sampVar), function(lv){
+                      .CR_sample(contigs[which(sampVar == lv)],
+                                 type = type)
+                  })
+              }else if(method == 'unique'){
+                  clono.list <- lapply(levels(sampVar), function(lv){
+                      .UNIQ_sample(contigs[which(sampVar == lv)],
+                                   type = type)
+                  })
+              }else{
+                  clono.list <- lapply(levels(sampVar), function(lv){
+                      .CHN_sample(contigs[which(sampVar == lv)], 
+                                  method = method)
+                  })
+              }
+              if(any(is.na(sampVar))){
+                  # indicates elements of length 0
+                  clono.list[[length(clono.list)+1]] <-
+                      Matrix(0, nrow = sum(is.na(sampVar)),
+                             ncol = ncol(clono.list[[1]]), sparse = TRUE)
+                  rownames(clono.list[[length(clono.list)]]) <-
+                      names(contigs)[is.na(sampVar)]
+                  colnames(clono.list[[length(clono.list)]]) <-
+                      colnames(clono.list[[1]])
+              }
+              # supplement each matrix with 0s so they have same number of cols
+              all.clonotypes <- unique(unlist(lapply(clono.list, colnames)))
+              if(length(all.clonotypes) > 0){ # can't index by empty set
+                  clono.list <- lapply(clono.list, function(mat){
+                      missing <- all.clonotypes[! all.clonotypes %in% 
+                                                    colnames(mat)]
+                      zeros <- Matrix(0, ncol = length(missing), 
+                                      nrow = nrow(mat), sparse = TRUE)
+                      colnames(zeros) <- missing
+                      return(cbind(mat, zeros)[,all.clonotypes])
+                  })
+              }
+              # combine matrices
+              clono <- do.call(rbind, clono.list)
+              clono <- clono[names(contigs), ]
+              
+              # make names factors
+              if(is.null(colnames(clono))){
+                  nf1 <- nf2 <- factor()
+              }else{
+                  s <- strsplit(colnames(clono), split=' ')
+                  ind <- which(lengths(s) == 1)
+                  for(i in ind){
+                      s[[i]] <- c(s[[i]], '')
+                  }
+                  alphas <- unlist(s)[seq(1,2*ncol(clono), by=2)]
+                  betas <- unlist(s)[seq(2,2*ncol(clono), by=2)]
+                  nf1 <- factor(alphas)
+                  nf2 <- factor(betas)
+                  colnames(clono) <- NULL
+              }
+              
+              # summarize clonotype assignments
+              t1 <- summarizeClonotypes(clono, sampVar, mode = 'sum')
+              rownames(t1) <- NULL
+              t2 <- summarizeClonotypes(clono, sampVar, mode = 'tab', 
+                                        lang = EM_lang)
+              if(assignment){
+                  return(new('clonoStats', abundance = t1, frequency = t2,
+                             names1 = nf1, names2 = nf2, group = sampVar,
+                             assignment = clono))
+              }else{
+                  return(new('clonoStats', abundance = t1, frequency = t2,
+                             names1 = nf1, names2 = nf2, group = sampVar))
+              }
+          })
 
 #' @rdname clonoStats
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment
@@ -190,26 +218,51 @@ setMethod(f = "clonoStats",
                       stopifnot(length(sample) == ncol(sce))
                       sampVar <- factor(sample)
                   }
-                  # calculate cells x clonotypes matrix
                   cs <- clonoStats(sce[[TCRcol]], 
                                    sample = sampVar, ...)
               }else{
-                  # calculate cells x clonotypes matrix
                   cs <- clonoStats(sce[[TCRcol]], ...)
               }
               
               # update sce
-              # if(!is.null(clono$assignment)){
-              #     colData(sce)$assignment <- clono$assignment
-              #     clono$assignment <- NULL
+              # if(!is.null(clono@assignment)){
+              #     colData(sce)$assignment <- clono@assignment
+              #     clono@assignment <- NULL
               # }
               metadata(sce)$clonoStats <- cs
               
               return(sce)
           })
 
+#' @rdname clonoStats
+#' @export
+setMethod(f = "clonoStats",
+          signature = signature(x = "clonoStats"),
+          definition = function(x, sample = NULL, EM_lang = c('python','r')){
+              # remake clonoStats object with new group variable
+              EM_lang <- match.arg(EM_lang)
+              if(is.null(x@assignment)){
+                  stop('"x" must contain cell-level clonotype assignments')
+              }
+              if(is.null(sample)){
+                  sampVar <- factor(rep(1, length(x@group)))
+              }else{
+                  stopifnot(length(sample) == length(x@group))
+                  sampVar <- factor(sample)
+              }
+              stopifnot(length(sampVar) == nrow(x@assignment))
+              # summaries
+              t1 <- summarizeClonotypes(x@assignment, sampVar, mode = 'sum')
+              rownames(t1) <- NULL
+              t2 <- summarizeClonotypes(x@assignment, sampVar, mode = 'tab', 
+                                        lang = EM_lang)
+              # keep assignment matrix
+              return(new('clonoStats', abundance = t1, frequency = t2,
+                         names1 = x@names1, names2 = x@names2, group = sampVar,
+                         assignment = x@assignment))
+          })
+              
 
 
-    
-    
-    
+
+
