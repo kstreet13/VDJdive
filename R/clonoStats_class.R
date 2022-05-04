@@ -28,8 +28,15 @@ setClassUnion("dgCMatrixOrNULL",members=c("dgCMatrix", "NULL"))
 #'   chains, for TCR data).
 #' @slot names2 Factor listing the second component of each clonotype name (beta
 #'   chains, for TCR data).
+#'   
+#' @return An object of class \code{clonoStats}.
 #' 
 #' @seealso \code{\link{clonoStats}}
+#' 
+#' @examples 
+#' data('contigs')
+#' cs <- clonoStats(contigs)
+#' cs
 #' 
 #' @importClassesFrom Matrix dgCMatrix
 #' @import methods

@@ -276,46 +276,8 @@ setMethod(f = "splitClonotypes",
           })
 
 
-#' @title Get clonotype names
-#' @name clonoNames
-#' @export
-setGeneric(name = "clonoNames",
-           signature = c("object"),
-           def = function(object) standardGeneric("clonoNames"))
-
-#' @rdname clonoNames
-#' @param object a \code{\link{clonoStats}} object or
-#'   \code{SingleCellExperiment} object containing \code{clonoStats} results.
-#' @return The names of the clonotypes summarized in the input \code{clonoStats}
-#'   object.
-#' 
-#' @examples 
-#' data('contigs')
-#' cs <- clonoStats(contigs)
-#' clonoNames(cs)
-#' 
-#' @export
-setMethod(f = "clonoNames",
-          signature = signature(object = "clonoStats"),
-          definition = function(object){
-              paste(object@names1, object@names2)
-          })
-
-#' @rdname clonoNames
-#' @importClassesFrom SingleCellExperiment SingleCellExperiment
-#' @importFrom S4Vectors metadata
-#' @export
-setMethod(f = "clonoNames",
-          signature = signature(object = "SingleCellExperiment"),
-          definition = function(object){
-              clonoNames(metadata(object)$clonoStats)
-          })
-
-
 #' @describeIn clonoStats-class a short summary of a \code{clonoStats}
 #'   object.
-#' @param object a \code{\link{clonoStats}} object.
-#' @return Displays a summary of the input \code{clonoStats} object.
 #' @importFrom S4Vectors coolcat
 #' @export
 setMethod(f = "show",
@@ -329,4 +291,133 @@ setMethod(f = "show",
               cat('has assignment:', !is.null(object@assignment))
           })
 
+#' @describeIn clonoStats-class Get the full clonotype names
+#' @export
+setGeneric(name = "clonoNames",
+           signature = c("object"),
+           def = function(object) standardGeneric("clonoNames"))
 
+#' @rdname clonoStats-class
+#' @param object a \code{\link{clonoStats}} object or
+#'   \code{SingleCellExperiment} object containing \code{clonoStats} results.
+#' 
+#' @export
+setMethod(f = "clonoNames",
+          signature = signature(object = "clonoStats"),
+          definition = function(object){
+              paste(object@names1, object@names2)
+          })
+
+#' @rdname clonoStats-class
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @importFrom S4Vectors metadata
+#' @export
+setMethod(f = "clonoNames",
+          signature = signature(object = "SingleCellExperiment"),
+          definition = function(object){
+              clonoNames(metadata(object)$clonoStats)
+          })
+
+
+#' @describeIn clonoStats-class Get the clonotype abundance matrix (clonotype
+#'   counts per group).
+#' @export
+setGeneric(name = "clonoAbundance",
+           signature = c("object"),
+           def = function(object) standardGeneric("clonoAbundance"))
+
+#' @rdname clonoStats-class
+#' @export
+setMethod(f = "clonoAbundance",
+          signature = signature(object = "clonoStats"),
+          definition = function(object){
+              object@abundance
+          })
+
+#' @rdname clonoStats-class
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @importFrom S4Vectors metadata
+#' @export
+setMethod(f = "clonoAbundance",
+          signature = signature(object = "SingleCellExperiment"),
+          definition = function(object){
+              clonoAbundance(metadata(object)$clonoStats)
+          })
+
+#' @describeIn clonoStats-class Get the matrix of clonotype frequencies
+#'   (singletons, doubletons, etc. per group).
+#' @export
+setGeneric(name = "clonoFrequency",
+           signature = c("object"),
+           def = function(object) standardGeneric("clonoFrequency"))
+
+#' @rdname clonoStats-class
+#' @export
+setMethod(f = "clonoFrequency",
+          signature = signature(object = "clonoStats"),
+          definition = function(object){
+              object@frequency
+          })
+
+#' @rdname clonoStats-class
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @importFrom S4Vectors metadata
+#' @export
+setMethod(f = "clonoFrequency",
+          signature = signature(object = "SingleCellExperiment"),
+          definition = function(object){
+              clonoFrequency(metadata(object)$clonoStats)
+          })
+
+
+#' @describeIn clonoStats-class Get the matrix of cell-level clonotype
+#'   assignments (mapping cells to clonotypes).
+#' @export
+setGeneric(name = "clonoAssignment",
+           signature = c("object"),
+           def = function(object) standardGeneric("clonoAssignment"))
+
+#' @rdname clonoStats-class
+#' @export
+setMethod(f = "clonoAssignment",
+          signature = signature(object = "clonoStats"),
+          definition = function(object){
+              object@assignment
+          })
+
+
+#' @rdname clonoStats-class
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @importFrom S4Vectors metadata
+#' @export
+setMethod(f = "clonoAssignment",
+          signature = signature(object = "SingleCellExperiment"),
+          definition = function(object){
+              clonoAssignment(metadata(object)$clonoStats)
+          })
+
+
+#' @describeIn clonoStats-class Get the factor variable of group labels
+#' @export
+setGeneric(name = "clonoGroup",
+           signature = c("object"),
+           def = function(object) standardGeneric("clonoGroup"))
+
+#' @rdname clonoStats-class
+#' @export
+setMethod(f = "clonoGroup",
+          signature = signature(object = "clonoStats"),
+          definition = function(object){
+              object@group
+          })
+
+
+#' @rdname clonoStats-class
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @importFrom S4Vectors metadata
+#' @export
+setMethod(f = "clonoGroup",
+          signature = signature(object = "SingleCellExperiment"),
+          definition = function(object){
+              clonoGroup(metadata(object)$clonoStats)
+          })

@@ -254,9 +254,10 @@ setMethod(f = "calculateDiversity",
 
 #' @rdname calculateDiversity
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#' @importFrom S4Vectors metadata
 #' @export
 setMethod(f = "calculateDiversity",
           signature = signature(x = "SingleCellExperiment"),
           definition = function(x, ...){
-              calculateDiversity(metdata(x)$clonoStats)
+              calculateDiversity(metadata(x)$clonoStats)
           })

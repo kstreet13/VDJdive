@@ -4,15 +4,61 @@
 \name{clonoStats-class}
 \alias{clonoStats-class}
 \alias{show,clonoStats-method}
+\alias{clonoNames}
+\alias{clonoNames,clonoStats-method}
+\alias{clonoNames,SingleCellExperiment-method}
+\alias{clonoAbundance}
+\alias{clonoAbundance,clonoStats-method}
+\alias{clonoAbundance,SingleCellExperiment-method}
+\alias{clonoFrequency}
+\alias{clonoFrequency,clonoStats-method}
+\alias{clonoFrequency,SingleCellExperiment-method}
+\alias{clonoAssignment}
+\alias{clonoAssignment,clonoStats-method}
+\alias{clonoAssignment,SingleCellExperiment-method}
+\alias{clonoGroup}
+\alias{clonoGroup,clonoStats-method}
+\alias{clonoGroup,SingleCellExperiment-method}
 \title{\code{clonoStats} object class}
 \usage{
 \S4method{show}{clonoStats}(object)
+
+clonoNames(object)
+
+\S4method{clonoNames}{clonoStats}(object)
+
+\S4method{clonoNames}{SingleCellExperiment}(object)
+
+clonoAbundance(object)
+
+\S4method{clonoAbundance}{clonoStats}(object)
+
+\S4method{clonoAbundance}{SingleCellExperiment}(object)
+
+clonoFrequency(object)
+
+\S4method{clonoFrequency}{clonoStats}(object)
+
+\S4method{clonoFrequency}{SingleCellExperiment}(object)
+
+clonoAssignment(object)
+
+\S4method{clonoAssignment}{clonoStats}(object)
+
+\S4method{clonoAssignment}{SingleCellExperiment}(object)
+
+clonoGroup(object)
+
+\S4method{clonoGroup}{clonoStats}(object)
+
+\S4method{clonoGroup}{SingleCellExperiment}(object)
 }
 \arguments{
-\item{object}{a \code{\link{clonoStats}} object.}
+\item{object}{a \code{\link{clonoStats}} object or
+\code{SingleCellExperiment} object containing \code{clonoStats} results.}
 }
 \value{
-Displays a summary of the input \code{clonoStats} object.
+An object of class \code{clonoStats}.
 }
 \description{
 The \code{clonoStats} class is designed to hold the output of
@@ -27,6 +73,19 @@ cell's clonotype assignment may be included.
 \itemize{
 \item \code{show,clonoStats-method}: a short summary of a \code{clonoStats}
 object.
+
+\item \code{clonoNames}: Get the full clonotype names
+
+\item \code{clonoAbundance}: Get the clonotype abundance matrix (clonotype
+counts per group).
+
+\item \code{clonoFrequency}: Get the matrix of clonotype frequencies
+(singletons, doubletons, etc. per group).
+
+\item \code{clonoAssignment}: Get the matrix of cell-level clonotype
+assignments (mapping cells to clonotypes).
+
+\item \code{clonoGroup}: Get the factor variable of group labels
 }}
 
 \section{Slots}{
@@ -55,6 +114,12 @@ chains, for TCR data).}
 chains, for TCR data).}
 }}
 
+\examples{
+data('contigs')
+cs <- clonoStats(contigs)
+cs
+
+}
 \seealso{
 \code{\link{clonoStats}}
 }
