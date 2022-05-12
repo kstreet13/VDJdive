@@ -58,7 +58,7 @@ setMethod(f = "boxVDJ",
                   d1 <- t(d[grepl(method, dimnames(d)[[1]], 
                                   ignore.case = TRUE), ])
                   sampleGroups$Diversity <- unlist(d1[match(dimnames(d1)[[2]],
-                                                        sampleGroups$sample)])
+                                                            sampleGroups$sample)])
               } else {
                   d1 <- t(d[grepl(method, dimnames(d)[[1]], 
                                   ignore.case = TRUE), ])

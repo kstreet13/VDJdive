@@ -69,7 +69,7 @@ setMethod(f = 'readVDJcontigs',
                   c('true','True','TRUE')
               # convert to SplitDataFrameList
               tcr.list <- split(DataFrame(contigs), factor(contigs$barcode))
-
+              
               return(tcr.list)
           })
 
@@ -148,7 +148,7 @@ setMethod(f = 'addVDJtoSCE',
                   stopifnot(length(barcode) == ncol(sce))
                   bcVar <- as.character(barcode)
               }
-
+              
               tcr.list <- split(DataFrame(contigs),
                                 factor(contigs$barcode, bcVar))
               loss <- length(unique(contigs$barcode)) -
@@ -217,23 +217,23 @@ setGeneric(name = "writeVDJcontigs",
 setMethod(f = 'writeVDJcontigs',
           signature = signature(path = "character", x = "SplitDataFrameList"),
           definition = function(path, x){
-
-    contigs <- data.frame(unlist(x))
-
-    if(!dir.exists(path)){
-        dir.create(path)
-    }
-    for(samp in unique(contigs$sample)){
-        contigs.ii <- contigs[which(contigs$sample==samp), ]
-        contigs.ii$sample <- NULL
-        path.ii <- file.path(path, samp)
-        if(!dir.exists(path.ii)){
-            dir.create(path.ii)
-        }
-        write.csv(contigs.ii, file.path(path.ii,
-                                        'filtered_contig_annotations.csv'))
-    }
-})
+              
+              contigs <- data.frame(unlist(x))
+              
+              if(!dir.exists(path)){
+                  dir.create(path)
+              }
+              for(samp in unique(contigs$sample)){
+                  contigs.ii <- contigs[which(contigs$sample==samp), ]
+                  contigs.ii$sample <- NULL
+                  path.ii <- file.path(path, samp)
+                  if(!dir.exists(path.ii)){
+                      dir.create(path.ii)
+                  }
+                  write.csv(contigs.ii, file.path(path.ii,
+                                                  'filtered_contig_annotations.csv'))
+              }
+          })
 
 
 

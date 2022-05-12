@@ -137,3 +137,9 @@ barVDJ(EMstats, bySample = TRUE, title = "contigs", legend = TRUE)
 ```{r}
 pieVDJ(EMstats)
 ```
+
+
+## Session Info
+```{r}
+sessionInfo()
+```

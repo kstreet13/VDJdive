@@ -261,7 +261,7 @@ setMethod(f = "clonoStats",
                          names1 = x@names1, names2 = x@names2, group = sampVar,
                          assignment = x@assignment))
           })
-              
+
 
 
 

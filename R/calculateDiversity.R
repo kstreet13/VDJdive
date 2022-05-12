@@ -43,7 +43,7 @@ NULL
     
     # f is the table of singletons, doubletons, etc.
     # for integer counts, if p = x/sum(x), then f = table(x)
-    f <- f[seq_len(max(which(f>0)))] # trim trailing 0s
+    f <- f[seq_len(max(c(1, which(f>0))))] # trim trailing 0s
     if (t!=round(t)||t<0){
         stop("The cutoff t to define less abundant species must be", 
              " non-negative integer!")
@@ -59,7 +59,7 @@ NULL
         t <- length(f)
     }
     m <- length(f)
-
+    
     ############################
     A1 <- sum(f[seq_len(t)])
     A2 <- sum(f[seq_len(t)])-f[1]
@@ -188,7 +188,7 @@ setMethod(f = "calculateDiversity",
                                'normentropy', 'invsimpson', 'ginisimpson',
                                'chao1', 'chaobunge')
               }
-
+              
               # check if all counts are integers
               ints <- all(x@abundance %% 1 == 0)
               if(!ints & any(c('chao1','chaobunge') %in% methods)){

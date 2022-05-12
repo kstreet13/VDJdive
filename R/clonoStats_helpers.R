@@ -87,22 +87,22 @@
     poss.indices[ind.multiple] <- lapply(ind.multiple, function(i){
         return(sort(unique(as.integer(outer(wa[[i]], wb[[i]], 
                                             FUN = function(a,b){
-            length(all.alphas)*(b-1) + a
-        })))))
+                                                length(all.alphas)*(b-1) + a
+                                            })))))
     })
     poss.indices[ind.noAlpha] <- lapply(ind.noAlpha, function(i){
         a.i <- seq_along(all.alphas)
         return(sort(unique(as.integer(outer(a.i, wb[[i]], 
                                             FUN = function(a,b){
-            length(all.alphas)*(b-1) + a
-        })))))
+                                                length(all.alphas)*(b-1) + a
+                                            })))))
     })
     poss.indices[ind.noBeta] <- lapply(ind.noBeta, function(i){
         b.i <- seq_along(all.betas)
         return(sort(unique(as.integer(outer(wa[[i]], b.i, 
                                             FUN = function(a,b){
-            length(all.alphas)*(b-1) + a
-        })))))
+                                                length(all.alphas)*(b-1) + a
+                                            })))))
     })
     
     # step 1: assign cells with 1 alpha, 1 beta
