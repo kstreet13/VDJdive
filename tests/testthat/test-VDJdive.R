@@ -138,7 +138,7 @@ test_that("clonoStats function works as expected", {
     expect_equal(sum(emal@assignment), 22)
     
     emal2 <- clonoStats(contigs, method = 'EM', 
-                        assignment = TRUE, EM_lang = 'r')
+                        assignment = TRUE, lang = 'r')
     expect_is(emal2, 'clonoStats')
     expect_equivalent(dim(emal2@abundance), c(60,2))
     expect_equal(sum(emal2@abundance), 22)

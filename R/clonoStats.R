@@ -38,9 +38,11 @@ setGeneric(name = "clonoStats",
 #' @param method Which method to use for assigning cell-level clonotypes.
 #'   Options are \code{"EM"} (default), \code{"unique"}, \code{"CellRanger"}, or
 #'   any \code{chain} type in \code{x}. See Details.
-#' @param EM_lang Indicates which implementation of the EM algorithm to use.
-#'   Options are \code{'r'} or \code{'python'} (default). Only used if
-#'   \code{method = "EM"}.
+#' @param lang Indicates which implementation of certain methods to use. The EM
+#'   algorithm is implemented in both pure R (\code{'r'}) and mixed R and Python
+#'   (\code{'python'}, default) versions. Similarly, clonotype summarization is
+#'   implemented in two ways, which can impact speed, regardless of choice of
+#'   \code{method}.
 #' @param thresh Numeric threshold for convergence of the EM algorithm.
 #'   Indicates the maximum allowable deviation in a count between updates. Only
 #'   used if \code{method = "EM"}.
@@ -85,13 +87,13 @@ setMethod(f = "clonoStats",
           definition = function(x, sample = 'sample', type = NULL,
                                 assignment = FALSE, 
                                 method = 'EM', 
-                                EM_lang = c('python','r'),
+                                lang = c('python','r'),
                                 thresh = .01, iter.max = 1000){
               contigs <- x
               method <- match.arg(method, 
                                   choices = c('EM','unique','CellRanger',
                                               unique(unlist(x[,'chain']))))
-              EM_lang <- match.arg(EM_lang)
+              lang <- match.arg(lang)
               if(is.null(type)){
                   chn <- unlist(contigs[,'chain'])
                   if(sum(chn %in% c('IGH','IGL','IGK')) > 
@@ -126,7 +128,7 @@ setMethod(f = "clonoStats",
               if(method == 'EM'){
                   clono.list <- lapply(levels(sampVar), function(lv){
                       .EM_sample(contigs[which(sampVar == lv)],
-                                 type = type, EM_lang = EM_lang,
+                                 type = type, lang = lang,
                                  thresh = thresh, iter.max = iter.max)
                   })
               }else if(method == 'CellRanger'){
@@ -191,7 +193,7 @@ setMethod(f = "clonoStats",
               t1 <- summarizeClonotypes(clono, sampVar, mode = 'sum')
               rownames(t1) <- NULL
               t2 <- summarizeClonotypes(clono, sampVar, mode = 'tab', 
-                                        lang = EM_lang)
+                                        lang = lang)
               if(assignment){
                   return(new('clonoStats', abundance = t1, frequency = t2,
                              names1 = nf1, names2 = nf2, group = sampVar,
@@ -238,9 +240,9 @@ setMethod(f = "clonoStats",
 #' @export
 setMethod(f = "clonoStats",
           signature = signature(x = "clonoStats"),
-          definition = function(x, sample = NULL, EM_lang = c('python','r')){
+          definition = function(x, sample = NULL, lang = c('python','r')){
               # remake clonoStats object with new group variable
-              EM_lang <- match.arg(EM_lang)
+              lang <- match.arg(lang)
               if(is.null(x@assignment)){
                   stop('"x" must contain cell-level clonotype assignments')
               }
@@ -255,7 +257,7 @@ setMethod(f = "clonoStats",
               t1 <- summarizeClonotypes(x@assignment, sampVar, mode = 'sum')
               rownames(t1) <- NULL
               t2 <- summarizeClonotypes(x@assignment, sampVar, mode = 'tab', 
-                                        lang = EM_lang)
+                                        lang = lang)
               # keep assignment matrix
               return(new('clonoStats', abundance = t1, frequency = t2,
                          names1 = x@names1, names2 = x@names2, group = sampVar,

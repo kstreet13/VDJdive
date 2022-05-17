@@ -15,14 +15,14 @@ clonoStats(x, ...)
   type = NULL,
   assignment = FALSE,
   method = "EM",
-  EM_lang = c("python", "r"),
+  lang = c("python", "r"),
   thresh = 0.01,
   iter.max = 1000
 )
 
 \S4method{clonoStats}{SingleCellExperiment}(x, TCRcol = "contigs", sample = NULL, ...)
 
-\S4method{clonoStats}{clonoStats}(x, sample = NULL, EM_lang = c("python", "r"))
+\S4method{clonoStats}{clonoStats}(x, sample = NULL, lang = c("python", "r"))
 }
 \arguments{
 \item{x}{A \code{SplitDataFrameList} object containing V(D)J contig
@@ -52,9 +52,11 @@ samples.}
 Options are \code{"EM"} (default), \code{"unique"}, \code{"CellRanger"}, or
 any \code{chain} type in \code{x}. See Details.}
 
-\item{EM_lang}{Indicates which implementation of the EM algorithm to use.
-Options are \code{'r'} or \code{'python'} (default). Only used if
-\code{method = "EM"}.}
+\item{lang}{Indicates which implementation of certain methods to use. The EM
+algorithm is implemented in both pure R (\code{'r'}) and mixed R and Python
+(\code{'python'}, default) versions. Similarly, clonotype summarization is
+implemented in two ways, which can impact speed, regardless of choice of
+\code{method}.}
 
 \item{thresh}{Numeric threshold for convergence of the EM algorithm.
 Indicates the maximum allowable deviation in a count between updates. Only

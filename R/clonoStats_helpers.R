@@ -29,7 +29,7 @@
 # single-sample clonotype assignment #
 ######################################
 # EM algorithm
-.EM_sample <- function(contigs, type, EM_lang, thresh, iter.max){
+.EM_sample <- function(contigs, type, lang, thresh, iter.max){
     contigs <- .prepContigs(contigs, type)
     
     if(type == 'TCR'){
@@ -129,7 +129,7 @@
     
     # repeat 2 (proportional to previous counts)
     #################
-    if(EM_lang == 'python'){
+    if(lang == 'python'){
         # setup inputs
         t.indices <- poss.indices[ind.ambiguous]
         # so python takes it as a list of lists, not a dict:
