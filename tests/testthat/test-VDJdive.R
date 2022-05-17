@@ -172,6 +172,18 @@ test_that("clonoStats function works as expected", {
     sceEMsamp2 <- clonoStats(sce, sample = sce$sample)
     expect_identical(metadata(sceEMsamp)$clonoStats, 
                      metadata(sceEMsamp2)$clonoStats)
+    
+    # clonoStats on object of type clonoStats
+    clus <- sample(1:2, 24, replace = TRUE)
+    emal3 <- clonoStats(emal, sample = clus)
+    expect_is(emal3, 'clonoStats')
+    expect_equivalent(dim(emal3@abundance), c(60,2))
+    expect_equal(sum(emal3@abundance), 22)
+    expect_equal(ncol(emal3@frequency), 2)
+    expect_equal(sum(emal3@frequency), 120)
+    expect_equivalent(dim(emal3@assignment), c(24, 60))
+    expect_equal(sum(emal3@assignment), 22)
+    expect_true(max(abs(emal3@assignment - emal@assignment)) < .0001)
 })
 
 test_that("assignment functions handle edge cases", {
