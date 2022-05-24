@@ -14,7 +14,7 @@ splitClonotypes(x, by, ...)
 
 \S4method{splitClonotypes}{matrix}(x, by)
 
-\S4method{splitClonotypes}{SingleCellExperiment}(x, by, clonoStats = "clonoStats")
+\S4method{splitClonotypes}{SingleCellExperiment}(x, by, contigs = "contigs", clonoStats = "clonoStats")
 
 \S4method{splitClonotypes}{clonoStats}(x, by)
 }
@@ -29,6 +29,10 @@ be a character, giving the name of the column from the \code{colData} to
 use as this variable.}
 
 \item{...}{additional arguments.}
+
+\item{contigs}{character. If \code{x} is a \code{SingleCellExperiment}, the
+name of the \code{SplitDataFrameList} in the \code{colData} of \code{x}
+containing contig information.}
 
 \item{clonoStats}{character. If \code{x} is a \code{SingleCellExperiment},
 the name of the element in the \code{metadata} of \code{x} that contains

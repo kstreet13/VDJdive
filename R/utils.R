@@ -81,6 +81,9 @@ setGeneric(name = "summarizeClonotypes",
 #'   counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 #'   be a character, giving the name of the column from the \code{colData} to
 #'   use as this variable.
+#' @param contigs character. If \code{x} is a \code{SingleCellExperiment}, the
+#'   name of the \code{SplitDataFrameList} in the \code{colData} of \code{x}
+#'   containing contig information.
 #' @param clonoStats character. If \code{x} is a \code{SingleCellExperiment},
 #'   the name of the element in the \code{metadata} of \code{x} that contains
 #'   the output of \code{clonoStats}. Must include cell-level clonotype
@@ -147,13 +150,20 @@ setMethod(f = "summarizeClonotypes",
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, by = "sample", 
+          definition = function(x, by = "sample", contigs = 'contigs',
                                 clonoStats = 'clonoStats', ...){
               if(is.null(metadata(x)[[clonoStats]])){
                   stop('No clonotype counts found.')
               }
-              if(length(by) == 1){
-                  byVar <- factor(x[[by]])
+              if(length(by) == 1){ # check SCE and contigs
+                  byVar <- factor(x[[by]]) # SCE
+                  if(length(byVar) == 0){
+                      if(by %in% names(x[[contigs]][[1]])){
+                          byVar <- factor(vapply(seq_len(ncol(x)), function(i){
+                              x[[contigs]][,by][[i]][1]
+                          }, FUN.VALUE = 'a')) # contigs
+                      }
+                  }
               }else{
                   byVar <- factor(by)
               }
@@ -246,6 +256,9 @@ setMethod(f = "splitClonotypes",
           })
 
 #' @rdname splitClonotypes
+#' @param contigs character. If \code{x} is a \code{SingleCellExperiment}, the
+#'   name of the \code{SplitDataFrameList} in the \code{colData} of \code{x}
+#'   containing contig information.
 #' @param clonoStats character. If \code{x} is a \code{SingleCellExperiment},
 #'   the name of the element in the \code{metadata} of \code{x} that contains
 #'   the output of \code{clonoStats}. Must include cell-level clonotype
@@ -254,12 +267,19 @@ setMethod(f = "splitClonotypes",
 #' @export
 setMethod(f = "splitClonotypes",
           signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, by, clonoStats = 'clonoStats'){
+          definition = function(x, by, contigs = 'contigs', clonoStats = 'clonoStats'){
               if(is.null(metadata(x)[[clonoStats]])){
                   stop('No clonotype counts found.')
               }
-              if(length(by) == 1){
-                  byVar <- factor(x[[by]])
+              if(length(by) == 1){ # check SCE and contigs
+                  byVar <- factor(x[[by]]) # SCE
+                  if(length(byVar) == 0){
+                      if(by %in% names(x[[contigs]][[1]])){
+                          byVar <- factor(vapply(seq_len(ncol(x)), function(i){
+                              x[[contigs]][,by][[i]][1]
+                          }, FUN.VALUE = 'a')) # contigs
+                      }
+                  }
               }else{
                   byVar <- factor(by)
               }
@@ -274,6 +294,7 @@ setMethod(f = "splitClonotypes",
           definition = function(x, by){
               splitClonotypes(x@assignment, by)
           })
+
 
 
 #' @describeIn clonoStats-class a short summary of a \code{clonoStats}

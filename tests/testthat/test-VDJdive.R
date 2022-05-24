@@ -15,7 +15,7 @@ test_that("utility functions work", {
     sce <- SingleCellExperiment::SingleCellExperiment(
         assays = list(counts = u),
         colData = data.frame(Barcode = barcodes,
-                             sample = samples))
+                             group = samples))
     sce <- addVDJtoSCE(contigs, sce)
     
     # errors before running clonoStats
@@ -79,7 +79,7 @@ test_that("input/output functions work", {
     sce <- SingleCellExperiment::SingleCellExperiment(
         assays = list(counts = u),
         colData = data.frame(Barcode = barcodes,
-                             sample = samples))
+                             group = samples))
 
     sce <- addVDJtoSCE(contigs, sce)
     expect_true('contigs' %in% names(colData(sce)))
@@ -156,7 +156,7 @@ test_that("clonoStats function works as expected", {
     sce <- SingleCellExperiment::SingleCellExperiment(
         assays = list(counts = u),
         colData = data.frame(Barcode = barcodes,
-                             sample = samples))
+                             group = samples))
     sce <- addVDJtoSCE(contigs, sce)
     
     sceUniq <- clonoStats(sce, method = 'unique', assignment = TRUE)
@@ -168,14 +168,14 @@ test_that("clonoStats function works as expected", {
     sceEM <- clonoStats(sce, method = 'EM', assignment = TRUE)
     expect_identical(emal, metadata(sceEM)$clonoStats)
     
-    sceEMsamp <- clonoStats(sce, sample = 'sample')
-    sceEMsamp2 <- clonoStats(sce, sample = sce$sample)
+    sceEMsamp <- clonoStats(sce, group = 'sample')
+    sceEMsamp2 <- clonoStats(sce, group = sce$sample)
     expect_identical(metadata(sceEMsamp)$clonoStats, 
                      metadata(sceEMsamp2)$clonoStats)
     
     # clonoStats on object of type clonoStats
     clus <- sample(1:2, 24, replace = TRUE)
-    emal3 <- clonoStats(emal, sample = clus)
+    emal3 <- clonoStats(emal, group = clus)
     expect_is(emal3, 'clonoStats')
     expect_equivalent(dim(emal3@abundance), c(60,2))
     expect_equal(sum(emal3@abundance), 22)
@@ -193,7 +193,7 @@ test_that("assignment functions handle edge cases", {
     # empty sample
     sample <- factor(vapply(contigs[,'sample'], function(x){ x[1] }, 'A'))
     levels(sample) <- c('sample1','sample2','sample3')
-    uniq <- clonoStats(contigs, sample = sample, method = 'unique')
+    uniq <- clonoStats(contigs, group = sample, method = 'unique')
     expect_is(uniq, 'clonoStats')
     expect_equivalent(dim(uniq@abundance), c(7,3))
     expect_equal(sum(uniq@abundance), 12)
@@ -203,7 +203,7 @@ test_that("assignment functions handle edge cases", {
     # sample NAs
     sampNA <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
     sampNA <- factor(sampNA, levels = c('sample1','sample3'))
-    uniq <- clonoStats(contigs, sample = sampNA, method = 'unique')
+    uniq <- clonoStats(contigs, group = sampNA, method = 'unique')
     expect_is(uniq, 'clonoStats')
     expect_equivalent(dim(uniq@abundance), c(3,2))
     expect_equal(sum(uniq@abundance), 6)
@@ -220,9 +220,9 @@ test_that("assignment functions handle edge cases", {
     sce <- SingleCellExperiment::SingleCellExperiment(
         assays = list(counts = u),
         colData = data.frame(Barcode = barcodes,
-                             sample = samples))
+                             group = samples))
     sce <- addVDJtoSCE(contigs, sce)
-    sceUniq <- clonoStats(sce, sample ='sample', 
+    sceUniq <- clonoStats(sce, group ='sample', 
                           method = 'unique', assignment = TRUE)
     
     expect_is(metadata(sceUniq)$clonoStats, 'clonoStats')

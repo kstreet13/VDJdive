@@ -11,7 +11,7 @@ clonoStats(x, ...)
 
 \S4method{clonoStats}{SplitDataFrameList}(
   x,
-  sample = "sample",
+  group = "sample",
   type = NULL,
   assignment = FALSE,
   method = "EM",
@@ -20,9 +20,9 @@ clonoStats(x, ...)
   iter.max = 1000
 )
 
-\S4method{clonoStats}{SingleCellExperiment}(x, TCRcol = "contigs", sample = NULL, ...)
+\S4method{clonoStats}{SingleCellExperiment}(x, contigs = "contigs", group = "sample", ...)
 
-\S4method{clonoStats}{clonoStats}(x, sample = NULL, lang = c("python", "r"))
+\S4method{clonoStats}{clonoStats}(x, group = NULL, lang = c("python", "r"))
 }
 \arguments{
 \item{x}{A \code{SplitDataFrameList} object containing V(D)J contig
@@ -33,12 +33,14 @@ Alternatively, a \code{SingleCellExperiment} object with such a
 
 \item{...}{additional arguments.}
 
-\item{sample}{The name of the column in \code{x} (or the \code{colData} of
+\item{group}{The name of the column in \code{x} (or the \code{colData} of
 \code{x}, for \code{SingleCellExperiment} objects) that stores each cell's
-sample of origin. Alternatively, a vector of length equal to \code{x} (or
-\code{ncol(x)}) indicating the sample of origin. Providing this information
-can dramatically speed up computation and avoid unwanted cross-talk between
-samples.}
+group identity, typically either its sample of origin or cluster label.
+Alternatively, a vector of length equal to \code{x} (or \code{ncol(x)})
+indicating the group identity. Providing this information can dramatically
+speed up computation. When running \code{clonoStats} for the first time on
+a dataset, we highly recommend setting the group identity to sample of
+origin to avoid unwanted cross-talk between samples.}
 
 \item{type}{The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
 \code{NULL}, this is determined by the most prevalent \code{chain} types in
@@ -65,7 +67,7 @@ used if \code{method = "EM"}.}
 \item{iter.max}{Maximum number of iterations for the EM algorithm. Only used
 if \code{method = "EM"}.}
 
-\item{TCRcol}{The name of the column in the \code{colData} of \code{x} that
+\item{contigs}{The name of the column in the \code{colData} of \code{x} that
 contains the VDJ contig data (only applies if \code{x} is a
 \code{SingleCellExperiment}).}
 }

@@ -67,7 +67,7 @@ barcodes <- vapply(contigs[,'barcode'], function(x){ x[1] }, 'A')
 samples <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
 sce <- SingleCellExperiment(assays = list(counts = u),
                             colData = data.frame(Barcode = barcodes,
-                                                 sample = samples))
+                                                 group = samples))
 sce <- addVDJtoSCE(contigs, sce)
 sce$contigs
 ```
@@ -116,7 +116,7 @@ EMstats <- clonoStats(contigs, method = "EM", assignment = TRUE)
 
 clus <- sample(1:2, 24, replace = TRUE)
 
-EMstats.clus <- clonoStats(EMstats, sample = clus)
+EMstats.clus <- clonoStats(EMstats, group = clus)
 ```
 
 To reiterate: we always recommend running `clonoStats` by sample of origin first, to get the most accurate clonotype assignment. It is easy to re-calculate summary statistics for other grouping variables later.

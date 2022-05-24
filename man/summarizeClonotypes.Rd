@@ -12,7 +12,13 @@ summarizeClonotypes(x, by, ...)
 
 \S4method{summarizeClonotypes}{Matrix}(x, by, mode = c("sum", "tab"), lang = c("r", "python"))
 
-\S4method{summarizeClonotypes}{SingleCellExperiment}(x, by = "sample", clonoStats = "clonoStats", ...)
+\S4method{summarizeClonotypes}{SingleCellExperiment}(
+  x,
+  by = "sample",
+  contigs = "contigs",
+  clonoStats = "clonoStats",
+  ...
+)
 
 \S4method{summarizeClonotypes}{matrix}(x, by, ...)
 
@@ -39,6 +45,10 @@ frequencies (ie. singletons, doubletons, etc.) by sample.}
 \item{lang}{Indicates which implementation of the \code{"tab"} summarization
 to use. Options are \code{'r'} (default) or \code{'python'}. Only used if
 non-integer clonotype abundances are present and \code{mode = "tab"}.}
+
+\item{contigs}{character. If \code{x} is a \code{SingleCellExperiment}, the
+name of the \code{SplitDataFrameList} in the \code{colData} of \code{x}
+containing contig information.}
 
 \item{clonoStats}{character. If \code{x} is a \code{SingleCellExperiment},
 the name of the element in the \code{metadata} of \code{x} that contains

@@ -20,15 +20,17 @@ setGeneric(name = "clonoStats",
 #'   Alternatively, a \code{SingleCellExperiment} object with such a
 #'   \code{SplitDataFrameList} in the \code{colData}, as created by
 #'   \code{addVDJtoSCE}.
-#' @param TCRcol The name of the column in the \code{colData} of \code{x} that
+#' @param contigs The name of the column in the \code{colData} of \code{x} that
 #'   contains the VDJ contig data (only applies if \code{x} is a
 #'   \code{SingleCellExperiment}).
-#' @param sample The name of the column in \code{x} (or the \code{colData} of
+#' @param group The name of the column in \code{x} (or the \code{colData} of
 #'   \code{x}, for \code{SingleCellExperiment} objects) that stores each cell's
-#'   sample of origin. Alternatively, a vector of length equal to \code{x} (or
-#'   \code{ncol(x)}) indicating the sample of origin. Providing this information
-#'   can dramatically speed up computation and avoid unwanted cross-talk between
-#'   samples.
+#'   group identity, typically either its sample of origin or cluster label.
+#'   Alternatively, a vector of length equal to \code{x} (or \code{ncol(x)})
+#'   indicating the group identity. Providing this information can dramatically
+#'   speed up computation. When running \code{clonoStats} for the first time on
+#'   a dataset, we highly recommend setting the group identity to sample of
+#'   origin to avoid unwanted cross-talk between samples.
 #' @param type The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
 #'   \code{NULL}, this is determined by the most prevalent \code{chain} types in
 #'   \code{x}.
@@ -84,7 +86,7 @@ setGeneric(name = "clonoStats",
 #' @export
 setMethod(f = "clonoStats",
           signature = signature(x = "SplitDataFrameList"),
-          definition = function(x, sample = 'sample', type = NULL,
+          definition = function(x, group = 'sample', type = NULL,
                                 assignment = FALSE, 
                                 method = 'EM', 
                                 lang = c('python','r'),
@@ -104,56 +106,56 @@ setMethod(f = "clonoStats",
                   }
               }
               
-              if(is.null(sample)){
-                  sampVar <- factor(rep('sample1', length(contigs)))
+              if(is.null(group)){
+                  grpVar <- factor(rep('sample1', length(contigs)))
               }else{
-                  if(length(sample) == 1){
-                      stopifnot(sample %in% colnames(contigs[[1]]))
-                      sampVar <- factor(vapply(seq_along(contigs), function(i){
-                          contigs[[i]][,sample][1]
+                  if(length(group) == 1){
+                      stopifnot(group %in% colnames(contigs[[1]]))
+                      grpVar <- factor(vapply(seq_along(contigs), function(i){
+                          contigs[[i]][,group][1]
                       }, FUN.VALUE = 'a'))
                   }else{
-                      if(!is.factor(sample)){
-                          sampVar <- factor(sample)
+                      if(!is.factor(group)){
+                          grpVar <- factor(group)
                       }else{ # keep samples with no TCR data
                           # (factor() drops empty levels)
-                          sampVar <- sample
+                          grpVar <- group
                       }
-                      stopifnot(length(sampVar) == length(contigs))
+                      stopifnot(length(grpVar) == length(contigs))
                   }
               }
               
               # select appropriate method and quantify each sample individually
               #################################################################
               if(method == 'EM'){
-                  clono.list <- lapply(levels(sampVar), function(lv){
-                      .EM_sample(contigs[which(sampVar == lv)],
+                  clono.list <- lapply(levels(grpVar), function(lv){
+                      .EM_sample(contigs[which(grpVar == lv)],
                                  type = type, lang = lang,
                                  thresh = thresh, iter.max = iter.max)
                   })
               }else if(method == 'CellRanger'){
-                  clono.list <- lapply(levels(sampVar), function(lv){
-                      .CR_sample(contigs[which(sampVar == lv)],
+                  clono.list <- lapply(levels(grpVar), function(lv){
+                      .CR_sample(contigs[which(grpVar == lv)],
                                  type = type)
                   })
               }else if(method == 'unique'){
-                  clono.list <- lapply(levels(sampVar), function(lv){
-                      .UNIQ_sample(contigs[which(sampVar == lv)],
+                  clono.list <- lapply(levels(grpVar), function(lv){
+                      .UNIQ_sample(contigs[which(grpVar == lv)],
                                    type = type)
                   })
               }else{
-                  clono.list <- lapply(levels(sampVar), function(lv){
-                      .CHN_sample(contigs[which(sampVar == lv)], 
+                  clono.list <- lapply(levels(grpVar), function(lv){
+                      .CHN_sample(contigs[which(grpVar == lv)], 
                                   method = method)
                   })
               }
-              if(any(is.na(sampVar))){
+              if(any(is.na(grpVar))){
                   # indicates elements of length 0
                   clono.list[[length(clono.list)+1]] <-
-                      Matrix(0, nrow = sum(is.na(sampVar)),
+                      Matrix(0, nrow = sum(is.na(grpVar)),
                              ncol = ncol(clono.list[[1]]), sparse = TRUE)
                   rownames(clono.list[[length(clono.list)]]) <-
-                      names(contigs)[is.na(sampVar)]
+                      names(contigs)[is.na(grpVar)]
                   colnames(clono.list[[length(clono.list)]]) <-
                       colnames(clono.list[[1]])
               }
@@ -190,17 +192,17 @@ setMethod(f = "clonoStats",
               }
               
               # summarize clonotype assignments
-              t1 <- summarizeClonotypes(clono, sampVar, mode = 'sum')
+              t1 <- summarizeClonotypes(clono, grpVar, mode = 'sum')
               rownames(t1) <- NULL
-              t2 <- summarizeClonotypes(clono, sampVar, mode = 'tab', 
+              t2 <- summarizeClonotypes(clono, grpVar, mode = 'tab', 
                                         lang = lang)
               if(assignment){
                   return(new('clonoStats', abundance = t1, frequency = t2,
-                             names1 = nf1, names2 = nf2, group = sampVar,
+                             names1 = nf1, names2 = nf2, group = grpVar,
                              assignment = clono))
               }else{
                   return(new('clonoStats', abundance = t1, frequency = t2,
-                             names1 = nf1, names2 = nf2, group = sampVar))
+                             names1 = nf1, names2 = nf2, group = grpVar))
               }
           })
 
@@ -210,20 +212,27 @@ setMethod(f = "clonoStats",
 #' @export
 setMethod(f = "clonoStats",
           signature = signature(x = "SingleCellExperiment"),
-          definition = function(x, TCRcol = 'contigs', sample = NULL, ...){
+          definition = function(x, contigs = 'contigs', group = 'sample', ...){
               sce <- x
-              if(!is.null(sample)){
-                  if(length(sample) == 1){
-                      stopifnot(sample %in% names(colData(sce)))
-                      sampVar <- factor(sce[[sample]])
+              if(!is.null(group)){
+                  if(length(group) == 1){ # check SCE and contigs
+                      grpVar <- factor(sce[[group]]) # SCE
+                      if(length(grpVar) == 0){
+                          if(group %in% names(x[[contigs]][[1]])){
+                              grpVar <- factor(vapply(seq_len(ncol(x)),
+                                                      function(i){
+                                  x[[contigs]][,group][[i]][1]
+                              }, FUN.VALUE = 'a')) # contigs
+                          }
+                      }
                   }else{
-                      stopifnot(length(sample) == ncol(sce))
-                      sampVar <- factor(sample)
+                      stopifnot(length(group) == ncol(sce))
+                      grpVar <- factor(group)
                   }
-                  cs <- clonoStats(sce[[TCRcol]], 
-                                   sample = sampVar, ...)
+                  cs <- clonoStats(sce[[contigs]], 
+                                   group = grpVar, ...)
               }else{
-                  cs <- clonoStats(sce[[TCRcol]], ...)
+                  cs <- clonoStats(sce[[contigs]], ...)
               }
               
               # update sce
@@ -240,28 +249,30 @@ setMethod(f = "clonoStats",
 #' @export
 setMethod(f = "clonoStats",
           signature = signature(x = "clonoStats"),
-          definition = function(x, sample = NULL, lang = c('python','r')){
+          definition = function(x, group = NULL, lang = c('python','r')){
               # remake clonoStats object with new group variable
               lang <- match.arg(lang)
-              if(is.null(x@assignment)){
+              if(is.null(clonoAssignment(x))){
                   stop('"x" must contain cell-level clonotype assignments')
               }
-              if(is.null(sample)){
-                  sampVar <- factor(rep(1, length(x@group)))
+              if(is.null(group)){
+                  # grpVar <- clonoGroup(x)
+                  return(x)
               }else{
-                  stopifnot(length(sample) == length(x@group))
-                  sampVar <- factor(sample)
+                  stopifnot(length(group) == length(clonoGroup(x)))
+                  grpVar <- factor(group)
               }
-              stopifnot(length(sampVar) == nrow(x@assignment))
+              stopifnot(length(grpVar) == nrow(clonoAssignment(x)))
               # summaries
-              t1 <- summarizeClonotypes(x@assignment, sampVar, mode = 'sum')
+              t1 <- summarizeClonotypes(clonoAssignment(x), grpVar, 
+                                        mode = 'sum')
               rownames(t1) <- NULL
-              t2 <- summarizeClonotypes(x@assignment, sampVar, mode = 'tab', 
-                                        lang = lang)
+              t2 <- summarizeClonotypes(clonoAssignment(x), grpVar, 
+                                        mode = 'tab', lang = lang)
               # keep assignment matrix
               return(new('clonoStats', abundance = t1, frequency = t2,
-                         names1 = x@names1, names2 = x@names2, group = sampVar,
-                         assignment = x@assignment))
+                         names1 = x@names1, names2 = x@names2, group = grpVar,
+                         assignment = clonoAssignment(x)))
           })
 
 
