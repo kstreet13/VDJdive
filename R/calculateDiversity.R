@@ -190,14 +190,14 @@ setMethod(f = "calculateDiversity",
               }
               
               # check if all counts are integers
-              ints <- all(x@abundance %% 1 == 0)
+              ints <- all(clonoAbundance(x) %% 1 == 0)
               if(!ints & any(c('chao1','chaobunge') %in% methods)){
                   warning('Methods "chao1" and "chaobunge" are not valid with ',
                           'non-integer abundances.')
               }
               
-              p <- x@abundance
-              f <- x@frequency
+              p <- clonoAbundance(x)
+              f <- clonoFrequency(x)
               
               # loop over methods
               results <- lapply(methods, function(m){

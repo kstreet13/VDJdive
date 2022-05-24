@@ -79,5 +79,5 @@ setMethod(f = "barVDJ",
 setMethod(f = "barVDJ",
           signature = signature(x = "clonoStats"),
           definition = function(x, ...){
-              barVDJ(x@abundance, ...)
+              barVDJ(clonoAbundance(x), ...)
           })

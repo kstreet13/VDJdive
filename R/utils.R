@@ -292,6 +292,10 @@ setMethod(f = "splitClonotypes",
 setMethod(f = "splitClonotypes",
           signature = signature(x = "clonoStats"),
           definition = function(x, by){
+              if(is.null(x@assignment)){
+                  stop('"x" must contain cell-level clonotype assignment',
+                       ' matrix')
+              }
               splitClonotypes(x@assignment, by)
           })
 

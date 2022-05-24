@@ -7,6 +7,21 @@ test_that("utility functions work", {
     # load example data
     data("contigs")
     
+    x <- clonoStats(contigs, method = 'unique')
+    show(x)
+    expect_error(splitClonotypes(x, clonoGroup(x)), 
+                 'must contain cell-level clonotype assignment')
+    expect_error(summarizeClonotypes(x, clonoGroup(x)),
+                 'must contain cell-level clonotype assignment')
+    
+    x <- clonoStats(contigs, method = 'unique', assignment = TRUE)
+    show(x)
+    s1 <- splitClonotypes(x, clonoGroup(x))
+    expect_true(is(s1,'list'))
+    expect_equal(length(s1), 2)
+    s2 <- summarizeClonotypes(x, clonoGroup(x))
+    expect_equivalent(dim(s2), c(7,2))
+    
     # make SCE object with matching barcodes and sample IDs
     ncells <- 24
     u <- matrix(rpois(1000 * ncells, 5), ncol = ncells)
@@ -51,8 +66,17 @@ test_that("utility functions work", {
     expect_equivalent(dim(SLF), c(4, 2))
     expect_equivalent(rowSums(SLF), c(5,7,1,1))
     
+    # other accessors
+    ab <- clonoAbundance(sce)
+    expect_equal(dim(ab), c(7,2))
+    fr <- clonoFrequency(sce)
+    expect_equal(dim(fr), c(4,2))
+    as <- clonoAssignment(sce)
+    expect_equal(dim(as), c(24,7))
     cn <- clonoNames(sce)
     expect_equal(length(unlist(strsplit(cn,split=' '))), 2 * length(cn))
+    gr <- clonoGroup(sce)
+    expect_equal(length(gr), ncol(sce))
 })
 
 test_that("input/output functions work", {
@@ -295,5 +319,24 @@ test_that("plotting functions work", {
     
     p2 <- barVDJ(x, bySample = FALSE, 
                  title = 'bar plot', legend = TRUE)
-    expect_equal(class(p2$layers[[1]]$geom)[1], 'GeomCol')    
+    expect_equal(class(p2$layers[[1]]$geom)[1], 'GeomCol')   
+    
+    p1 <- pieVDJ(x)
+    expect_true(is(p1, 'list'))
+    expect_equal(length(p1), 2)
+    expect_equal(class(p1[[1]]$layers[[1]]$geom)[1], 'GeomCol')
+    
+    expect_warning({ 
+        d <- calculateDiversity(x)
+    },  regexp = 'not valid')
+    sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 
+                               Group = c("Cancer", "Normal"))
+    p1 <- boxVDJ(d, sampleGroups = sampleGroups, method = "shannon", 
+                 title = "Shannon diversity", legend = TRUE)
+    expect_equal(class(p1$layers[[1]]$geom)[1], 'GeomBoxplot')   
+
+    p2 <- boxVDJ(d, sampleGroups = sampleGroups, method = "shannon", 
+                 title = "Shannon diversity", legend = FALSE)
+    expect_equal(class(p2$layers[[1]]$geom)[1], 'GeomBoxplot')   
+    
 })

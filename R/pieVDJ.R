@@ -108,6 +108,6 @@ setMethod(f = "pieVDJ",
 setMethod(f = "pieVDJ",
           signature = signature(x = "clonoStats"),
           definition = function(x, ...){
-              pieVDJ(x@abundance, ...)
+              pieVDJ(clonoAbundance(x), ...)
           })
 
