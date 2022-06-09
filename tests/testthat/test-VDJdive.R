@@ -340,3 +340,22 @@ test_that("plotting functions work", {
     expect_equal(class(p2$layers[[1]]$geom)[1], 'GeomBoxplot')   
     
 })
+
+test_that("runBreakaway works", {
+    if(! requireNamespace('breakaway', quietly = TRUE)){
+        skip('breakaway package not available.')
+    }
+    data("contigs")
+    x <- clonoStats(contigs, method = 'unique', assignment = TRUE)
+    
+    b <- runBreakaway(x)
+    expect_is(b, 'list')
+    expect_is(b$sample2, 'alpha_estimate')
+    
+    # re-run with one group to make sure we have enough counts per group
+    x <- clonoStats(x, group = rep(1,length(clonoGroup(x))))
+    b <- runBreakaway(x, nof1 = TRUE)
+    expect_is(b, 'list')
+    expect_is(b[[1]], 'alpha_estimate')
+})
+

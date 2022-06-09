@@ -2,18 +2,21 @@
 % Please edit documentation in R/runBreakaway.R
 \name{runBreakaway}
 \alias{runBreakaway}
+\alias{runBreakaway,clonoStats-method}
 \title{Clonotype richness estimation with Breakaway}
 \usage{
-runBreakaway(x, nof1 = FALSE, ...)
+runBreakaway(x, ...)
+
+\S4method{runBreakaway}{clonoStats}(x, nof1 = FALSE, ...)
 }
 \arguments{
 \item{x}{A \code{\link{clonoStats}} object.}
 
-\item{nof1}{logical. Indicates whether to use the \code{breakaway_nof1}
-function, for abundance data that may contain spurious singletons.}
-
 \item{...}{Additional arguments passed to \code{breakaway} or
 \code{breakaway_nof1}.}
+
+\item{nof1}{logical. Indicates whether to use the \code{breakaway_nof1}
+function, for abundance data that may contain spurious singletons.}
 }
 \value{
 A list of \code{alpha_estimate} objects, one per group, containing
