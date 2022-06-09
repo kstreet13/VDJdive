@@ -23,6 +23,7 @@ Imports:
     SummarizedExperiment,
     utils
 Suggests:
+    breakaway,
     covr,
     knitr,
     rmarkdown,
@@ -54,6 +55,7 @@ Collate:
     'clonoStats_helpers.R'
     'contigs.R'
     'pieVDJ.R'
+    'runBreakaway.R'
     'runVDJPCA.R'
     'setup.R'
     'utils.R'
