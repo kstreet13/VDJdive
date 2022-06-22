@@ -47,23 +47,11 @@
     
     # find all unique alpha chains
     all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type1]))
-    if(length(all.alphas)==0){
-        # can't assign clonotypes
-        # return empty matrix, in case this is just one sample of many
-        clono <- Matrix(0, nrow = length(contigs), ncol = 0)
-        rownames(clono) <- names(contigs)
-        return(clono)
-    }
+    all.alphas <- c('UNKNOWN_1', all.alphas)
     # find all unique beta chains
     all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type2]))
-    if(length(all.betas)==0){
-        # can't assign clonotypes
-        # return empty matrix, in case this is just one sample of many
-        clono <- Matrix(0, nrow = length(contigs), ncol = 0)
-        rownames(clono) <- names(contigs)
-        return(clono)
-    }
-    
+    all.betas <- c('UNKNOWN_2', all.betas)
+
     # initialize counts matrix (#alpha-by-#beta)
     counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), 
                      sparse = TRUE)

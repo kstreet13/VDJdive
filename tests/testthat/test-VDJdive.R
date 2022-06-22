@@ -154,21 +154,21 @@ test_that("clonoStats function works as expected", {
     
     emal <- clonoStats(contigs, method = 'EM', assignment = TRUE)
     expect_is(emal, 'clonoStats')
-    expect_equivalent(dim(emal@abundance), c(60,2))
+    expect_equivalent(dim(emal@abundance), c(64,2))
     expect_equal(sum(emal@abundance), 22)
     expect_equivalent(dim(emal@frequency), c(4,2))
-    expect_equal(sum(emal@frequency), 120)
-    expect_equivalent(dim(emal@assignment), c(24, 60))
+    expect_equal(sum(emal@frequency), 128)
+    expect_equivalent(dim(emal@assignment), c(24, 64))
     expect_equal(sum(emal@assignment), 22)
     
     emal2 <- clonoStats(contigs, method = 'EM', 
                         assignment = TRUE, lang = 'r')
     expect_is(emal2, 'clonoStats')
-    expect_equivalent(dim(emal2@abundance), c(60,2))
+    expect_equivalent(dim(emal2@abundance), c(64,2))
     expect_equal(sum(emal2@abundance), 22)
     expect_equivalent(dim(emal2@frequency), c(4,2))
-    expect_equal(sum(emal2@frequency), 120)
-    expect_equivalent(dim(emal2@assignment), c(24, 60))
+    expect_equal(sum(emal2@frequency), 128)
+    expect_equivalent(dim(emal2@assignment), c(24, 64))
     expect_equal(sum(emal2@assignment), 22)
     expect_true(max(abs(emal2@assignment - emal@assignment)) < .0001)
 
@@ -201,11 +201,11 @@ test_that("clonoStats function works as expected", {
     clus <- sample(1:2, 24, replace = TRUE)
     emal3 <- clonoStats(emal, group = clus)
     expect_is(emal3, 'clonoStats')
-    expect_equivalent(dim(emal3@abundance), c(60,2))
+    expect_equivalent(dim(emal3@abundance), c(64,2))
     expect_equal(sum(emal3@abundance), 22)
     expect_equal(ncol(emal3@frequency), 2)
-    expect_equal(sum(emal3@frequency), 120)
-    expect_equivalent(dim(emal3@assignment), c(24, 60))
+    expect_equal(sum(emal3@frequency), 128)
+    expect_equivalent(dim(emal3@assignment), c(24, 64))
     expect_equal(sum(emal3@assignment), 22)
     expect_true(max(abs(emal3@assignment - emal@assignment)) < .0001)
 })
@@ -306,7 +306,7 @@ test_that("PCA function works", {
     expect_equivalent(dim(pca1$x), c(2, 2))
     
     pca2 <- runVDJPCA(clono, unit = 'clonotypes')
-    expect_equivalent(dim(pca2$x), c(60, 2))
+    expect_equivalent(dim(pca2$x), c(64, 2))
 })
 
 test_that("plotting functions work", {
