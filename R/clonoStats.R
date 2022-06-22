@@ -38,8 +38,9 @@ setGeneric(name = "clonoStats",
 #'   nClonotypes} sparse matrix of clonotype assignments (default =
 #'   \code{FALSE})
 #' @param method Which method to use for assigning cell-level clonotypes.
-#'   Options are \code{"EM"} (default), \code{"unique"}, \code{"CellRanger"}, or
-#'   any \code{chain} type in \code{x}. See Details.
+#'   Options are \code{"EM"} (default), \code{"unique"}, or \code{"CellRanger"}.
+#'   Alternatively, this may be the name of a numeric column of \code{x} or any
+#'   \code{chain} type contained in \code{x}. See Details.
 #' @param lang Indicates which implementation of certain methods to use. The EM
 #'   algorithm is implemented in both pure R (\code{'r'}) and mixed R and Python
 #'   (\code{'python'}, default) versions. Similarly, clonotype summarization is
@@ -94,7 +95,8 @@ setMethod(f = "clonoStats",
               contigs <- x
               method <- match.arg(method, 
                                   choices = c('EM','unique','CellRanger',
-                                              unique(unlist(x[,'chain']))))
+                                              unique(unlist(x[,'chain'])),
+                                              commonColnames(x)))
               lang <- match.arg(lang)
               if(is.null(type)){
                   chn <- unlist(contigs[,'chain'])
@@ -143,10 +145,15 @@ setMethod(f = "clonoStats",
                       .UNIQ_sample(contigs[which(grpVar == lv)],
                                    type = type)
                   })
-              }else{
+              }else if(method %in% unlist(x[,'chain'])){
                   clono.list <- lapply(levels(grpVar), function(lv){
                       .CHN_sample(contigs[which(grpVar == lv)], 
                                   method = method)
+                  })
+              }else if(method %in% commonColnames(x)){
+                  clono.list <- lapply(levels(grpVar), function(lv){
+                      .MC_sample(contigs[which(grpVar == lv)], 
+                                  type = type, method = method)
                   })
               }
               if(any(is.na(grpVar))){
@@ -235,11 +242,6 @@ setMethod(f = "clonoStats",
                   cs <- clonoStats(sce[[contigs]], ...)
               }
               
-              # update sce
-              # if(!is.null(clono@assignment)){
-              #     colData(sce)$assignment <- clono@assignment
-              #     clono@assignment <- NULL
-              # }
               metadata(sce)$clonoStats <- cs
               
               return(sce)

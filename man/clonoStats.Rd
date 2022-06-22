@@ -51,8 +51,9 @@ origin to avoid unwanted cross-talk between samples.}
 \code{FALSE})}
 
 \item{method}{Which method to use for assigning cell-level clonotypes.
-Options are \code{"EM"} (default), \code{"unique"}, \code{"CellRanger"}, or
-any \code{chain} type in \code{x}. See Details.}
+Options are \code{"EM"} (default), \code{"unique"}, or \code{"CellRanger"}.
+Alternatively, this may be the name of a numeric column of \code{x} or any
+\code{chain} type contained in \code{x}. See Details.}
 
 \item{lang}{Indicates which implementation of certain methods to use. The EM
 algorithm is implemented in both pure R (\code{'r'}) and mixed R and Python

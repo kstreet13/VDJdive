@@ -295,7 +295,7 @@
     return(clono)
 }
 
-
+# quantify a particular chain type (ie. alphas only)
 .CHN_sample <- function(contigs, method){
     # in this case, 'method' indicates the type of chain being quantified
     contigs <- contigs[contigs[,'productive']]
@@ -322,6 +322,99 @@
     return(clono)
 }
 
+# pick most likely clonotype based on UMIs/reads ("most common")
+.MC_sample <- function(contigs, type, method){
+    stopifnot(method %in% commonColnames(contigs))
+    contigs <- .prepContigs(contigs, type)
+    
+    if(type == 'TCR'){
+        type1 <- 'TRA'
+        type2 <- 'TRB'
+    }
+    if(type == 'BCR'){
+        type1 <- 'IGH'
+        type2 <- c('IGL','IGK')
+    }
+    
+    # numbers of alpha and beta chains per cell
+    nAlpha <- sum(contigs[,"chain"] %in% type1)
+    nBeta <- sum(contigs[,"chain"] %in% type2)
+    
+    # find all unique alpha chains
+    all.alphas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type1]))
+    if(length(all.alphas)==0){
+        # can't assign clonotypes
+        # return empty matrix, in case this is just one sample of many
+        clono <- Matrix(0, nrow = length(contigs), ncol = 0)
+        rownames(clono) <- names(contigs)
+        return(clono)
+    }
+    # find all unique beta chains
+    all.betas <- unique(unlist(contigs[,'cdr3'][contigs[,'chain']%in%type2]))
+    if(length(all.betas)==0){
+        # can't assign clonotypes
+        # return empty matrix, in case this is just one sample of many
+        clono <- Matrix(0, nrow = length(contigs), ncol = 0)
+        rownames(clono) <- names(contigs)
+        return(clono)
+    }
+    
+    # initialize counts matrix (#alpha-by-#beta)
+    counts <- Matrix(0, nrow = length(all.alphas), ncol = length(all.betas), 
+                     sparse = TRUE)
+    rownames(counts) <- all.alphas
+    colnames(counts) <- all.betas
+    
+    # useful indices
+    ind.unique <- which(nAlpha == 1 & nBeta == 1)
+    ind.multiple <- which(nAlpha > 0 & nBeta > 0 & nAlpha+nBeta > 2)
+    
+    
+    # step 1: remove lower-count contigs from ambiguous 
+    # (multiples of one chain) cells until they're unique
+    ############################################################
+    for(i in ind.multiple){
+        keep <- c(which.max(contigs[[i]][,method] * 
+                                (contigs[[i]][,'chain']%in%type1)),
+                  which.max(contigs[[i]][,method] * 
+                                (contigs[[i]][,'chain']%in%type2)))
+        contigs[[i]] <- contigs[[i]][keep,]
+    }
+    ind.unique <- c(ind.unique, ind.multiple)
+    
 
+    # use which alpha sequence and which beta sequence each contig represents 
+    # to calculate its (possible) index in the clonotype matrix
+    wa <- match(contigs[,'cdr3'][contigs[,'chain']%in%type1], all.alphas)
+    wb <- match(contigs[,'cdr3'][contigs[,'chain']%in%type2], all.betas)
+    # this takes care of the 1-alpha + 1-beta indices without looping
+    poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
+    # others are incorrect, though
+    poss.indices[-ind.unique] <- list(integer(0))
+    
 
+    # step 2: assign cells with 1 alpha, 1 beta
+    ############################################
+    temp <- contigs[ind.unique]
+    uniquecounts <- unclass(table(unlist(temp[temp[,'chain']%in%type1,'cdr3']),
+                                  unlist(temp[temp[,'chain']%in%type2,'cdr3'])))
+    if(length(temp) > 0){
+        counts[rownames(uniquecounts), colnames(uniquecounts)] <- uniquecounts
+    }
+    counts <- as.numeric(counts)
+    
+    
+    # build full cells-by-clonotypes matrix
+    clonoJ <- as.integer(unlist(poss.indices)-1)
+    clonoP <- as.integer(c(0,cumsum(lengths(poss.indices))))
+    clonoX <- rep(1, sum(lengths(poss.indices)))
+    clono <- new('dgRMatrix', j = clonoJ, p = clonoP, x = clonoX,
+                 Dim = as.integer(c(length(contigs), length(counts))))
+    colnames(clono) <- as.character(outer(all.alphas, all.betas,
+                                          FUN = paste))
+    clono <- clono[, which(colSums(clono) > 0), drop = FALSE]
+    rownames(clono) <- names(contigs)
+    
+    return(clono)
+}
 

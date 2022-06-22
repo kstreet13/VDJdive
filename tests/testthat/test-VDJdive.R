@@ -152,6 +152,15 @@ test_that("clonoStats function works as expected", {
     expect_equal(sum(alph@assignment), 24)
     expect_equivalent(grep('\\s$', clonoNames(alph)), seq_len(18))
     
+    umis <- clonoStats(contigs, method = 'umis', assignment = TRUE)
+    expect_is(umis, 'clonoStats')
+    expect_equivalent(dim(umis@abundance), c(12,2))
+    expect_equal(sum(umis@abundance), 18)
+    expect_equivalent(dim(umis@frequency), c(4,2))
+    expect_equal(sum(umis@frequency), 24)
+    expect_equivalent(dim(umis@assignment), c(24, 12))
+    expect_equal(sum(umis@assignment), 18)
+    
     emal <- clonoStats(contigs, method = 'EM', assignment = TRUE)
     expect_is(emal, 'clonoStats')
     expect_equivalent(dim(emal@abundance), c(64,2))
