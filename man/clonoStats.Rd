@@ -17,7 +17,8 @@ clonoStats(x, ...)
   method = "EM",
   lang = c("python", "r"),
   thresh = 0.01,
-  iter.max = 1000
+  iter.max = 1000,
+  BPPARAM = bpparam()
 )
 
 \S4method{clonoStats}{SingleCellExperiment}(x, contigs = "contigs", group = "sample", ...)
@@ -67,6 +68,10 @@ used if \code{method = "EM"}.}
 
 \item{iter.max}{Maximum number of iterations for the EM algorithm. Only used
 if \code{method = "EM"}.}
+
+\item{BPPARAM}{A \linkS4class{BiocParallelParam} object specifying the
+parallel backend for distributed clonotype assignment operations (split by
+\code{group}). Default is \code{BiocParallel::bpparam()}.}
 
 \item{contigs}{The name of the column in the \code{colData} of \code{x} that
 contains the VDJ contig data (only applies if \code{x} is a

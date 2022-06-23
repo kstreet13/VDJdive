@@ -11,6 +11,7 @@ Depends:
     R (>= 4.1)
 Imports:
     basilisk,
+    BiocParallel,
     ggplot2,
     IRanges,
     Matrix,

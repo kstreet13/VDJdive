@@ -51,6 +51,9 @@ setGeneric(name = "clonoStats",
 #'   used if \code{method = "EM"}.
 #' @param iter.max Maximum number of iterations for the EM algorithm. Only used
 #'   if \code{method = "EM"}.
+#' @param BPPARAM A \linkS4class{BiocParallelParam} object specifying the
+#'   parallel backend for distributed clonotype assignment operations (split by
+#'   \code{group}). Default is \code{BiocParallel::bpparam()}.
 #'
 #' @details Assign cells (with at least one V(D)J contig) to clonotypes and
 #'   produces summary tables that can be used for downstream analysis. Clonotype
@@ -100,6 +103,7 @@ setGeneric(name = "clonoStats",
 #' clonoStats(contigs)
 #'
 #' @import IRanges
+#' @importFrom BiocParallel bplapply bpparam
 #' @importFrom reticulate import
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop
 #' @importFrom Matrix Matrix colSums
@@ -112,7 +116,8 @@ setMethod(f = "clonoStats",
                                 assignment = FALSE, 
                                 method = 'EM', 
                                 lang = c('python','r'),
-                                thresh = .01, iter.max = 1000){
+                                thresh = .01, iter.max = 1000,
+                                BPPARAM = bpparam()){
               contigs <- x
               method <- match.arg(method, 
                                   choices = c('EM','unique','CellRanger',
@@ -151,31 +156,31 @@ setMethod(f = "clonoStats",
               # select appropriate method and quantify each sample individually
               #################################################################
               if(method == 'EM'){
-                  clono.list <- lapply(levels(grpVar), function(lv){
+                  clono.list <- bplapply(levels(grpVar), function(lv){
                       .EM_sample(contigs[which(grpVar == lv)],
                                  type = type, lang = lang,
                                  thresh = thresh, iter.max = iter.max)
-                  })
+                  }, BPPARAM = BPPARAM)
               }else if(method == 'CellRanger'){
-                  clono.list <- lapply(levels(grpVar), function(lv){
+                  clono.list <- bplapply(levels(grpVar), function(lv){
                       .CR_sample(contigs[which(grpVar == lv)],
                                  type = type)
-                  })
+                  }, BPPARAM = BPPARAM)
               }else if(method == 'unique'){
-                  clono.list <- lapply(levels(grpVar), function(lv){
+                  clono.list <- bplapply(levels(grpVar), function(lv){
                       .UNIQ_sample(contigs[which(grpVar == lv)],
                                    type = type)
-                  })
+                  }, BPPARAM = BPPARAM)
               }else if(method %in% unlist(x[,'chain'])){
-                  clono.list <- lapply(levels(grpVar), function(lv){
+                  clono.list <- bplapply(levels(grpVar), function(lv){
                       .CHN_sample(contigs[which(grpVar == lv)], 
                                   method = method)
-                  })
+                  }, BPPARAM = BPPARAM)
               }else if(method %in% commonColnames(x)){
-                  clono.list <- lapply(levels(grpVar), function(lv){
+                  clono.list <- bplapply(levels(grpVar), function(lv){
                       .MC_sample(contigs[which(grpVar == lv)], 
                                   type = type, method = method)
-                  })
+                  }, BPPARAM = BPPARAM)
               }
               if(any(is.na(grpVar))){
                   # indicates elements of length 0
@@ -190,14 +195,14 @@ setMethod(f = "clonoStats",
               # supplement each matrix with 0s so they have same number of cols
               all.clonotypes <- unique(unlist(lapply(clono.list, colnames)))
               if(length(all.clonotypes) > 0){ # can't index by empty set
-                  clono.list <- lapply(clono.list, function(mat){
+                  clono.list <- bplapply(clono.list, function(mat){
                       missing <- all.clonotypes[! all.clonotypes %in% 
                                                     colnames(mat)]
                       zeros <- Matrix(0, ncol = length(missing), 
                                       nrow = nrow(mat), sparse = TRUE)
                       colnames(zeros) <- missing
                       return(cbind(mat, zeros)[,all.clonotypes])
-                  })
+                  }, BPPARAM = BPPARAM)
               }
               # combine matrices
               clono <- do.call(rbind, clono.list)
