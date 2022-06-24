@@ -95,6 +95,9 @@ setGeneric(name = "summarizeClonotypes",
 #' @param lang Indicates which implementation of the \code{"tab"} summarization
 #'   to use. Options are \code{'r'} (default) or \code{'python'}. Only used if
 #'   non-integer clonotype abundances are present and \code{mode = "tab"}.
+#' @param BPPARAM A \linkS4class{BiocParallelParam} object specifying the
+#'   parallel backend for distributed clonotype assignment operations (split by
+#'   \code{group}). Default is \code{BiocParallel::bpparam()}.
 #'
 #' @return A matrix clonotype counts where each row corresponds to a unique
 #'   value of \code{by} (if \code{by} denotes sample labels, this is a matrix of
@@ -107,11 +110,13 @@ setGeneric(name = "summarizeClonotypes",
 #'
 #' @importClassesFrom Matrix Matrix
 #' @importFrom Matrix Matrix rowSums
+#' @importFrom BiocParallel bpparam bplapply
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "Matrix"),
           definition = function(x, by, mode = c('sum','tab'), 
-                                lang = c('r','python')){
+                                lang = c('r','python'),
+                                BPPARAM = bpparam()){
               mode <- match.arg(mode)
               lang <- match.arg(lang)
               if(!is.factor(by)){
@@ -119,29 +124,33 @@ setMethod(f = "summarizeClonotypes",
               }
               stopifnot(length(by) == nrow(x))
               if(mode == 'sum'){
-                  out <- vapply(levels(by), function(lv){
+                  out <- bplapply(levels(by), function(lv){
                       colSums(x[which(by == lv), ,drop = FALSE])
-                  }, FUN.VALUE = rep(0,ncol(x)))
+                  }, BPPARAM = BPPARAM)
+                  out <- do.call(cbind, out)
               }
               if(mode == 'tab'){
                   lim <- max(table(by))+1
                   if(all(x@x %% 1 == 0)){ # integer counts
-                      out <- vapply(levels(by), function(lv){
+                      out <- bplapply(levels(by), function(lv){
                           ind <- which(by==lv)
                           return(table(factor(colSums(x[ind, ,drop=FALSE]),
                                               levels = seq_len(lim)-1)))
-                      }, FUN.VALUE = rep(0,lim))
+                      }, BPPARAM = BPPARAM)
                   }else{ # non-integer counts
-                      out <- vapply(levels(by), function(lv){
+                      out <- bplapply(levels(by), function(lv){
                           sub.x <- x[which(by==lv), ,drop=FALSE]
                           return(.nonInt_tab(sub.x, lim, lang))
-                      }, FUN.VALUE = rep(0,lim))
+                      }, BPPARAM = BPPARAM)
                   }
+                  out <- do.call(cbind, out)
+                  
                   # trim excess 0s
                   out <- out[seq_len(max(c(0,which(rowSums(out) > 0)))), ,
                              drop = FALSE]
                   rownames(out) <- seq_len(nrow(out))-1
               }
+              colnames(out) <- levels(by)
               return(Matrix(out, sparse = TRUE))
           })
 

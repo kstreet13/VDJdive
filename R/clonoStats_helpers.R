@@ -1,3 +1,6 @@
+#' @include basilisk.R
+NULL
+
 # clonoStats helper functions
 
 # remove all non-essential contig data

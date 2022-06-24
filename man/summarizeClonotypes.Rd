@@ -10,7 +10,13 @@
 \usage{
 summarizeClonotypes(x, by, ...)
 
-\S4method{summarizeClonotypes}{Matrix}(x, by, mode = c("sum", "tab"), lang = c("r", "python"))
+\S4method{summarizeClonotypes}{Matrix}(
+  x,
+  by,
+  mode = c("sum", "tab"),
+  lang = c("r", "python"),
+  BPPARAM = bpparam()
+)
 
 \S4method{summarizeClonotypes}{SingleCellExperiment}(
   x,
@@ -45,6 +51,10 @@ frequencies (ie. singletons, doubletons, etc.) by sample.}
 \item{lang}{Indicates which implementation of the \code{"tab"} summarization
 to use. Options are \code{'r'} (default) or \code{'python'}. Only used if
 non-integer clonotype abundances are present and \code{mode = "tab"}.}
+
+\item{BPPARAM}{A \linkS4class{BiocParallelParam} object specifying the
+parallel backend for distributed clonotype assignment operations (split by
+\code{group}). Default is \code{BiocParallel::bpparam()}.}
 
 \item{contigs}{character. If \code{x} is a \code{SingleCellExperiment}, the
 name of the \code{SplitDataFrameList} in the \code{colData} of \code{x}

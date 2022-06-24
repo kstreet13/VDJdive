@@ -1,4 +1,4 @@
-#' @include clonoStats_class.R
+#' @include clonoStats_class.R clonoStats_helpers.R
 NULL
 
 #' @title Assign cell-level clonotypes and calculate abundances
@@ -225,10 +225,11 @@ setMethod(f = "clonoStats",
               }
               
               # summarize clonotype assignments
-              t1 <- summarizeClonotypes(clono, grpVar, mode = 'sum')
+              t1 <- summarizeClonotypes(clono, grpVar, mode = 'sum',
+                                        BPPARAM = BPPARAM)
               rownames(t1) <- NULL
               t2 <- summarizeClonotypes(clono, grpVar, mode = 'tab', 
-                                        lang = lang)
+                                        lang = lang, BPPARAM = BPPARAM)
               if(assignment){
                   return(new('clonoStats', abundance = t1, frequency = t2,
                              names1 = nf1, names2 = nf2, group = grpVar,
