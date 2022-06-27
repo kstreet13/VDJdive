@@ -18,7 +18,7 @@ clonoStats(x, ...)
   lang = c("python", "r"),
   thresh = 0.01,
   iter.max = 1000,
-  BPPARAM = bpparam()
+  BPPARAM = SerialParam()
 )
 
 \S4method{clonoStats}{SingleCellExperiment}(x, contigs = "contigs", group = "sample", ...)
@@ -71,7 +71,7 @@ if \code{method = "EM"}.}
 
 \item{BPPARAM}{A \linkS4class{BiocParallelParam} object specifying the
 parallel backend for distributed clonotype assignment operations (split by
-\code{group}). Default is \code{BiocParallel::bpparam()}.}
+\code{group}). Default is \code{BiocParallel::SerialParam()}.}
 
 \item{contigs}{The name of the column in the \code{colData} of \code{x} that
 contains the VDJ contig data (only applies if \code{x} is a

@@ -15,7 +15,7 @@ summarizeClonotypes(x, by, ...)
   by,
   mode = c("sum", "tab"),
   lang = c("r", "python"),
-  BPPARAM = bpparam()
+  BPPARAM = SerialParam()
 )
 
 \S4method{summarizeClonotypes}{SingleCellExperiment}(
@@ -54,7 +54,7 @@ non-integer clonotype abundances are present and \code{mode = "tab"}.}
 
 \item{BPPARAM}{A \linkS4class{BiocParallelParam} object specifying the
 parallel backend for distributed clonotype assignment operations (split by
-\code{group}). Default is \code{BiocParallel::bpparam()}.}
+\code{group}). Default is \code{BiocParallel::SerialParam()}.}
 
 \item{contigs}{character. If \code{x} is a \code{SingleCellExperiment}, the
 name of the \code{SplitDataFrameList} in the \code{colData} of \code{x}

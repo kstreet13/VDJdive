@@ -97,7 +97,7 @@ setGeneric(name = "summarizeClonotypes",
 #'   non-integer clonotype abundances are present and \code{mode = "tab"}.
 #' @param BPPARAM A \linkS4class{BiocParallelParam} object specifying the
 #'   parallel backend for distributed clonotype assignment operations (split by
-#'   \code{group}). Default is \code{BiocParallel::bpparam()}.
+#'   \code{group}). Default is \code{BiocParallel::SerialParam()}.
 #'
 #' @return A matrix clonotype counts where each row corresponds to a unique
 #'   value of \code{by} (if \code{by} denotes sample labels, this is a matrix of
@@ -110,13 +110,13 @@ setGeneric(name = "summarizeClonotypes",
 #'
 #' @importClassesFrom Matrix Matrix
 #' @importFrom Matrix Matrix rowSums
-#' @importFrom BiocParallel bpparam bplapply
+#' @importFrom BiocParallel SerialParam bplapply
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "Matrix"),
           definition = function(x, by, mode = c('sum','tab'), 
                                 lang = c('r','python'),
-                                BPPARAM = bpparam()){
+                                BPPARAM = SerialParam()){
               mode <- match.arg(mode)
               lang <- match.arg(lang)
               if(!is.factor(by)){

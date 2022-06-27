@@ -53,7 +53,7 @@ setGeneric(name = "clonoStats",
 #'   if \code{method = "EM"}.
 #' @param BPPARAM A \linkS4class{BiocParallelParam} object specifying the
 #'   parallel backend for distributed clonotype assignment operations (split by
-#'   \code{group}). Default is \code{BiocParallel::bpparam()}.
+#'   \code{group}). Default is \code{BiocParallel::SerialParam()}.
 #'
 #' @details Assign cells (with at least one V(D)J contig) to clonotypes and
 #'   produces summary tables that can be used for downstream analysis. Clonotype
@@ -103,7 +103,7 @@ setGeneric(name = "clonoStats",
 #' clonoStats(contigs)
 #'
 #' @import IRanges
-#' @importFrom BiocParallel bplapply bpparam
+#' @importFrom BiocParallel bplapply SerialParam
 #' @importFrom reticulate import
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop
 #' @importFrom Matrix Matrix colSums
@@ -117,7 +117,7 @@ setMethod(f = "clonoStats",
                                 method = 'EM', 
                                 lang = c('python','r'),
                                 thresh = .01, iter.max = 1000,
-                                BPPARAM = bpparam()){
+                                BPPARAM = SerialParam()){
               contigs <- x
               method <- match.arg(method, 
                                   choices = c('EM','unique','CellRanger',
