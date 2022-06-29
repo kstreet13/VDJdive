@@ -80,7 +80,8 @@ setGeneric(name = "summarizeClonotypes",
 #' @param by A character vector or factor by which to summarize the clonotype
 #'   counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 #'   be a character, giving the name of the column from the \code{colData} to
-#'   use as this variable.
+#'   use as this variable. Similar to the \code{group} argument for
+#'   \code{\link{clonoStats}}.
 #' @param contigs character. If \code{x} is a \code{SingleCellExperiment}, the
 #'   name of the \code{SplitDataFrameList} in the \code{colData} of \code{x}
 #'   containing contig information.
@@ -99,9 +100,12 @@ setGeneric(name = "summarizeClonotypes",
 #'   parallel backend for distributed clonotype assignment operations (split by
 #'   \code{group}). Default is \code{BiocParallel::SerialParam()}.
 #'
-#' @return A matrix clonotype counts where each row corresponds to a unique
-#'   value of \code{by} (if \code{by} denotes sample labels, this is a matrix of
-#'   sample-level clonotype counts).
+#' @return If \code{mode = 'sum'}, returns a matrix clonotype abundances where
+#'   each row corresponds to a clonotype and each column a value of \code{by}
+#'   (if \code{by} denotes sample labels, this is a matrix of sample-level
+#'   clonotype counts). If \code{mode = 'tab'}, returns a matrix of clonotype
+#'   frequencies, where each row corresponds to a frequency (singletons,
+#'   doubletons, etc.) and each column a value of \code{by}.
 #'
 #' @examples
 #' example(addVDJtoSCE)
@@ -224,14 +228,16 @@ setGeneric(name = "splitClonotypes",
 #' @param x A \code{Matrix} of cell-level clonotype assignments
 #'   (cells-by-clonotypes) or a \code{SingleCellExperiment} object with such a
 #'   matrix stored in the \code{clono} slot of the \code{colData}.
-#' @param by A chadracter vector or factor by which to split the clonotype
+#' @param by A character vector or factor by which to split the clonotype
 #'   counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 #'   be a character, giving the name of the column from the \code{colData} to
-#'   use as this variable.
+#'   use as this variable. Similar to the \code{group} argument for
+#'   \code{\link{clonoStats}}.
 #'
-#' @return A list of \code{Matrix} objects providing the cell-level counts for
-#'   each unique value of \code{by} (if \code{by} denotes sample labels, each
-#'   matrix in the list will contain the cells from a single sample).
+#' @return A list of \code{Matrix} objects providing the cell-level clonotype
+#'   assignments for each unique value of \code{by} (if \code{by} denotes sample
+#'   labels, each matrix in the list will contain the cells from a single
+#'   sample).
 #'
 #' @examples
 #' example(addVDJtoSCE)

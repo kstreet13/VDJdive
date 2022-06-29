@@ -39,7 +39,8 @@ stored in the \code{colData}.}
 \item{by}{A character vector or factor by which to summarize the clonotype
 counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 be a character, giving the name of the column from the \code{colData} to
-use as this variable.}
+use as this variable. Similar to the \code{group} argument for
+\code{\link{clonoStats}}.}
 
 \item{...}{additional arguments.}
 
@@ -66,9 +67,12 @@ the output of \code{clonoStats}. Must include cell-level clonotype
 assignments (ie. \code{assignment = TRUE}).}
 }
 \value{
-A matrix clonotype counts where each row corresponds to a unique
-value of \code{by} (if \code{by} denotes sample labels, this is a matrix of
-sample-level clonotype counts).
+If \code{mode = 'sum'}, returns a matrix clonotype abundances where
+each row corresponds to a clonotype and each column a value of \code{by}
+(if \code{by} denotes sample labels, this is a matrix of sample-level
+clonotype counts). If \code{mode = 'tab'}, returns a matrix of clonotype
+frequencies, where each row corresponds to a frequency (singletons,
+doubletons, etc.) and each column a value of \code{by}.
 }
 \description{
 Takes a matrix of cell-level clonotype counts and sums them

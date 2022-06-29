@@ -23,10 +23,11 @@ splitClonotypes(x, by, ...)
 (cells-by-clonotypes) or a \code{SingleCellExperiment} object with such a
 matrix stored in the \code{clono} slot of the \code{colData}.}
 
-\item{by}{A chadracter vector or factor by which to split the clonotype
+\item{by}{A character vector or factor by which to split the clonotype
 counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 be a character, giving the name of the column from the \code{colData} to
-use as this variable.}
+use as this variable. Similar to the \code{group} argument for
+\code{\link{clonoStats}}.}
 
 \item{...}{additional arguments.}
 
@@ -40,9 +41,10 @@ the output of \code{clonoStats}. Must include cell-level clonotype
 assignments (ie. \code{assignment = TRUE}).}
 }
 \value{
-A list of \code{Matrix} objects providing the cell-level counts for
-each unique value of \code{by} (if \code{by} denotes sample labels, each
-matrix in the list will contain the cells from a single sample).
+A list of \code{Matrix} objects providing the cell-level clonotype
+assignments for each unique value of \code{by} (if \code{by} denotes sample
+labels, each matrix in the list will contain the cells from a single
+sample).
 }
 \description{
 Takes a matrix of cell-level clonotype counts and splits them
