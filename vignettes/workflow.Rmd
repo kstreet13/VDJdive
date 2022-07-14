@@ -95,6 +95,14 @@ sce <- clonoStats(sce, method = 'EM')
 metadata(sce)
 ```
 
+Functions to access the clonoStats class.
+```{r}
+clonoAbundance(sce) # access output of abundance for clonotypes for clonoStats class
+clonoFrequency(sce) # access output of frequency for clonotypes for clonoStats class
+clonoFrequency(sce) # access output of clonotypes assignment for clonoStats class
+clonoGroup(sce) # access output of clonotypes grouping for clonoStats class
+clonoNames(sce) # access output of clonotypes samples for clonoStats class
+```
 
 # Diversity
 
@@ -106,6 +114,14 @@ All of the diversity measures can be computed for each sample with the following
 div <- calculateDiversity(EMstats, methods = "all")
 div
 ```
+
+We also provide a function for estimation of species richness through breakaway (Willis et al, biometrics 2015). For this section please ensure to install the breakaway package from CRAN https://cran.r-project.org/web/packages/breakaway/index.html . The method uses the frequency (number of singletons, doubletons etc to provide a more accurate estimate for richness with standard error and confidence intervals).
+
+```{r}
+#divBreakaway <- runBreakaway(EMstats, methods = 'unique')
+#divBreakaway
+```
+
 
 # Cluster Diversity
 
