@@ -208,7 +208,7 @@ setMethod(f = "calculateDiversity",
                   }
                   if(m == 'nClonotypes'){
                       return(vapply(seq_len(ncol(f)), function(j){
-                          .nClonotypes(f[-1,j])
+                          .nClonotypes(f[,j])
                       }, FUN.VALUE = 0.0))
                   }
                   if(m == 'shannon'){
@@ -233,12 +233,12 @@ setMethod(f = "calculateDiversity",
                   }
                   if(m == 'chao1'){
                       return(vapply(seq_len(ncol(f)), function(j){
-                          .chao1(f[-1,j]) # remove the 0s row
+                          .chao1(f[,j])
                       }, FUN.VALUE = 0.0))
                   }
                   if(m == 'chaobunge'){
                       cb <- vapply(seq_len(ncol(f)), function(j){
-                          .chaobunge(f[-1,j]) # remove the 0s row
+                          .chaobunge(f[,j])
                       }, FUN.VALUE = rep(0.0,3))
                       rownames(cb) <- c('chaobunge.est','chaobunge.CI.lower',
                                         'chaobunge.CI.upper')

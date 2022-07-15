@@ -5,7 +5,7 @@ NULL
     lang <- match.arg(lang)
     nz <- unname(Matrix::colSums(x > 0)) # non-zero count
     EX <- unname(Matrix::colSums(x)) # sum of probs
-    if(lim >= 2){
+    if(lim >= 1){
         # clonotypes that could only be in zero or one cell
         ind1 <- which(nz == 1)
         # skip straight to the row sums
@@ -14,7 +14,7 @@ NULL
     }else{
         RS1 <- rep(0,lim)
     }
-    if(lim >= 3){
+    if(lim >= 2){
         # clonotypes that could only be in (up to) two cells
         ind2 <- which(nz == 2)
         P2 <- matrix(x[, ind2, drop = FALSE]@x, nrow = 2)
@@ -24,7 +24,7 @@ NULL
     }else{
         RS2 <- rep(0, lim)
     }
-    if(lim >= 4){
+    if(lim >= 3){
         # then do the rest (either in python or R)
         ind3p <- which(nz >= 3)
         counts <- x[, ind3p, drop = FALSE]@x
@@ -58,7 +58,7 @@ NULL
     }else{
         RS3 <- rep(0, lim)
     }
-    return(RS1+RS2+RS3)
+    return((RS1+RS2+RS3)[-1])
 }
 
 #' @title Get sample-level clonotype counts
@@ -134,12 +134,12 @@ setMethod(f = "summarizeClonotypes",
                   out <- do.call(cbind, out)
               }
               if(mode == 'tab'){
-                  lim <- max(table(by))+1
+                  lim <- max(table(by))
                   if(all(x@x %% 1 == 0)){ # integer counts
                       out <- bplapply(levels(by), function(lv){
                           ind <- which(by==lv)
                           return(table(factor(colSums(x[ind, ,drop=FALSE]),
-                                              levels = seq_len(lim)-1)))
+                                              levels = seq_len(lim))))
                       }, BPPARAM = BPPARAM)
                   }else{ # non-integer counts
                       out <- bplapply(levels(by), function(lv){
@@ -152,7 +152,7 @@ setMethod(f = "summarizeClonotypes",
                   # trim excess 0s
                   out <- out[seq_len(max(c(0,which(rowSums(out) > 0)))), ,
                              drop = FALSE]
-                  rownames(out) <- seq_len(nrow(out))-1
+                  rownames(out) <- seq_len(nrow(out))
               }
               colnames(out) <- levels(by)
               return(Matrix(out, sparse = TRUE))

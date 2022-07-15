@@ -63,14 +63,14 @@ test_that("utility functions work", {
     expect_identical(SLC, SLC2)
     
     SLF <- summarizeClonotypes(sce, by = 'sample', mode = 'tab')
-    expect_equivalent(dim(SLF), c(4, 2))
-    expect_equivalent(rowSums(SLF), c(5,7,1,1))
+    expect_equivalent(dim(SLF), c(3, 2))
+    expect_equivalent(rowSums(SLF), c(7,1,1))
     
     # other accessors
     ab <- clonoAbundance(sce)
     expect_equal(dim(ab), c(7,2))
     fr <- clonoFrequency(sce)
-    expect_equal(dim(fr), c(4,2))
+    expect_equal(dim(fr), c(3,2))
     as <- clonoAssignment(sce)
     expect_equal(dim(as), c(24,7))
     cn <- clonoNames(sce)
@@ -128,8 +128,8 @@ test_that("clonoStats function works as expected", {
     expect_is(uniq, 'clonoStats')
     expect_equivalent(dim(uniq@abundance), c(7,2))
     expect_equal(sum(uniq@abundance), 12)
-    expect_equivalent(dim(uniq@frequency), c(4,2))
-    expect_equal(sum(uniq@frequency), 14)
+    expect_equivalent(dim(uniq@frequency), c(3,2))
+    expect_equal(sum(uniq@frequency), 9)
     expect_equivalent(dim(uniq@assignment), c(24, 7))
     expect_equal(sum(uniq@assignment), 12)
 
@@ -137,8 +137,8 @@ test_that("clonoStats function works as expected", {
     expect_is(crng, 'clonoStats')
     expect_equivalent(dim(crng@abundance), c(17,2))
     expect_equal(sum(crng@abundance), 22)
-    expect_equivalent(dim(crng@frequency), c(4,2))
-    expect_equal(sum(crng@frequency), 34)
+    expect_equivalent(dim(crng@frequency), c(3,2))
+    expect_equal(sum(crng@frequency), 19)
     expect_equivalent(dim(crng@assignment), c(24, 17))
     expect_equal(sum(crng@assignment), 22)
 
@@ -146,8 +146,8 @@ test_that("clonoStats function works as expected", {
     expect_is(alph, 'clonoStats')
     expect_equivalent(dim(alph@abundance), c(18,2))
     expect_equal(sum(alph@abundance), 24)
-    expect_equivalent(dim(alph@frequency), c(4,2))
-    expect_equal(sum(alph@frequency), 36)
+    expect_equivalent(dim(alph@frequency), c(3,2))
+    expect_equal(sum(alph@frequency), 20)
     expect_equivalent(dim(alph@assignment), c(24, 18))
     expect_equal(sum(alph@assignment), 24)
     expect_equivalent(grep('\\s$', clonoNames(alph)), seq_len(18))
@@ -156,8 +156,8 @@ test_that("clonoStats function works as expected", {
     expect_is(umis, 'clonoStats')
     expect_equivalent(dim(umis@abundance), c(12,2))
     expect_equal(sum(umis@abundance), 18)
-    expect_equivalent(dim(umis@frequency), c(4,2))
-    expect_equal(sum(umis@frequency), 24)
+    expect_equivalent(dim(umis@frequency), c(3,2))
+    expect_equal(sum(umis@frequency), 14)
     expect_equivalent(dim(umis@assignment), c(24, 12))
     expect_equal(sum(umis@assignment), 18)
     
@@ -165,8 +165,8 @@ test_that("clonoStats function works as expected", {
     expect_is(emal, 'clonoStats')
     expect_equivalent(dim(emal@abundance), c(64,2))
     expect_equal(sum(emal@abundance), 22)
-    expect_equivalent(dim(emal@frequency), c(4,2))
-    expect_equal(sum(emal@frequency), 128)
+    expect_equivalent(dim(emal@frequency), c(3,2))
+    expect_equal(sum(emal@frequency), 16, tolerance = .01)
     expect_equivalent(dim(emal@assignment), c(24, 64))
     expect_equal(sum(emal@assignment), 22)
     
@@ -175,8 +175,8 @@ test_that("clonoStats function works as expected", {
     expect_is(emal2, 'clonoStats')
     expect_equivalent(dim(emal2@abundance), c(64,2))
     expect_equal(sum(emal2@abundance), 22)
-    expect_equivalent(dim(emal2@frequency), c(4,2))
-    expect_equal(sum(emal2@frequency), 128)
+    expect_equivalent(dim(emal2@frequency), c(3,2))
+    expect_equal(sum(emal2@frequency), 16, tolerance = .01)
     expect_equivalent(dim(emal2@assignment), c(24, 64))
     expect_equal(sum(emal2@assignment), 22)
     expect_true(max(abs(emal2@assignment - emal@assignment)) < .0001)
@@ -213,7 +213,9 @@ test_that("clonoStats function works as expected", {
     expect_equivalent(dim(emal3@abundance), c(64,2))
     expect_equal(sum(emal3@abundance), 22)
     expect_equal(ncol(emal3@frequency), 2)
-    expect_equal(sum(emal3@frequency), 128)
+    # these actually shouldn't be equal all the time, but should generally be 
+    # close
+    #expect_equal(sum(emal3@frequency), 16, tolerance = 2.01)
     expect_equivalent(dim(emal3@assignment), c(24, 64))
     expect_equal(sum(emal3@assignment), 22)
     expect_true(max(abs(emal3@assignment - emal@assignment)) < .0001)
@@ -230,8 +232,8 @@ test_that("assignment functions handle edge cases", {
     expect_is(uniq, 'clonoStats')
     expect_equivalent(dim(uniq@abundance), c(7,3))
     expect_equal(sum(uniq@abundance), 12)
-    expect_equivalent(dim(uniq@frequency), c(4,3))
-    expect_equal(sum(uniq@frequency), 21)
+    expect_equivalent(dim(uniq@frequency), c(3,3))
+    expect_equal(sum(uniq@frequency), 9)
     
     # sample NAs
     sampNA <- vapply(contigs[,'sample'], function(x){ x[1] }, 'A')
@@ -240,8 +242,8 @@ test_that("assignment functions handle edge cases", {
     expect_is(uniq, 'clonoStats')
     expect_equivalent(dim(uniq@abundance), c(3,2))
     expect_equal(sum(uniq@abundance), 6)
-    expect_equivalent(dim(uniq@frequency), c(4,2))
-    expect_equal(sum(uniq@frequency), 6)
+    expect_equivalent(dim(uniq@frequency), c(3,2))
+    expect_equal(sum(uniq@frequency), 3)
 
     # SCE object with EXTRA CELLS and SAMPLE
     ncells <- 30
@@ -278,8 +280,8 @@ test_that("assignment functions handle edge cases", {
     expect_is(uniq, 'clonoStats')
     expect_equivalent(dim(uniq@abundance), c(7,2))
     expect_equal(sum(uniq@abundance), 12)
-    expect_equivalent(dim(uniq@frequency), c(4,2))
-    expect_equal(sum(uniq@frequency), 14)
+    expect_equivalent(dim(uniq@frequency), c(3,2))
+    expect_equal(sum(uniq@frequency), 9)
     expect_equivalent(dim(uniq@assignment), c(24, 7))
     expect_equal(sum(uniq@assignment), 12)
 
