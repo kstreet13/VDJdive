@@ -17,7 +17,8 @@ clonoStats(x, ...)
   method = "EM",
   lang = c("python", "r"),
   thresh = 0.01,
-  iter.max = 1000
+  iter.max = 1000,
+  BPPARAM = SerialParam()
 )
 
 \S4method{clonoStats}{SingleCellExperiment}(x, contigs = "contigs", group = "sample", ...)
@@ -33,33 +34,34 @@ Alternatively, a \code{SingleCellExperiment} object with such a
 
 \item{...}{additional arguments.}
 
-\item{group}{The name of the column in \code{x} (or the \code{colData} of
-\code{x}, for \code{SingleCellExperiment} objects) that stores each cell's
-group identity, typically either its sample of origin or cluster label.
-Alternatively, a vector of length equal to \code{x} (or \code{ncol(x)})
-indicating the group identity. Providing this information can dramatically
-speed up computation. When running \code{clonoStats} for the first time on
-a dataset, we highly recommend setting the group identity to sample of
-origin to avoid unwanted cross-talk between samples.}
+\item{group}{character. The name of the column in \code{x} (or the
+\code{colData} of \code{x}, for \code{SingleCellExperiment} objects) that
+stores each cell's group identity, typically either its sample of origin or
+cluster label. Alternatively, a vector of length equal to \code{x} (or
+\code{ncol(x)}) indicating the group identity. Providing this information
+can dramatically speed up computation. When running \code{clonoStats} for
+the first time on a dataset, we highly recommend setting the group identity
+to sample of origin to avoid unwanted cross-talk between samples.}
 
-\item{type}{The type of VDJ data (\code{"TCR"} or \code{"BCR"}). If
-\code{NULL}, this is determined by the most prevalent \code{chain} types in
-\code{x}.}
+\item{type}{character. The type of VDJ data (one of \code{"TCR"} or
+\code{"BCR"}). If \code{NULL}, this is determined by the most prevalent
+\code{chain} types in \code{x}.}
 
-\item{assignment}{Logical, whether or not to return the full \code{nCells x
+\item{assignment}{logical. Whether or not to return the full \code{nCells x
   nClonotypes} sparse matrix of clonotype assignments (default =
 \code{FALSE})}
 
-\item{method}{Which method to use for assigning cell-level clonotypes.
-Options are \code{"EM"} (default), \code{"unique"}, or \code{"CellRanger"}.
-Alternatively, this may be the name of a numeric column of \code{x} or any
-\code{chain} type contained in \code{x}. See Details.}
+\item{method}{character. Which method to use for assigning cell-level
+clonotypes. Options are \code{"EM"} (default), \code{"unique"}, or
+\code{"CellRanger"}. Alternatively, this may be the name of a numeric
+column of the contig data or any \code{chain} type contained therein. See
+Details.}
 
-\item{lang}{Indicates which implementation of certain methods to use. The EM
-algorithm is implemented in both pure R (\code{'r'}) and mixed R and Python
-(\code{'python'}, default) versions. Similarly, clonotype summarization is
-implemented in two ways, which can impact speed, regardless of choice of
-\code{method}.}
+\item{lang}{character. Indicates which implementation of certain methods to
+use. The EM algorithm is implemented in both pure R (\code{'r'}) and mixed
+R and Python (\code{'python'}, default) versions. Similarly, clonotype
+summarization is implemented in two ways, which can impact speed,
+regardless of choice of \code{method}.}
 
 \item{thresh}{Numeric threshold for convergence of the EM algorithm.
 Indicates the maximum allowable deviation in a count between updates. Only
@@ -68,41 +70,68 @@ used if \code{method = "EM"}.}
 \item{iter.max}{Maximum number of iterations for the EM algorithm. Only used
 if \code{method = "EM"}.}
 
-\item{contigs}{The name of the column in the \code{colData} of \code{x} that
-contains the VDJ contig data (only applies if \code{x} is a
-\code{SingleCellExperiment}).}
+\item{BPPARAM}{A \linkS4class{BiocParallelParam} object specifying the
+parallel backend for distributed clonotype assignment operations (split by
+\code{group}). Default is \code{BiocParallel::SerialParam()}.}
+
+\item{contigs}{character. When \code{x} is a \code{SingleCellExperiment},
+this is the name of the column in the \code{colData} of \code{x} that
+contains the VDJ contig data.}
 }
 \value{
-Creates a sparse matrix (\code{dgRMatrix}) of cell-level clonotype
-assignments (cells-by-clonotypes). If \code{x} is a
-\code{SingleCellExperiment}, this matrix is added to the \code{colData}
-under the name \code{clono}.
+Returns an object of class \code{clonoStats}, containing group-level
+clonotype summaries. May optionally include a sparse matrix of cell-level
+assignment information, if \code{assignment = TRUE}. If \code{x} is a
+\code{SingleCellExperiment} object, this output is added to the metadata.
 }
 \description{
-Assign clonotypes to cells and produce two summary tables: the
-\code{clonotypes x samples} table of abundances and the \code{counts x
+Assign clonotype labels to cells and produce two summary tables:
+the \code{clonotypes x samples} table of abundances and the \code{counts x
   samples} table of clonotype frequencies.
 }
 \details{
-Assign each cell (with at least one V(D)J contig) to its most
-likely clonotype with the EM algorithm. For ambiguous cells, this leads to
-proportional (non-integer) assignment across multiple possible clonotypes.
+Assign cells (with at least one V(D)J contig) to clonotypes and
+produce summary tables that can be used for downstream analysis. Clonotype
+assignment can be handled in multiple ways depending on the choice of
+\code{"method"}:
+\itemize{
+\item{\code{"EM"}: }{Cells are assigned probabilistically to their most
+likely clonotype(s) with the Expectation-Maximization (EM) algorithm. For
+ambiguous cells, this leads to proportional (non-integer) assignment across
+multiple clonotypes and a frequency table of (non-integer) expected
+counts.}
+\item{\code{"unique"}: }{Cells are assigned a clonotype if (and only if)
+they can be uniquely assigned a single clonotype. For a T cell, this means
+having exactly one alpha chain and one beta chain.}
+\item{\code{"CellRanger"}: }{Clonotype labels are taken from contig data
+and matched across samples.}
+\item{\code{column name in contig data}: }{Similar to \code{"unique"}, but
+additionally, cells with multiples of a particular chain are assigned a
+"dominant" clonotype based on which contig has the higher value in this
+column (typical choices being \code{"umis"} or \code{"reads"}).}
+\item{\code{type of chain in contig data}: }{Clonotypes are based entirely
+on this type of chain (eg. \code{"TRA"} or \code{"TRB"}) and cells may be
+assigned to multiple clonotypes, if multiples of that chain are present.} }
 
-This quantification method defines a clonotype as a pair of specific
-chains (alpha and beta for T cells, heavy and light for B cells) and
-attempts to assign each cell to its most likely clonotype. Unlike other
-quantification methods, this can lead to non-integer counts for cells with
-ambiguous information (ie. only an alpha chain, or two alphas and one beta
-chain).
+The \code{"EM"}, \code{"unique"}, and UMI/read-based quantification
+methods all define a clonotype as a pair of specific chains (alpha and beta
+for T cells, heavy and light for B cells). Unlike other methods, the EM
+algorithm assigns clonotypes probabilistically, which can lead to
+non-integer counts for cells with ambiguous information (ie. only an alpha
+chain, or two alphas and one beta chain).
 
 We highly recommend providing information on each cell's sample of
 origin, as this can speed up computation and provide more accurate results.
-Because the EM algorithm shares information across cells, splitting by
-sample can improve accuracy by removing extraneous clonotypes from the set
-of possibilities for a particular cell.
+This is particularly important for the EM algorithm, which shares
+information across cells in the same group, so splitting by sample can
+improve accuracy by removing extraneous clonotypes from the set of
+possibilities for a particular cell.
 }
 \examples{
 data('contigs')
 clonoStats(contigs)
 
+}
+\seealso{
+\code{\linkS4class{clonoStats}}
 }

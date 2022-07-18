@@ -10,8 +10,8 @@ setGeneric(name = "readVDJcontigs",
 #' @rdname readVDJcontigs
 #'
 #' @description Creates a \code{SplitDataFrameList} (see
-#'   \code{\link[IRanges]{DataFrameList}}) from a vector of directory names
-#'   corresponding to the output of the CellRanger V(D)J pipeline.
+#'   \code{\link[IRanges]{DataFrameList}}) from a character vector of directory
+#'   names corresponding to the output of the CellRanger V(D)J pipeline.
 #'
 #' @param samples A character vector containing one or more directory names,
 #'   each corresponding to a 10X sample. Each directory should contain a file
@@ -20,7 +20,7 @@ setGeneric(name = "readVDJcontigs",
 #'   containing the sample names to store in the output object. If \code{NULL},
 #'   the \code{basename}s of each directory will be used.
 #'
-#' @details The resulting list of DataFrames contains all the data in
+#' @details The resulting list of \code{DataFrame}s contains all the data in
 #'   \code{filtered_contig_annotations.csv}, split by cell barcode. Note that
 #'   the index of each sample in \code{samples} is concatenated to the cell
 #'   barcodes, so that cells from different samples cannot have identical
@@ -113,7 +113,7 @@ setGeneric(name = "addVDJtoSCE",
 #'   \code{Seurat} object, you may need to check the barcode naming convention.
 #'
 #' @return A \code{\link[SingleCellExperiment]{SingleCellExperiment}} object
-#'   with an element named \code{contigs} added to the \code{colData},
+#'   with an element named \code{"contigs"} added to the \code{colData},
 #'   representing the V(D)J data.
 #'
 #' @examples

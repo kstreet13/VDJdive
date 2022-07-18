@@ -34,7 +34,7 @@ containing cell barcodes. These should match the barcodes in the V(D)J data
 }
 \value{
 A \code{\link[SingleCellExperiment]{SingleCellExperiment}} object
-with an element named \code{contigs} added to the \code{colData},
+with an element named \code{"contigs"} added to the \code{colData},
 representing the V(D)J data.
 }
 \description{

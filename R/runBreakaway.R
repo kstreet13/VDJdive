@@ -45,11 +45,11 @@ setMethod(f = "runBreakaway",
                   groupnames <- colnames(clonoFrequency(x))
                   if(!nof1){
                       out <- lapply(seq_len(nc), function(i){
-                          breakaway::breakaway(clonoFrequency(x)[-1,i], ...)
+                          breakaway::breakaway(clonoFrequency(x)[,i], ...)
                       })
                   }else{
                       out <- lapply(seq_len(nc), function(i){
-                          breakaway::breakaway_nof1(clonoFrequency(x)[-1,i], 
+                          breakaway::breakaway_nof1(clonoFrequency(x)[,i], 
                                                     ...)
                       })
                   }

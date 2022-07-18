@@ -45,8 +45,7 @@ different samples.}
 }
 }
 \source{
-Braun, David A., Kelly Street, Kelly P. Burke, David L. Cookmeyer,
-Thomas Denize, Christina B. Pedersen, Satyen H. Gohil et al. "Progressive
+Braun, David A., et al. "Progressive
 immune dysfunction with advancing disease stage in renal cell carcinoma."
 Cancer cell 39, no. 5 (2021): 632-648.
 }

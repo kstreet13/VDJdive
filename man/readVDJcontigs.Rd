@@ -26,11 +26,11 @@ grouped by cell barcode.
 }
 \description{
 Creates a \code{SplitDataFrameList} (see
-\code{\link[IRanges]{DataFrameList}}) from a vector of directory names
-corresponding to the output of the CellRanger V(D)J pipeline.
+\code{\link[IRanges]{DataFrameList}}) from a character vector of directory
+names corresponding to the output of the CellRanger V(D)J pipeline.
 }
 \details{
-The resulting list of DataFrames contains all the data in
+The resulting list of \code{DataFrame}s contains all the data in
 \code{filtered_contig_annotations.csv}, split by cell barcode. Note that
 the index of each sample in \code{samples} is concatenated to the cell
 barcodes, so that cells from different samples cannot have identical

@@ -5,7 +5,7 @@ NULL
     lang <- match.arg(lang)
     nz <- unname(Matrix::colSums(x > 0)) # non-zero count
     EX <- unname(Matrix::colSums(x)) # sum of probs
-    if(lim >= 2){
+    if(lim >= 1){
         # clonotypes that could only be in zero or one cell
         ind1 <- which(nz == 1)
         # skip straight to the row sums
@@ -14,7 +14,7 @@ NULL
     }else{
         RS1 <- rep(0,lim)
     }
-    if(lim >= 3){
+    if(lim >= 2){
         # clonotypes that could only be in (up to) two cells
         ind2 <- which(nz == 2)
         P2 <- matrix(x[, ind2, drop = FALSE]@x, nrow = 2)
@@ -24,7 +24,7 @@ NULL
     }else{
         RS2 <- rep(0, lim)
     }
-    if(lim >= 4){
+    if(lim >= 3){
         # then do the rest (either in python or R)
         ind3p <- which(nz >= 3)
         counts <- x[, ind3p, drop = FALSE]@x
@@ -58,7 +58,7 @@ NULL
     }else{
         RS3 <- rep(0, lim)
     }
-    return(RS1+RS2+RS3)
+    return((RS1+RS2+RS3)[-1])
 }
 
 #' @title Get sample-level clonotype counts
@@ -80,7 +80,8 @@ setGeneric(name = "summarizeClonotypes",
 #' @param by A character vector or factor by which to summarize the clonotype
 #'   counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 #'   be a character, giving the name of the column from the \code{colData} to
-#'   use as this variable.
+#'   use as this variable. Similar to the \code{group} argument for
+#'   \code{\link{clonoStats}}.
 #' @param contigs character. If \code{x} is a \code{SingleCellExperiment}, the
 #'   name of the \code{SplitDataFrameList} in the \code{colData} of \code{x}
 #'   containing contig information.
@@ -95,10 +96,16 @@ setGeneric(name = "summarizeClonotypes",
 #' @param lang Indicates which implementation of the \code{"tab"} summarization
 #'   to use. Options are \code{'r'} (default) or \code{'python'}. Only used if
 #'   non-integer clonotype abundances are present and \code{mode = "tab"}.
+#' @param BPPARAM A \linkS4class{BiocParallelParam} object specifying the
+#'   parallel backend for distributed clonotype assignment operations (split by
+#'   \code{group}). Default is \code{BiocParallel::SerialParam()}.
 #'
-#' @return A matrix clonotype counts where each row corresponds to a unique
-#'   value of \code{by} (if \code{by} denotes sample labels, this is a matrix of
-#'   sample-level clonotype counts).
+#' @return If \code{mode = 'sum'}, returns a matrix clonotype abundances where
+#'   each row corresponds to a clonotype and each column a value of \code{by}
+#'   (if \code{by} denotes sample labels, this is a matrix of sample-level
+#'   clonotype counts). If \code{mode = 'tab'}, returns a matrix of clonotype
+#'   frequencies, where each row corresponds to a frequency (singletons,
+#'   doubletons, etc.) and each column a value of \code{by}.
 #'
 #' @examples
 #' example(addVDJtoSCE)
@@ -107,11 +114,13 @@ setGeneric(name = "summarizeClonotypes",
 #'
 #' @importClassesFrom Matrix Matrix
 #' @importFrom Matrix Matrix rowSums
+#' @importFrom BiocParallel SerialParam bplapply
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "Matrix"),
           definition = function(x, by, mode = c('sum','tab'), 
-                                lang = c('r','python')){
+                                lang = c('r','python'),
+                                BPPARAM = SerialParam()){
               mode <- match.arg(mode)
               lang <- match.arg(lang)
               if(!is.factor(by)){
@@ -119,29 +128,33 @@ setMethod(f = "summarizeClonotypes",
               }
               stopifnot(length(by) == nrow(x))
               if(mode == 'sum'){
-                  out <- vapply(levels(by), function(lv){
+                  out <- bplapply(levels(by), function(lv){
                       colSums(x[which(by == lv), ,drop = FALSE])
-                  }, FUN.VALUE = rep(0,ncol(x)))
+                  }, BPPARAM = BPPARAM)
+                  out <- do.call(cbind, out)
               }
               if(mode == 'tab'){
-                  lim <- max(table(by))+1
+                  lim <- max(table(by))
                   if(all(x@x %% 1 == 0)){ # integer counts
-                      out <- vapply(levels(by), function(lv){
+                      out <- bplapply(levels(by), function(lv){
                           ind <- which(by==lv)
                           return(table(factor(colSums(x[ind, ,drop=FALSE]),
-                                              levels = seq_len(lim)-1)))
-                      }, FUN.VALUE = rep(0,lim))
+                                              levels = seq_len(lim))))
+                      }, BPPARAM = BPPARAM)
                   }else{ # non-integer counts
-                      out <- vapply(levels(by), function(lv){
+                      out <- bplapply(levels(by), function(lv){
                           sub.x <- x[which(by==lv), ,drop=FALSE]
                           return(.nonInt_tab(sub.x, lim, lang))
-                      }, FUN.VALUE = rep(0,lim))
+                      }, BPPARAM = BPPARAM)
                   }
+                  out <- do.call(cbind, out)
+                  
                   # trim excess 0s
                   out <- out[seq_len(max(c(0,which(rowSums(out) > 0)))), ,
                              drop = FALSE]
-                  rownames(out) <- seq_len(nrow(out))-1
+                  rownames(out) <- seq_len(nrow(out))
               }
+              colnames(out) <- levels(by)
               return(Matrix(out, sparse = TRUE))
           })
 
@@ -215,14 +228,16 @@ setGeneric(name = "splitClonotypes",
 #' @param x A \code{Matrix} of cell-level clonotype assignments
 #'   (cells-by-clonotypes) or a \code{SingleCellExperiment} object with such a
 #'   matrix stored in the \code{clono} slot of the \code{colData}.
-#' @param by A chadracter vector or factor by which to split the clonotype
+#' @param by A character vector or factor by which to split the clonotype
 #'   counts. If \code{x} is a \code{SingleCellExperiment} object, this can also
 #'   be a character, giving the name of the column from the \code{colData} to
-#'   use as this variable.
+#'   use as this variable. Similar to the \code{group} argument for
+#'   \code{\link{clonoStats}}.
 #'
-#' @return A list of \code{Matrix} objects providing the cell-level counts for
-#'   each unique value of \code{by} (if \code{by} denotes sample labels, each
-#'   matrix in the list will contain the cells from a single sample).
+#' @return A list of \code{Matrix} objects providing the cell-level clonotype
+#'   assignments for each unique value of \code{by} (if \code{by} denotes sample
+#'   labels, each matrix in the list will contain the cells from a single
+#'   sample).
 #'
 #' @examples
 #' example(addVDJtoSCE)

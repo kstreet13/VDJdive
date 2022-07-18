@@ -46,54 +46,53 @@ setMethod(f = "boxVDJ",
                                 method = c("shannon", "simpson", "invsimpson", 
                                            "chao1", "chaobunge"), 
                                 title = NULL, legend = FALSE){
-              if (!is.null(sampleGroups)) {
-                  sampleGroups <- data.frame(sampleGroups)
-                  colnames(sampleGroups) <- tolower(colnames(sampleGroups))
-              }
+            if (!is.null(sampleGroups)) {
+              sampleGroups <- data.frame(sampleGroups)
+              colnames(sampleGroups) <- tolower(colnames(sampleGroups))
+            }
+            
+            if (method == "chaobunge") method <- "chaobunge.estimate"
+            method <- paste0("^", method)
+            
+            if (!is.null(sampleGroups)) {
+              d1 <- t(d[grepl(method, dimnames(d)[[1]], 
+                              ignore.case = TRUE), ])
+              sampleGroups$Diversity <- unlist(d1[match(dimnames(d1)[[2]],
+                                                        sampleGroups$sample)])
+            } else {
+              d1 <- t(d[grepl(method, dimnames(d)[[1]], 
+                              ignore.case = TRUE), ])
+              sampleGroups <- data.frame(Diversity = unlist(d1), 
+                                         group = " ")
+            }
+            
+            cols <- RColorBrewer::brewer.pal(8, name = "Dark2")[seq_along(
+              unique(sampleGroups$group))]
+            
+            g <- ggplot2::ggplot(sampleGroups, ggplot2::aes(x = group, 
+                                                            y = Diversity, 
+                                                            color = group)) 
+            
+            if (legend) {
+              g <- g +
+                ggplot2::geom_boxplot() +
+                ggplot2::geom_jitter(height = 0, width = 0.1) +
+                ggplot2::scale_color_manual(name = "", values = cols) +
+                ggplot2::theme_bw()
               
-              if (method == "chaobunge") method <- "chaobunge.estimate"
-              method <- paste0("^", method)
-              
-              if (!is.null(sampleGroups)) {
-                  d1 <- t(d[grepl(method, dimnames(d)[[1]], 
-                                  ignore.case = TRUE), ])
-                  sampleGroups$Diversity <- unlist(d1[match(dimnames(d1)[[2]],
-                                                            sampleGroups$sample)])
-              } else {
-                  d1 <- t(d[grepl(method, dimnames(d)[[1]], 
-                                  ignore.case = TRUE), ])
-                  sampleGroups <- data.frame(Diversity = unlist(d1), 
-                                             group = " ")
-              }
-              
-              cols <- RColorBrewer::brewer.pal(8, name = "Dark2")[seq_along(
-                  unique(sampleGroups$group))]
-              
-              g <- ggplot2::ggplot(sampleGroups, ggplot2::aes(x = group, 
-                                                              y = Diversity, 
-                                                              color = group)) 
-              
-              if (legend) {
-                  g <- g +
-                      ggplot2::geom_boxplot() +
-                      ggplot2::geom_jitter(height = 0, width = 0.1) +
-                      ggplot2::scale_color_manual(name = "", values = cols) +
-                      ggplot2::theme_bw()
-                  
-              } else {
-                  g <- g + 
-                      ggplot2::geom_boxplot(show.legend = FALSE) +
-                      ggplot2::geom_jitter(height = 0, width = 0.1, 
-                                           show.legend = FALSE) +
-                      ggplot2::scale_color_manual(name = "", values = cols) +
-                      ggplot2::theme_bw()
-              }
-              
-              if (!is.null(title)) {
-                  g <- g + ggplot2::labs(title = title, x = NULL)
-              } else {
-                  g <- g + ggplot2::labs(x = NULL)
-              }
-              g
+            } else {
+              g <- g + 
+                ggplot2::geom_boxplot(show.legend = FALSE) +
+                ggplot2::geom_jitter(height = 0, width = 0.1, 
+                                     show.legend = FALSE) +
+                ggplot2::scale_color_manual(name = "", values = cols) +
+                ggplot2::theme_bw()
+            }
+            
+            if (!is.null(title)) {
+              g <- g + ggplot2::labs(title = title, x = NULL)
+            } else {
+              g <- g + ggplot2::labs(x = NULL)
+            }
+            g
           })
-
