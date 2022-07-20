@@ -97,7 +97,7 @@ metadata(sce)
 
 Functions to access the clonoStats class.
 ```{r}
-clonoAbundance(sce) # access output of abundance for clonotypes for clonoStats class
+head(clonoAbundance(sce)) # access output of abundance for clonotypes for clonoStats class
 clonoFrequency(sce) # access output of frequency for clonotypes for clonoStats class
 clonoFrequency(sce) # access output of clonotypes assignment for clonoStats class
 clonoGroup(sce) # access output of clonotypes grouping for clonoStats class
@@ -122,7 +122,6 @@ We also provide a function for estimation of species richness through breakaway 
 #divBreakaway
 ```
 
-
 # Cluster Diversity
 
 Rather than grouping cells by sample, we may be interested in other groupings, such as clusters based on RNA expression. In this case, if we have the original clonotype assignment matrix, we can calculate new summary statistics based on a different grouping variable. This is preferable to grouping by cluster in the original call to `clonoStats` because the most accurate clonotype assignment is achieved cells are grouped by sample. Otherwise, we may see unwanted crosstalk between samples leading to nonsensical counts (ie. a clonotype that never appears in a particular sample may receive non-zero counts from some ambiguous cells in that sample).
@@ -144,22 +143,19 @@ To reiterate: we always recommend running `clonoStats` by sample of origin first
 
 ## Clonotype Abundance Bar Plot
 
-This barplot shows the number of cells in each group (sample) as well as the
-clonotype abundances within each group. The coloring indicates the number of
-cells assigned to each clonotype, with darker colors denoting singletons and
-lighter colors denoting expanded clonotypes.
+Barplot function which shows the number of T cells in each group (sample) as well as the clonotype abundances within each group (sample). The coloring indicates the number of cells assigned to each clonotype, with darker colors denoting singletons and
+lighter colors denoting expanded clonotypes (scale = log count of clontypes).
 
-```{r}
+```{r fig.width= 3, fig.height= 2}
 barVDJ(EMstats, title = "contigs", legend = TRUE)
 ```
 
 ## Clonotype Abundance Pie Chart
 
 Similar to the bar plot above, these pie charts show the clonotype abundances
-within each group (sample), as a percentage of cells within that group. Coloring
-is the same as above.
+within each group (sample), as a percentage of cells within that group. The coloring indicates the number of cells assigned to each clonotype, with darker colors denoting singletons and lighter colors denoting expanded clonotypes (scale = log count of clontypes).
 
-```{r}
+```{r fig.width= 2.5, fig.height= 2}
 pieVDJ(EMstats)
 ```
 
@@ -183,10 +179,10 @@ scatterVDJ(div, sampleGroups = NULL,
 ```
 
 
-## Clonotype Abundance Scatter Plot
+## Clonotype Abundance Dot Plot
 
 This dot plot shows the clonotype abundances in each group (sample) above a
-specified cutoff. The most abundant clonotypes for each group are annotated on
+specified cutoff. The most abundant clonotypes for each group (sample) are annotated on
 the plot and ordered from most abundant to least abundant.
 
 ```{r}
