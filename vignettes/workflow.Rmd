@@ -142,16 +142,55 @@ To reiterate: we always recommend running `clonoStats` by sample of origin first
 
 `r Biocpkg("VDJdive")` has many options for visualization. This section demonstrates the graphs that can be created. 
 
-## Barplot
+## Clonotype Abundance Bar Plot
+
+This barplot shows the number of cells in each group (sample) as well as the
+clonotype abundances within each group. The coloring indicates the number of
+cells assigned to each clonotype, with darker colors denoting singletons and
+lighter colors denoting expanded clonotypes.
 
 ```{r}
 barVDJ(EMstats, title = "contigs", legend = TRUE)
 ```
 
-## Pie Chart
+## Clonotype Abundance Pie Chart
+
+Similar to the bar plot above, these pie charts show the clonotype abundances
+within each group (sample), as a percentage of cells within that group. Coloring
+is the same as above.
 
 ```{r}
 pieVDJ(EMstats)
+```
+
+## Richness vs. Evenness Scatter Plot
+
+This scatter plot shows two measures of group-level (sample-level) diversity.
+The "richness" (total number of clonotypes) is shown on the x-axis and the
+"evenness" (mixture of clonotypes) on the y-axis. Diversity measures such as
+Shannon entropy contain information about both the evenness and the abundance of
+a sample, but because both characteristics are combined into one number,
+comparison between samples or groups of samples is difficult. Other measures,
+such as the breakaway measure of diversity, only express the abundance of the
+sample and not the evenness. The scatterplot shows how evenness and abundance
+differ between each sample and between each group of samples.
+
+```{r}
+sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 
+                           Group = c("Tumor", "Normal"))
+scatterVDJ(div, sampleGroups = NULL, 
+       title = "Evenness-abundance plot", legend = TRUE)
+```
+
+
+## Clonotype Abundance Scatter Plot
+
+This dot plot shows the clonotype abundances in each group (sample) above a
+specified cutoff. The most abundant clonotypes for each group are annotated on
+the plot and ordered from most abundant to least abundant.
+
+```{r}
+abundanceVDJ(EMstats)
 ```
 
 
