@@ -38,7 +38,7 @@ setGeneric(name = "barVDJ",
 #' @export
 setMethod(f = "barVDJ",
           signature = signature(x = "Matrix"),
-          definition = function(x, bySample = TRUE, title = NULL, legend = FALSE) {
+          definition = function(x, title = NULL, legend = FALSE) {
               dat <- NULL
               nms <- colnames(x)
               for (i in seq_len(ncol(x))) {

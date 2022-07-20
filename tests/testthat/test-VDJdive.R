@@ -328,8 +328,7 @@ test_that("plotting functions work", {
     p1 <- barVDJ(x)
     expect_equal(class(p1$layers[[1]]$geom)[1], 'GeomCol')
     
-    p2 <- barVDJ(x, bySample = FALSE, 
-                 title = 'bar plot', legend = TRUE)
+    p2 <- barVDJ(x, title = 'bar plot', legend = TRUE)
     expect_equal(class(p2$layers[[1]]$geom)[1], 'GeomCol')   
     
     p1 <- pieVDJ(x)

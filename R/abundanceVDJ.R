@@ -34,6 +34,8 @@ setGeneric(name = "abundanceVDJ",
 #' 
 #' @importFrom ggplot2 ggplot geom_col aes scale_fill_continuous labs theme_bw
 #' @importClassesFrom Matrix dgCMatrix
+#' @importFrom cowplot panel_border
+#' @importFrom gridExtra grid.arrange
 #' @export
 setMethod(f = "abundanceVDJ",
           signature = signature(x = "clonoStats"),

@@ -1,3 +1,5 @@
+<img src="man/figures/logo.png" align="right" alt="logo.png" width="180" />
+
 # VDJdive
 
 <!-- badges: start -->

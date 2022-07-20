@@ -145,7 +145,7 @@ To reiterate: we always recommend running `clonoStats` by sample of origin first
 ## Barplot
 
 ```{r}
-barVDJ(EMstats, bySample = TRUE, title = "contigs", legend = TRUE)
+barVDJ(EMstats, title = "contigs", legend = TRUE)
 ```
 
 ## Pie Chart

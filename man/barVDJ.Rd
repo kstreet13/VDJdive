@@ -9,7 +9,7 @@
 \usage{
 barVDJ(x, ...)
 
-\S4method{barVDJ}{Matrix}(x, bySample = TRUE, title = NULL, legend = FALSE)
+\S4method{barVDJ}{Matrix}(x, title = NULL, legend = FALSE)
 
 \S4method{barVDJ}{matrix}(x, ...)
 

@@ -47,7 +47,7 @@ setGeneric(name = "scatterVDJ",
 #' d <- calculateDiversity(x)
 #' sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 
 #'                            Group = c("Cancer", "Normal"))
-#' scatterVDJ(x, d, sampleGroups = NULL, 
+#' scatterVDJ(d, sampleGroups = NULL, 
 #'        title = "Evenness-abundance plot", legend = TRUE)
 #' #' @title Create a scatterplot for diversity evenness and abundance
 #' @param ... additional arguments.
@@ -98,7 +98,7 @@ setGeneric(name = "scatterVDJ",
 #' d <- calculateDiversity(x)
 #' sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 
 #'                            Group = c("Cancer", "Normal"))
-#' scatterVDJ(x, d, sampleGroups = NULL, 
+#' scatterVDJ(d, sampleGroups = NULL, 
 #'        title = "Evenness-abundance plot", legend = TRUE)
 #' 
 #' @importFrom RColorBrewer brewer.pal
