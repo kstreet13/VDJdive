@@ -14,7 +14,7 @@ setGeneric(name = "pieVDJ",
 #' @rdname pieVDJ
 #'
 #' @description \code{pieVDJ} creates a list of pie charts created using ggplot
-#'   that shows the the level of epxansion in each clonotype.
+#'   that shows the the level of expansion in each clonotype.
 #' 
 #' @param x A \code{matrix} created with \code{summarizeClonotypes}.
 #' @param legend Can take on the values use in the legend.position command

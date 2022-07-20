@@ -16,12 +16,9 @@ barVDJ(x, ...)
 \S4method{barVDJ}{clonoStats}(x, ...)
 }
 \arguments{
-\item{x}{A \code{matrix} created with \code{summarizeClonotypes}.}
+\item{x}{A \code{matrix} created with \code{clonoStats}.}
 
 \item{...}{additional arguments.}
-
-\item{bySample}{If TRUE, the plot will be separated by sample. If FALSE,
-all samples will be combined as if they were one sample.}
 
 \item{title}{Character vector with an optional title. If FALSE, no title
 is generated.}

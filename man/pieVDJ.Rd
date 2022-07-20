@@ -35,7 +35,7 @@ for each clonotype with darker colors being clonotypes with a single cell
 }
 \description{
 \code{pieVDJ} creates a list of pie charts created using ggplot
-that shows the the level of epxansion in each clonotype.
+that shows the the level of expansion in each clonotype.
 }
 \examples{
 data('contigs')

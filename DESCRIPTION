@@ -1,35 +1,3 @@
-Skip to content
-Product 
-Team
-Enterprise
-Explore 
-Marketplace
-Pricing 
-Search
-Sign in
-Sign up
-kstreet13
-/
-VDJdive
-Public
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-VDJdive/DESCRIPTION
-@kstreet13
-kstreet13 removed row of 0 counts from frequency tables, adjusted tests accordi…
-…
-Latest commit c74a58e 3 days ago
- History
- 2 contributors
-@kstreet13@jillbo1000
-62 lines (62 sloc)  1.74 KB
-
 Package: VDJdive
 Title: Analysis Tools for 10X V(D)J Data 
 Version: 0.0.3
@@ -54,7 +22,9 @@ Imports:
     SingleCellExperiment,
     stats,
     SummarizedExperiment,
-    utils
+    utils,
+    gridExtra, 
+    cowplot
 Suggests:
     breakaway,
     covr,
@@ -75,11 +45,12 @@ biocViews:
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 StagedInstall: no
 VignetteBuilder: knitr
 Collate: 
     'clonoStats_class.R'
+    'abundanceVDJ.R'
     'barVDJ.R'
     'basilisk.R'
     'boxVDJ.R'
@@ -90,20 +61,6 @@ Collate:
     'pieVDJ.R'
     'runBreakaway.R'
     'runVDJPCA.R'
+    'scatterVDJ.R'
     'setup.R'
     'utils.R'
-Footer
-© 2022 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-​

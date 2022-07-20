@@ -71,23 +71,23 @@ cell's clonotype assignment may be included.
 }
 \section{Functions}{
 \itemize{
-\item \code{show,clonoStats-method}: a short summary of a \code{clonoStats}
+\item \code{show(clonoStats)}: a short summary of a \code{clonoStats}
 object.
 
-\item \code{clonoNames}: Get the full clonotype names
+\item \code{clonoNames()}: Get the full clonotype names
 
-\item \code{clonoAbundance}: Get the clonotype abundance matrix (clonotype
+\item \code{clonoAbundance()}: Get the clonotype abundance matrix (clonotype
 counts per group).
 
-\item \code{clonoFrequency}: Get the matrix of clonotype frequencies
+\item \code{clonoFrequency()}: Get the matrix of clonotype frequencies
 (singletons, doubletons, etc. per group).
 
-\item \code{clonoAssignment}: Get the matrix of cell-level clonotype
+\item \code{clonoAssignment()}: Get the matrix of cell-level clonotype
 assignments (mapping cells to clonotypes).
 
-\item \code{clonoGroup}: Get the factor variable of group labels
-}}
+\item \code{clonoGroup()}: Get the factor variable of group labels
 
+}}
 \section{Slots}{
 
 \describe{

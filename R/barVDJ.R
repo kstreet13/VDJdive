@@ -16,9 +16,7 @@ setGeneric(name = "barVDJ",
 #'   number of reads in the sample and colors the sample in accordance to the
 #'   amount of diversity.
 #' 
-#' @param x A \code{matrix} created with \code{summarizeClonotypes}.
-#' @param bySample If TRUE, the plot will be separated by sample. If FALSE,
-#' all samples will be combined as if they were one sample.
+#' @param x A \code{matrix} created with \code{clonoStats}.
 #' @param title Character vector with an optional title. If FALSE, no title
 #' is generated.
 #' @param legend If TRUE, a legend will be included with the plot. If FALSE,
@@ -40,8 +38,7 @@ setGeneric(name = "barVDJ",
 #' @export
 setMethod(f = "barVDJ",
           signature = signature(x = "Matrix"),
-          definition = function(x, bySample = TRUE,
-                                title = NULL, legend = FALSE){
+          definition = function(x, bySample = TRUE, title = NULL, legend = FALSE) {
               dat <- NULL
               nms <- colnames(x)
               for (i in seq_len(ncol(x))) {

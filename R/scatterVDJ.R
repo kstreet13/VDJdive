@@ -108,14 +108,37 @@ setMethod(f = "scatterVDJ",
           signature = signature(d = "matrix"),
           definition = function(d, sampleGroups = NULL, 
                                 title = NULL, legend = FALSE){
-            
-            # if (colnames(d)) 
+              
+              info <- data.frame(normentropy = d[rownames(d) == "normentropy"], 
+                                 clono = d[rownames(d) == "normentropy"], 
+                                 sample = colnames(d))
               
               if (!is.null(sampleGroups)) {
-                sampleGroups <- data.frame(sampleGroups)
-                colnames(sampleGroups) <- tolower(colnames(sampleGroups))
+                  sampleGroups <- data.frame(sampleGroups)
+                  colnames(sampleGroups) <- tolower(colnames(sampleGroups))
+                  info$sampleType <- sampleGroups$group[match(info$sample, sampleGroups$sample)]
+                  
+                  if (legend) {
+                      g <- ggplot2::ggplot(info, ggplot2::aes(x = clono, y = normentropy, color = sampleType)) +
+                          ggplot2::geom_point(alpha = 0.5) +
+                          ggplot2::scale_color_brewer("Sample type", palette = "Dark2") +
+                          ggplot2::labs(title = title, x = "Richness", y = "Evenness") +
+                          ggplot2::theme_bw()
+                  } else {
+                      g <- ggplot2::ggplot(info, ggplot2::aes(x = clono, y = normentropy, color = sampleType)) +
+                          ggplot2::geom_point(alpha = 0.5, show.legend = FALSE) +
+                          ggplot2::labs(title = title, x = "Richness", y = "Evenness") +
+                          ggplot2::theme_bw()
+                  }
+                  
+              } else {
+                  g <- ggplot2::ggplot(info, ggplot2::aes(x = clono, y = normentropy)) +
+                      ggplot2::geom_point(color = "#1b9e77", alpha = 0.5) +
+                      ggplot2::labs(title = title, x = "Richness", y = "Evenness") +
+                      ggplot2::theme_bw()
               }
-            
+              
+              g
           })
 
 
