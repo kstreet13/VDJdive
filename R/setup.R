@@ -37,7 +37,8 @@ setGeneric(name = "readVDJcontigs",
 #' contigs <- readVDJcontigs(samples)
 #'
 #' @importFrom utils read.csv
-#' @import S4Vectors
+#' @importFrom S4Vectors split
+#' @importClassesFrom S4Vectors DataFrame
 #' @importClassesFrom IRanges SplitDataFrameList
 #' @export
 setMethod(f = 'readVDJcontigs',
@@ -130,7 +131,8 @@ setGeneric(name = "addVDJtoSCE",
 #' sce <- addVDJtoSCE(contigs, sce)
 #' sce$contigs
 #'
-#' @import S4Vectors
+#' @importFrom S4Vectors split
+#' @importClassesFrom S4Vectors DataFrame
 #' @importFrom SummarizedExperiment colData colData<-
 #' @importClassesFrom IRanges SplitDataFrameList
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment

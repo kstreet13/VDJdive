@@ -104,7 +104,7 @@ setGeneric(name = "clonoStats",
 #' data('contigs')
 #' clonoStats(contigs)
 #'
-#' @import IRanges
+#' @importClassesFrom IRanges SplitDataFrameList
 #' @importFrom BiocParallel bplapply SerialParam
 #' @importFrom reticulate import
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop

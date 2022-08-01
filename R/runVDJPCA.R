@@ -31,24 +31,17 @@ setGeneric(name = "runVDJPCA",
 #' runVDJPCA(x)
 #' 
 #' @importFrom stats prcomp
+#' @importFrom Matrix t
 #' @export
 setMethod(f = "runVDJPCA",
-          signature = signature(x = "ANY"),
+          signature = signature(x = "clonoStats"),
           definition = function(x, unit = c("samples","clonotypes")){
               unit <- match.arg(unit)
               
               if(unit == "clonotypes"){
-                  PCA_ret <- prcomp(x)
+                  PCA_ret <- prcomp(clonoAbundance(x))
               } else {
-                  PCA_ret <- prcomp(t(x)) 
+                  PCA_ret <- prcomp(t(clonoAbundance(x))) 
               }
               return(PCA_ret)
-          })
-
-#' @rdname runVDJPCA
-#' @export
-setMethod(f = "runVDJPCA",
-          signature = signature(x = "clonoStats"),
-          definition = function(x, ...){
-              runVDJPCA(x@abundance, ...)
           })

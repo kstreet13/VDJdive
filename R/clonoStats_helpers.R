@@ -5,6 +5,9 @@ NULL
 
 # remove all non-essential contig data
 # (ie. for TCRs, only keep alpha and beta chains)
+#' @importFrom S4Vectors DataFrame
+#' @importFrom S4Vectors %in% match
+#' @importClassesFrom IRanges SplitDataFrameList
 .prepContigs <- function(contigs, type){
     # remove unproductive and 'Multi' contigs (for now?)
     contigs <- contigs[contigs[,'productive']]
@@ -326,6 +329,7 @@ NULL
 }
 
 # pick most likely clonotype based on UMIs/reads ("most common")
+#' @importFrom IRanges commonColnames
 .MC_sample <- function(contigs, type, method){
     stopifnot(method %in% commonColnames(contigs))
     contigs <- .prepContigs(contigs, type)

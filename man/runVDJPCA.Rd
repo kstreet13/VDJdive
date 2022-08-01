@@ -2,15 +2,12 @@
 % Please edit documentation in R/runVDJPCA.R
 \name{runVDJPCA}
 \alias{runVDJPCA}
-\alias{runVDJPCA,ANY-method}
 \alias{runVDJPCA,clonoStats-method}
 \title{Run PCA on clonotype abundance matrix}
 \usage{
 runVDJPCA(x, ...)
 
-\S4method{runVDJPCA}{ANY}(x, unit = c("samples", "clonotypes"))
-
-\S4method{runVDJPCA}{clonoStats}(x, ...)
+\S4method{runVDJPCA}{clonoStats}(x, unit = c("samples", "clonotypes"))
 }
 \arguments{
 \item{x}{A matrix of abundance values where rows are features (clonotypes)
