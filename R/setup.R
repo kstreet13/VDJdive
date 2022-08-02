@@ -53,9 +53,6 @@ setMethod(f = 'readVDJcontigs',
                   tcr_ii <- read.csv(file.path(
                       samples[ii], "filtered_contig_annotations.csv"))
                   tcr_ii$barcode <- gsub("1$", ii, tcr_ii$barcode)
-                  #tcr_ii$type <- "TCR"
-                  #tcr_ii$clonotype_tcr <- paste0(sample_ids[ii], "-", 
-                  #tcr_ii$raw_clonotype_id)
                   tcr_ii$sample <- sample.names[ii]
                   contigs <- rbind(contigs, tcr_ii)
               }

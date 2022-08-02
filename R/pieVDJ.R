@@ -57,35 +57,25 @@ setMethod(f = "pieVDJ",
                       dat$clonotype <- seq_len(nrow(dat))
                   }
                   
-                  pieG[[i]] <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = count, fill = log(col), weight = count))
+                  pieG[[i]] <- ggplot(dat, aes(x = "", y = count, fill = log(col), weight = count))
                   
                   if (!is.null(legend)) {
-                      pieG[[i]] <- pieG[[i]] + ggplot2::geom_col(position = "stack")
+                      pieG[[i]] <- pieG[[i]] + geom_col(position = "stack")
                   } else {
-                      pieG[[i]] <- pieG[[i]] + ggplot2::geom_col(position = "stack", show.legend = FALSE)
+                      pieG[[i]] <- pieG[[i]] + geom_col(position = "stack", show.legend = FALSE)
                   }
                   
                   pieG[[i]] <- pieG[[i]] + 
-                      ggplot2::coord_polar("y", start = pi / 2) + 
-                      ggplot2::scale_fill_continuous("", 
+                      coord_polar("y", start = pi / 2) + 
+                      scale_fill_continuous("", 
                                                      type = "viridis", 
                                                      breaks = c(0, max(log(dat$col))), 
                                                      labels = c("Singletons", "Most expanded")) +
-                      ggplot2::labs(x = NULL, y = NULL, fill = NULL, title = nm) +
-                      ggplot2::theme_void() +
-                      ggplot2::theme(legend.position = legend)
+                      labs(x = NULL, y = NULL, fill = NULL, title = nm) +
+                      theme_void() +
+                      theme(legend.position = legend)
                   
               }
-              
-              # Make legend
-              # datL <- data.frame(values = seq_len(100))
-              # pieL <- ggplot2::ggplot(datL, ggplot2::aes(x = "", y = values, fill = values, weight = values)) +
-              #   ggplot2::geom_col(position = "stack") +
-              #   ggplot2::scale_fill_continuous("", type = "viridis", breaks = c(1, 100), 
-              #                                  labels = c("Singletons", "Most expanded")) +
-              #   ggplot2::theme_bw() +
-              #   ggplot2::theme(legend.position = "bottom") 
-              
               
               if (length(pieG) == 1) {
                   pieG[[1]]

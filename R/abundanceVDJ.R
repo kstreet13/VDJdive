@@ -32,7 +32,7 @@ setGeneric(name = "abundanceVDJ",
 #' x <- clonoStats(contigs)
 #' abundanceVDJ(x)
 #' 
-#' @importFrom ggplot2 ggplot geom_col aes scale_fill_continuous labs theme_bw
+#' @importFrom ggplot2 ggplot geom_text aes labs theme_bw geom_jitter element_blank
 #' @importClassesFrom Matrix dgCMatrix
 #' @importFrom cowplot panel_border
 #' @importFrom gridExtra grid.arrange
@@ -57,28 +57,28 @@ setMethod(f = "abundanceVDJ",
                                                  ylab = c(" ", seq(1, len), " ")))
               }
               
-              g <- ggplot2::ggplot(dat, ggplot2::aes(x = sample, y = count)) +
-                  ggplot2::geom_jitter(height = 0, width = 0.1, color = "#1b9e77", alpha = 0.5) +
-                  ggplot2::labs(title = NULL, x = NULL, y = "Abundance") +
-                  ggplot2::theme_bw()
+              g <- ggplot(dat, aes(x = sample, y = count)) +
+                  geom_jitter(height = 0, width = 0.1, color = "#1b9e77", alpha = 0.5) +
+                  labs(title = NULL, x = NULL, y = "Abundance") +
+                  theme_bw()
               
-              g2 <- ggplot2::ggplot(dat2, ggplot2::aes(x = sample, y = y)) +
-                  ggplot2::geom_text(label = dat2$clono) +
-                  ggplot2::labs(title = title, x = NULL, y = NULL) +
-                  ggplot2::theme_bw() +
-                  cowplot::panel_border(remove = TRUE) +
-                  ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
-                                 panel.grid.minor = ggplot2::element_blank(), 
-                                 axis.line = ggplot2::element_blank(),
-                                 axis.title.x = ggplot2::element_blank(),
-                                 axis.text.x = ggplot2::element_blank(),
-                                 axis.ticks.x = ggplot2::element_blank(),
-                                 axis.title.y = ggplot2::element_blank(),
-                                 axis.text.y = ggplot2::element_blank(),
-                                 axis.ticks.y = ggplot2::element_blank()
+              g2 <- ggplot(dat2, aes(x = sample, y = y)) +
+                  geom_text(label = dat2$clono) +
+                  labs(title = title, x = NULL, y = NULL) +
+                  theme_bw() +
+                  panel_border(remove = TRUE) +
+                  theme(panel.grid.major = element_blank(),
+                                 panel.grid.minor = element_blank(), 
+                                 axis.line = element_blank(),
+                                 axis.title.x = element_blank(),
+                                 axis.text.x = element_blank(),
+                                 axis.ticks.x = element_blank(),
+                                 axis.title.y = element_blank(),
+                                 axis.text.y = element_blank(),
+                                 axis.ticks.y = element_blank()
                   ) 
                   
-              gridExtra::grid.arrange(g2, g, layout_matrix = matrix(c(1, 2, 2, 2), ncol = 1))
+              grid.arrange(g2, g, layout_matrix = matrix(c(1, 2, 2, 2), ncol = 1))
               
           })
 

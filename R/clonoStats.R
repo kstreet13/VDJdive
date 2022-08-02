@@ -287,7 +287,6 @@ setMethod(f = "clonoStats",
                   stop('"x" must contain cell-level clonotype assignments')
               }
               if(is.null(group)){
-                  # grpVar <- clonoGroup(x)
                   return(x)
               }else{
                   stopifnot(length(group) == length(clonoGroup(x)))

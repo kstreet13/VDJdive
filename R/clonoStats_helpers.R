@@ -35,6 +35,7 @@ NULL
 # single-sample clonotype assignment #
 ######################################
 # EM algorithm
+#' @importFrom reticulate import
 .EM_sample <- function(contigs, type, lang, thresh, iter.max){
     contigs <- .prepContigs(contigs, type)
     
@@ -138,8 +139,8 @@ NULL
         cl <- basiliskStart(pyenv)
         counts <- basiliskRun(cl, function(uniquecounts, counts.old, t.indices, 
                                            thresh, iter.max){
-            mod <- reticulate::import(module = "vdjHelpers", 
-                                      convert = TRUE)
+            mod <- import(module = "vdjHelpers", 
+                          convert = TRUE)
             return(mod$TCR_EM_counts(uniquecounts, counts.old, t.indices, 
                                      thresh, iter.max))
         }, uniquecounts = uniquecounts, counts.old = counts.old, 

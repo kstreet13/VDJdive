@@ -102,7 +102,7 @@ setGeneric(name = "scatterVDJ",
 #'        title = "Evenness-abundance plot", legend = TRUE)
 #' 
 #' @importFrom RColorBrewer brewer.pal
-#' @importFrom ggplot2 ggplot aes geom_boxplot geom_jitter scale_color_manual theme_bw labs
+#' @importFrom ggplot2 ggplot aes geom_point scale_color_brewer labs theme_bw
 #' @export
 setMethod(f = "scatterVDJ",
           signature = signature(d = "matrix"),
@@ -119,23 +119,23 @@ setMethod(f = "scatterVDJ",
                   info$sampleType <- sampleGroups$group[match(info$sample, sampleGroups$sample)]
                   
                   if (legend) {
-                      g <- ggplot2::ggplot(info, ggplot2::aes(x = clono, y = normentropy, color = sampleType)) +
-                          ggplot2::geom_point(alpha = 0.5) +
-                          ggplot2::scale_color_brewer("Sample type", palette = "Dark2") +
-                          ggplot2::labs(title = title, x = "Richness", y = "Evenness") +
-                          ggplot2::theme_bw()
+                      g <- ggplot(info, aes(x = clono, y = normentropy, color = sampleType)) +
+                          geom_point(alpha = 0.5) +
+                          scale_color_brewer("Sample type", palette = "Dark2") +
+                          labs(title = title, x = "Richness", y = "Evenness") +
+                          theme_bw()
                   } else {
-                      g <- ggplot2::ggplot(info, ggplot2::aes(x = clono, y = normentropy, color = sampleType)) +
-                          ggplot2::geom_point(alpha = 0.5, show.legend = FALSE) +
-                          ggplot2::labs(title = title, x = "Richness", y = "Evenness") +
-                          ggplot2::theme_bw()
+                      g <- ggplot(info, aes(x = clono, y = normentropy, color = sampleType)) +
+                          geom_point(alpha = 0.5, show.legend = FALSE) +
+                          labs(title = title, x = "Richness", y = "Evenness") +
+                          theme_bw()
                   }
                   
               } else {
-                  g <- ggplot2::ggplot(info, ggplot2::aes(x = clono, y = normentropy)) +
-                      ggplot2::geom_point(color = "#1b9e77", alpha = 0.5) +
-                      ggplot2::labs(title = title, x = "Richness", y = "Evenness") +
-                      ggplot2::theme_bw()
+                  g <- ggplot(info, aes(x = clono, y = normentropy)) +
+                      geom_point(color = "#1b9e77", alpha = 0.5) +
+                      labs(title = title, x = "Richness", y = "Evenness") +
+                      theme_bw()
               }
               
               g

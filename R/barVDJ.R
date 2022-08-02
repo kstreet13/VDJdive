@@ -47,19 +47,19 @@ setMethod(f = "barVDJ",
                   dat <- rbind(dat, data.frame(clonotype = seq_along(tmp), count = tmp, 
                                                sample = nms[i]))
               }
-              g <- ggplot2::ggplot(dat, ggplot2::aes(x = sample, y = count, 
+              g <- ggplot(dat, aes(x = sample, y = count, 
                                                      weight = count, fill = log(count)))
               
               if (legend) {
-                  g <- g + ggplot2::geom_col(position = "stack")
+                  g <- g + geom_col(position = "stack")
               } else {
-                  g <- g + ggplot2::geom_col(position = "stack", show.legend = FALSE)
+                  g <- g + geom_col(position = "stack", show.legend = FALSE)
               }
               
               g <- g +
-                  ggplot2::scale_fill_continuous(type = "viridis") +
-                  ggplot2::labs(x = NULL, y = "Number of T cells", title = title) +
-                  ggplot2::theme_bw()
+                  scale_fill_continuous(type = "viridis") +
+                  labs(x = NULL, y = "Number of T cells", title = title) +
+                  theme_bw()
               g
           })
 

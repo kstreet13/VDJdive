@@ -1,10 +1,12 @@
 #' @include clonoStats_class.R
 NULL
 
+#' @importFrom reticulate import
+#' @importFrom Matrix colSums rowSums
 .nonInt_tab <- function(x, lim, lang = c("r","python")){
     lang <- match.arg(lang)
-    nz <- unname(Matrix::colSums(x > 0)) # non-zero count
-    EX <- unname(Matrix::colSums(x)) # sum of probs
+    nz <- unname(colSums(x > 0)) # non-zero count
+    EX <- unname(colSums(x)) # sum of probs
     if(lim >= 1){
         # clonotypes that could only be in zero or one cell
         ind1 <- which(nz == 1)
@@ -34,8 +36,8 @@ NULL
         if(lang == 'python'){
             cl <- basiliskStart(pyenv)
             distrs_list <- basiliskRun(proc = cl, function(probs_list){
-                mod <- reticulate::import(module = "vdjHelpers", 
-                                          convert = TRUE)
+                mod <- import(module = "vdjHelpers", 
+                              convert = TRUE)
                 return(mod$make_distrs(probs_list))
             }, probs_list = probs_list)
             basiliskStop(cl)
@@ -54,7 +56,7 @@ NULL
         tmpP <- as.integer(c(0,cumsum(lengths(distrs_list))))
         tmp <- new('dgCMatrix', i = tmpI, p = tmpP, x = as.numeric(unlist(distrs_list)),
                    Dim = as.integer(c(lim, length(distrs_list))))
-        RS3 <- Matrix::rowSums(tmp)
+        RS3 <- rowSums(tmp)
     }else{
         RS3 <- rep(0, lim)
     }
@@ -180,8 +182,8 @@ setMethod(f = "summarizeClonotypes",
               }else{
                   byVar <- factor(by)
               }
-              return(summarizeClonotypes(metadata(x)[[clonoStats]]@assignment,
-                                         byVar, ...))
+              return(summarizeClonotypes(clonoAssignment(
+                  metadata(x)[[clonoStats]]), byVar, ...))
           })
 
 #' @rdname summarizeClonotypes
@@ -198,11 +200,11 @@ setMethod(f = "summarizeClonotypes",
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "clonoStats"),
           definition = function(x, by, ...){
-              if(is.null(x@assignment)){
+              if(is.null(clonoAssignment(x))){
                   stop('"x" must contain cell-level clonotype assignment',
                        ' matrix')
               }
-              summarizeClonotypes(x@assignment, by, ...)
+              summarizeClonotypes(clonoAssignment(x), by, ...)
           })
 
 
@@ -298,7 +300,7 @@ setMethod(f = "splitClonotypes",
               }else{
                   byVar <- factor(by)
               }
-              return(splitClonotypes(metadata(x)[[clonoStats]]@assignment, 
+              return(splitClonotypes(clonoAssignment(metadata(x)[[clonoStats]]),
                                      byVar))
           })
 
@@ -307,11 +309,11 @@ setMethod(f = "splitClonotypes",
 setMethod(f = "splitClonotypes",
           signature = signature(x = "clonoStats"),
           definition = function(x, by){
-              if(is.null(x@assignment)){
+              if(is.null(clonoAssignment(x))){
                   stop('"x" must contain cell-level clonotype assignment',
                        ' matrix')
               }
-              splitClonotypes(x@assignment, by)
+              splitClonotypes(clonoAssignment(x), by)
           })
 
 
@@ -324,11 +326,11 @@ setMethod(f = "show",
           signature = signature(object = "clonoStats"),
           definition = function(object){
               cat('An object of class "clonoStats"\n')
-              cat('clonotypes:', length(object@names1), '\n')
-              cat('cells:', length(object@group), '\n')
-              groups <- levels(object@group)
+              cat('clonotypes:', nrow(clonoAbundance(object)), '\n')
+              cat('cells:', length(clonoGroup(object)), '\n')
+              groups <- levels(clonoGroup(object))
               coolcat("groups(%d): %s\n", groups)
-              cat('has assignment:', !is.null(object@assignment))
+              cat('has assignment:', !is.null(clonoAssignment(object)))
           })
 
 #' @describeIn clonoStats-class Get the full clonotype names

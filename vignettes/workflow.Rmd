@@ -27,12 +27,26 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The `r Biocpkg("VDJdive")` package provides functionality for incorporating adaptive immune receptor sequencing (AIRR-seq) data into the Bioconductor single-cell ecosystem and analyzing it in a variety of ways. This vignette will give you a brief overview of the methods available in the package and demonstrate their usage on a simple dataset.
+Targeted sequencing of immune receptors is a powerful tool for interrogating the adaptive immune system. Single-cell technology has increased the resolution of this type of data tremendously. While many tools exist to analyze single-cell RNA sequencing data, there are fewer options available for targeted assays like adaptive immune receptor sequencing (AIRRseq).
 
-```{r loadPackage}
+The `r Biocpkg("VDJdive")` package provides functionality for incorporating AIRRseq (or TCRseq) data into the Bioconductor single-cell ecosystem and analyzing it in a variety of ways. We believe this will unlock many powerful tools for the analysis of immune receptor data and make it easily accessible to users already familiar with `SingleCellExperiment` objects and the Bioconductor framework. This vignette will give you a brief overview of the methods available in the package and demonstrate their usage on a simple dataset.
+
+```{r loadPackage, echo = FALSE}
 require(utils)
 require(VDJdive)
 ```
+
+# Installation
+
+To install `VDJdive` from Bioconductor, you can use the following code:
+
+```{r installation, eval = FALSE}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("VDJdive")
+```
+
+Additionally, some features of `VDJdive` make use of Python functionality, which is made available through the [`basilisk`](https://bioconductor.org/packages/release/bioc/html/basilisk.html) package.
 
 # Read in 10X data
 

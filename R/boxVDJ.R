@@ -66,33 +66,33 @@ setMethod(f = "boxVDJ",
                                              group = " ")
               }
               
-              cols <- RColorBrewer::brewer.pal(8, name = "Dark2")[seq_along(
+              cols <- brewer.pal(8, name = "Dark2")[seq_along(
                   unique(sampleGroups$group))]
               
-              g <- ggplot2::ggplot(sampleGroups, ggplot2::aes(x = group, 
+              g <- ggplot(sampleGroups, aes(x = group, 
                                                               y = Diversity, 
                                                               color = group)) 
               
               if (legend) {
                   g <- g +
-                      ggplot2::geom_boxplot() +
-                      ggplot2::geom_jitter(height = 0, width = 0.1) +
-                      ggplot2::scale_color_manual(name = "", values = cols) +
-                      ggplot2::theme_bw()
+                      geom_boxplot() +
+                      geom_jitter(height = 0, width = 0.1) +
+                      scale_color_manual(name = "", values = cols) +
+                      theme_bw()
                   
               } else {
                   g <- g + 
-                      ggplot2::geom_boxplot(show.legend = FALSE) +
-                      ggplot2::geom_jitter(height = 0, width = 0.1, 
+                      geom_boxplot(show.legend = FALSE) +
+                      geom_jitter(height = 0, width = 0.1, 
                                            show.legend = FALSE) +
-                      ggplot2::scale_color_manual(name = "", values = cols) +
-                      ggplot2::theme_bw()
+                      scale_color_manual(name = "", values = cols) +
+                      theme_bw()
               }
               
               if (!is.null(title)) {
-                  g <- g + ggplot2::labs(title = title, x = NULL)
+                  g <- g + labs(title = title, x = NULL)
               } else {
-                  g <- g + ggplot2::labs(x = NULL)
+                  g <- g + labs(x = NULL)
               }
               g
           })

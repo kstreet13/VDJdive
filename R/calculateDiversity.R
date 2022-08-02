@@ -64,8 +64,6 @@ NULL
     A1 <- sum(f[seq_len(t)])
     A2 <- sum(f[seq_len(t)])-f[1]
     B1 <- sum(seq_len(t) * f[seq_len(t)])
-    #B2 <- B1 - f[1]
-    #C2 <- sum(seq_len(t) * (seq_len(t)-1) * f[seq_len(t)])
     
     ## point estimate (Equation 2, page 533 of Chao and Bunge 2002)
     if(t == length(f)){
@@ -120,9 +118,6 @@ NULL
     C <- exp(coe*log(1+SE4^2/(chao4-A1)^2)^0.5)
     lb <- floor(A1+(chao4-A1)/C)
     ub <- ceiling(A1+(chao4-A1)*C)
-    # CI0 <- matrix(c(lb,ub),1,2)
-    # colnames(CI0) <- c("lb","ub")
-    # return(list(est=chao4, CI=CI0))
     return(c(est = chao4, CI.lower = lb, CI.upper = ub))
 }
 
