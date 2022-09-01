@@ -166,7 +166,6 @@ NULL
             
             # check for convergence
             diff <- max(abs(counts-counts.old))
-            #print(diff[length(diff)])
             if(diff < thresh | iters >= iter.max){
                 working <- FALSE
             }else{
