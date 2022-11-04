@@ -157,7 +157,7 @@ setMethod(f = "summarizeClonotypes",
                   rownames(out) <- seq_len(nrow(out))
               }
               colnames(out) <- levels(by)
-              return(Matrix(out, sparse = TRUE))
+              return(Matrix(out, sparse = TRUE, doDiag = FALSE))
           })
 
 #' @rdname summarizeClonotypes
