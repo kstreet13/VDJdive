@@ -1,5 +1,5 @@
-#' @importClassesFrom Matrix dgCMatrix
-setClassUnion("dgCMatrixOrNULL",members=c("dgCMatrix", "NULL"))
+#' @importClassesFrom Matrix sparseMatrix
+setClassUnion("sparseMatrixOrNULL",members=c("sparseMatrix", "NULL"))
 
 #' @title \code{clonoStats} object class
 #' @aliases clonoStats-class
@@ -38,16 +38,16 @@ setClassUnion("dgCMatrixOrNULL",members=c("dgCMatrix", "NULL"))
 #' cs <- clonoStats(contigs)
 #' cs
 #' 
-#' @importClassesFrom Matrix dgCMatrix
+#' @importClassesFrom Matrix sparseMatrix
 #' @import methods
 #' @export
 setClass(
     Class = "clonoStats",
     slots = list(
-        abundance = "dgCMatrix",
-        frequency = "dgCMatrix",
+        abundance = "sparseMatrix",
+        frequency = "sparseMatrix",
         group = 'factor',
-        assignment = "dgCMatrixOrNULL",
+        assignment = "sparseMatrixOrNULL",
         names1 = "factor",
         names2 = "factor"
     )
