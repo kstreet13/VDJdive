@@ -77,7 +77,9 @@ NULL
     wa <- match(contigs[,'cdr3'][contigs[,'chain']%in%type1], all.alphas)
     wb <- match(contigs[,'cdr3'][contigs[,'chain']%in%type2], all.betas)
     # this takes care of the 1-alpha + 1-beta indices without looping
-    poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
+    suppressWarnings( # others produce warnings
+        poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
+    )
     # others are incorrect, though
     poss.indices[ind.multiple] <- lapply(ind.multiple, function(i){
         return(sort(unique(as.integer(outer(wa[[i]], wb[[i]], 
@@ -272,7 +274,9 @@ NULL
     wa <- match(contigs[,'cdr3'][contigs[,'chain']%in%type1], all.alphas)
     wb <- match(contigs[,'cdr3'][contigs[,'chain']%in%type2], all.betas)
     # this takes care of the 1-alpha + 1-beta indices without looping
-    poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
+    suppressWarnings( # others produce warnings
+        poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
+    )
     # others are incorrect, though
     poss.indices[-ind.unique] <- list(integer(0))
     
@@ -395,7 +399,9 @@ NULL
     wa <- match(contigs[,'cdr3'][contigs[,'chain']%in%type1], all.alphas)
     wb <- match(contigs[,'cdr3'][contigs[,'chain']%in%type2], all.betas)
     # this takes care of the 1-alpha + 1-beta indices without looping
-    poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
+    suppressWarnings( # others produce warnings
+        poss.indices <- as.list(length(all.alphas)*(wb-1L) + wa)
+    )
     # others are incorrect, though
     poss.indices[-ind.unique] <- list(integer(0))
     
