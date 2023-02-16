@@ -31,7 +31,7 @@ setGeneric(name = "runVDJPCA",
 #' runVDJPCA(x)
 #' 
 #' @importFrom stats prcomp
-#' @importFrom Matrix t
+#' @import Matrix
 #' @export
 setMethod(f = "runVDJPCA",
           signature = signature(x = "clonoStats"),

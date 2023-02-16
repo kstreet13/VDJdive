@@ -108,8 +108,7 @@ setGeneric(name = "clonoStats",
 #' @importFrom BiocParallel bplapply SerialParam
 #' @importFrom reticulate import
 #' @importFrom basilisk basiliskStart basiliskRun basiliskStop
-#' @importFrom Matrix Matrix colSums
-#' @importClassesFrom Matrix dgRMatrix
+#' @import Matrix
 #'
 #' @export
 setMethod(f = "clonoStats",

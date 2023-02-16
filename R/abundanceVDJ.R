@@ -33,7 +33,7 @@ setGeneric(name = "abundanceVDJ",
 #' abundanceVDJ(x)
 #' 
 #' @importFrom ggplot2 ggplot geom_text aes labs theme_bw geom_jitter element_blank
-#' @importClassesFrom Matrix dgCMatrix
+#' @import Matrix
 #' @importFrom cowplot panel_border
 #' @importFrom gridExtra grid.arrange
 #' @export

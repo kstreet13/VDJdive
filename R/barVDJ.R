@@ -34,7 +34,7 @@ setGeneric(name = "barVDJ",
 #' barVDJ(x)
 #' 
 #' @importFrom ggplot2 ggplot geom_col aes scale_fill_continuous labs theme_bw
-#' @importClassesFrom Matrix dgCMatrix
+#' @import Matrix
 #' @export
 setMethod(f = "barVDJ",
           signature = signature(x = "Matrix"),

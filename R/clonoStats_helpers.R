@@ -36,6 +36,7 @@ NULL
 ######################################
 # EM algorithm
 #' @importFrom reticulate import
+#' @import Matrix
 .EM_sample <- function(contigs, type, lang, thresh, iter.max){
     contigs <- .prepContigs(contigs, type)
     
@@ -219,7 +220,9 @@ NULL
     clono <- clono[, which(colSums(clono) > 0), drop = FALSE]
     rownames(clono) <- names(contigs)
     # remove empty clonotype (called "None" in some versions)
-    clono <- clono[,-which(colnames(clono) == " ")]
+    if(any(colnames(clono) == " ")){
+        clono <- clono[,-which(colnames(clono) == " ")]
+    }
     
     return(clono)
 }

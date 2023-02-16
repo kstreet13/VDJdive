@@ -35,7 +35,7 @@ setGeneric(name = "pieVDJ",
 #' pieVDJ(x)
 #' 
 #' @importFrom ggplot2 ggplot aes geom_col coord_polar scale_fill_continuous labs theme_void theme
-#' @importClassesFrom Matrix dgCMatrix
+#' @import Matrix
 #' @export
 setMethod(f = "pieVDJ",
           signature = signature(x = "Matrix"),

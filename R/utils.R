@@ -2,7 +2,7 @@
 NULL
 
 #' @importFrom reticulate import
-#' @importFrom Matrix colSums rowSums
+#' @import Matrix
 .nonInt_tab <- function(x, lim, lang = c("r","python")){
     lang <- match.arg(lang)
     nz <- unname(colSums(x > 0)) # non-zero count
@@ -114,8 +114,7 @@ setGeneric(name = "summarizeClonotypes",
 #' x <- clonoStats(contigs, assignment = TRUE)
 #' summarizeClonotypes(x, by = sce$sample)
 #'
-#' @importClassesFrom Matrix Matrix
-#' @importFrom Matrix Matrix rowSums
+#' @import Matrix
 #' @importFrom BiocParallel SerialParam bplapply
 #' @export
 setMethod(f = "summarizeClonotypes",
@@ -187,7 +186,7 @@ setMethod(f = "summarizeClonotypes",
           })
 
 #' @rdname summarizeClonotypes
-#' @importFrom Matrix Matrix
+#' @import Matrix
 #' @export
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "matrix"),
@@ -246,7 +245,7 @@ setGeneric(name = "splitClonotypes",
 #' x <- clonoStats(contigs, assignment = TRUE)
 #' splitClonotypes(x, by = sce$sample)
 #'
-#' @importClassesFrom Matrix Matrix
+#' @import Matrix
 #' @export
 setMethod(f = "splitClonotypes",
           signature = signature(x = "Matrix"),
@@ -264,7 +263,7 @@ setMethod(f = "splitClonotypes",
 
 
 #' @rdname splitClonotypes
-#' @importFrom Matrix Matrix
+#' @import Matrix
 #' @export
 setMethod(f = "splitClonotypes",
           signature = signature(x = "matrix"),
