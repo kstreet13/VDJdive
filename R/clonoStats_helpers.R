@@ -186,10 +186,16 @@ NULL
     }))
     clono <- new('dgRMatrix', j = clonoJ, p = clonoP, x = clonoX,
                  Dim = as.integer(c(length(contigs), length(counts))))
-    colnames(clono) <- as.character(outer(all.alphas, all.betas,
-                                          FUN = paste))
-    clono <- clono[, which(colSums(clono) > 0), drop = FALSE]
     rownames(clono) <- names(contigs)
+    # clean up
+    keep <- which(colSums(clono) > thresh/2)
+    clono <- clono[, keep, drop = FALSE]
+    colnames(clono) <- as.character(outer(all.alphas, all.betas,
+                                          FUN = paste))[keep]
+    # re-normalize rows with totals slightly less than 1
+    rs <- rowSums(clono)
+    renorm <- which(rs != 1 & rs > 0)
+    clono[renorm,] <- clono[renorm,] / rs[renorm]
     
     return(clono)
 }

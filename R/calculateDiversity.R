@@ -186,7 +186,7 @@ setMethod(f = "calculateDiversity",
               
               # check if all counts are integers
               ints <- all(clonoAbundance(x) %% 1 == 0)
-              if(!ints & any(c('chao1','chaobunge') %in% methods)){
+              if(!ints && any(c('chao1','chaobunge') %in% methods)){
                   warning('Methods "chao1" and "chaobunge" are not valid with ',
                           'non-integer abundances.')
               }
