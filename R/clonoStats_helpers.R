@@ -205,10 +205,11 @@ NULL
     contigs <- .prepContigs(contigs, type)    
     
     clonoID <- vapply(contigs, function(x){
-        alphas <- sort(x$cdr3[x$chain=='TRA'])
-        betas <- sort(x$cdr3[x$chain=='TRB'])
-        return(paste(paste(alphas, collapse = ','),
-                     paste(betas, collapse = ',')))
+        if(nrow(x) >= 1){
+            return(paste(x$sample[1], x$raw_clonotype_id[1]))
+        }else{
+            return(" ")
+        }
     }, FUN.VALUE = 'A')
     
     all_clonotypes <- unique(clonoID)

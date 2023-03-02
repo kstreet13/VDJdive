@@ -135,11 +135,11 @@ test_that("clonoStats function works as expected", {
 
     crng <- clonoStats(contigs, method = 'CellRanger', assignment = TRUE)
     expect_is(crng, 'clonoStats')
-    expect_equivalent(dim(crng@abundance), c(17,2))
+    expect_equivalent(dim(crng@abundance), c(19,2))
     expect_equal(sum(crng@abundance), 22)
     expect_equivalent(dim(crng@frequency), c(3,2))
     expect_equal(sum(crng@frequency), 19)
-    expect_equivalent(dim(crng@assignment), c(24, 17))
+    expect_equivalent(dim(crng@assignment), c(24, 19))
     expect_equal(sum(crng@assignment), 22)
 
     alph <- clonoStats(contigs, method = 'TRA', assignment = TRUE)
