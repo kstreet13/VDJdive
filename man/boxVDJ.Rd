@@ -45,7 +45,7 @@ plotted on the box plots.
 \code{boxVDJ} creates a box plot of the specified diversity.
 }
 \examples{
-data(contigs)
+data('contigs')
 x <- clonoStats(contigs)
 d <- calculateDiversity(x)
 sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 

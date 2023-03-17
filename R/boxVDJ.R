@@ -29,7 +29,7 @@ setGeneric(name = "boxVDJ",
 #' plotted on the box plots. 
 #'
 #' @examples
-#' data(contigs)
+#' data('contigs')
 #' x <- clonoStats(contigs)
 #' d <- calculateDiversity(x)
 #' sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 

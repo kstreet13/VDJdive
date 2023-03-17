@@ -2,6 +2,7 @@
 % Please edit documentation in R/scatterVDJ.R
 \name{scatterVDJ}
 \alias{scatterVDJ}
+\alias{scatterVDJ,matrix-method}
 \title{Create a scatterplot for diversity evenness and abundance}
 \usage{
 scatterVDJ(d, ...)
@@ -50,11 +51,12 @@ differs between each sample and between each group of samples.
 abundance of the sample on the x-axis and the evenness on the y-axis.
 }
 \examples{
-data(contigs)
+data('contigs')
 x <- clonoStats(contigs)
 d <- calculateDiversity(x)
 sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 
                            Group = c("Cancer", "Normal"))
 scatterVDJ(d, sampleGroups = NULL, 
        title = "Evenness-abundance plot", legend = TRUE)
+
 }

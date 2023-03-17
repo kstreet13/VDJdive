@@ -42,16 +42,14 @@ setGeneric(name = "scatterVDJ",
 #' differs between each sample and between each group of samples. 
 #'
 #' @examples
-#' data(contigs)
+#' data('contigs')
 #' x <- clonoStats(contigs)
 #' d <- calculateDiversity(x)
 #' sampleGroups <- data.frame(Sample = c("sample1", "sample2"), 
 #'                            Group = c("Cancer", "Normal"))
 #' scatterVDJ(d, sampleGroups = NULL, 
 #'        title = "Evenness-abundance plot", legend = TRUE)
-#' @title Create a scatterplot for diversity evenness and abundance
-#' @param ... additional arguments.
-#' @name scatterVDJ
+#' 
 #' @export
 setMethod(f = "scatterVDJ",
           signature = signature(d = "matrix"),
