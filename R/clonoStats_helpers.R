@@ -1,10 +1,8 @@
-#' @include basilisk.R
+#' @include RcppExports.R basilisk.R
 NULL
 
 # clonoStats helper functions
 
-# remove all non-essential contig data
-# (ie. for TCRs, only keep alpha and beta chains)
 #' @importFrom S4Vectors DataFrame
 #' @importFrom S4Vectors %in% match
 #' @importClassesFrom IRanges SplitDataFrameList
@@ -138,17 +136,13 @@ NULL
             t.indices[[ii]] <- list(as.integer(t.indices[[ii]]))
         }
         
-        # iteration handled by python, via basilisk
-        cl <- basiliskStart(pyenv)
-        counts <- basiliskRun(cl, function(uniquecounts, counts.old, t.indices, 
-                                           thresh, iter.max){
-            mod <- import(module = "vdjHelpers", 
-                          convert = TRUE)
-            return(mod$TCR_EM_counts(uniquecounts, counts.old, t.indices, 
-                                     thresh, iter.max))
-        }, uniquecounts = uniquecounts, counts.old = counts.old, 
-        t.indices = t.indices, thresh = thresh, iter.max = iter.max)
-        basiliskStop(cl)
+        ########################
+        
+        counts <- TCR_EM_counts2(uniquecounts, counts.old, t.indices,
+                        thresh, iter.max)
+        
+        ########################
+        
     }else{
         working <- TRUE
         iters <- 0
