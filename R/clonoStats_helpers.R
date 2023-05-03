@@ -1,4 +1,5 @@
 #' @include RcppExports.R basilisk.R
+#' @useDynLib VDJdive
 NULL
 
 # clonoStats helper functions
