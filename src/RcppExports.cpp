@@ -11,14 +11,14 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // TCR_EM_counts2
-Rcpp::NumericVector TCR_EM_counts2(vector<double> unique_counts, vector<double> counts_old, vector<vector<int>> t_indices, double thresh, int max_iters);
+Rcpp::NumericVector TCR_EM_counts2(Rcpp::NumericVector unique_counts, Rcpp::NumericVector counts_old, Rcpp::List t_indices, double thresh, int max_iters);
 RcppExport SEXP _VDJdive_TCR_EM_counts2(SEXP unique_countsSEXP, SEXP counts_oldSEXP, SEXP t_indicesSEXP, SEXP threshSEXP, SEXP max_itersSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< vector<double> >::type unique_counts(unique_countsSEXP);
-    Rcpp::traits::input_parameter< vector<double> >::type counts_old(counts_oldSEXP);
-    Rcpp::traits::input_parameter< vector<vector<int>> >::type t_indices(t_indicesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type unique_counts(unique_countsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type counts_old(counts_oldSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type t_indices(t_indicesSEXP);
     Rcpp::traits::input_parameter< double >::type thresh(threshSEXP);
     Rcpp::traits::input_parameter< int >::type max_iters(max_itersSEXP);
     rcpp_result_gen = Rcpp::wrap(TCR_EM_counts2(unique_counts, counts_old, t_indices, thresh, max_iters));

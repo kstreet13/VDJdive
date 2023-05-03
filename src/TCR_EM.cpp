@@ -8,14 +8,16 @@ using namespace Rcpp;
 using namespace std;
 
 // [[Rcpp::export]]
-vector<double> TCR_EM_counts2(vector<double> unique_counts, vector<double> counts_old, vector<vector<int>> t_indices, double thresh, int max_iters) {
+Rcpp::NumericVector TCR_EM_counts2(Rcpp::NumericVector unique_counts, Rcpp::NumericVector counts_old, Rcpp::List t_indices, double thresh, int max_iters) {
     bool working = true;
     int iters = 0;
-    vector<double> counts;
+    Rcpp::NumericVector counts;
     while (working) {
         iters++;
         counts = unique_counts;
-        for (vector<int> idx : t_indices) {
+        int listLength=t_indices.size();
+        for (int i=0;i<listLength;i++) {
+            vector<int> idx=t_indices[i];
             int idx_len=idx.size();
             double vals[idx_len];
             for(int i=0;i<idx_len;i++){
@@ -39,4 +41,4 @@ vector<double> TCR_EM_counts2(vector<double> unique_counts, vector<double> count
     return counts;
 }
 
-
+  
