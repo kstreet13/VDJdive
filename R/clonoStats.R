@@ -106,8 +106,6 @@ setGeneric(name = "clonoStats",
 #'
 #' @importClassesFrom IRanges SplitDataFrameList
 #' @importFrom BiocParallel bplapply SerialParam
-#' @importFrom reticulate import
-#' @importFrom basilisk basiliskStart basiliskRun basiliskStop
 #' @import Matrix
 #'
 #' @export

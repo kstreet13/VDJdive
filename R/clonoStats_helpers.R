@@ -34,7 +34,6 @@ NULL
 # single-sample clonotype assignment #
 ######################################
 # EM algorithm
-#' @importFrom reticulate import
 #' @import Matrix
 .EM_sample <- function(contigs, type, lang, thresh, iter.max){
     contigs <- .prepContigs(contigs, type)
