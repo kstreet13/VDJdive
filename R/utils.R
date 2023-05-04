@@ -2,6 +2,7 @@
 NULL
 
 #' @import Matrix
+#' @import Rcpp
 .nonInt_tab <- function(x, lim, lang = c("r","cpp")){
     lang <- match.arg(lang)
     nz <- unname(colSums(x > 0)) # non-zero count

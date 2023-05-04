@@ -35,6 +35,7 @@ NULL
 ######################################
 # EM algorithm
 #' @import Matrix
+#' @import Rcpp
 .EM_sample <- function(contigs, type, lang, thresh, iter.max){
     contigs <- .prepContigs(contigs, type)
     
