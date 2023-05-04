@@ -44,7 +44,7 @@ setGeneric(name = "clonoStats",
 #'   Details.
 #' @param lang character. Indicates which implementation of certain methods to
 #'   use. The EM algorithm is implemented in both pure R (\code{'r'}) and mixed
-#'   R and Python (\code{'python'}, default) versions. Similarly, clonotype
+#'   R and C++ (\code{'cpp'}, default) versions. Similarly, clonotype
 #'   summarization is implemented in two ways, which can impact speed,
 #'   regardless of choice of \code{method}.
 #' @param thresh Numeric threshold for convergence of the EM algorithm.
@@ -116,7 +116,7 @@ setMethod(f = "clonoStats",
           definition = function(x, group = 'sample', type = NULL,
                                 assignment = FALSE, 
                                 method = 'EM', 
-                                lang = c('python','r'),
+                                lang = c('cpp','r'),
                                 thresh = .01, iter.max = 1000,
                                 BPPARAM = SerialParam()){
               contigs <- x
@@ -279,7 +279,7 @@ setMethod(f = "clonoStats",
 #' @export
 setMethod(f = "clonoStats",
           signature = signature(x = "clonoStats"),
-          definition = function(x, group = NULL, lang = c('python','r')){
+          definition = function(x, group = NULL, lang = c('cpp','r')){
               # remake clonoStats object with new group variable
               lang <- match.arg(lang)
               if(is.null(clonoAssignment(x))){

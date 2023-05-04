@@ -14,7 +14,7 @@ summarizeClonotypes(x, by, ...)
   x,
   by,
   mode = c("sum", "tab"),
-  lang = c("r", "python"),
+  lang = c("r", "cpp"),
   BPPARAM = SerialParam()
 )
 
@@ -50,7 +50,7 @@ Alternative is \code{'tab'}, which constructs a table of clonotype
 frequencies (ie. singletons, doubletons, etc.) by sample.}
 
 \item{lang}{Indicates which implementation of the \code{"tab"} summarization
-to use. Options are \code{'r'} (default) or \code{'python'}. Only used if
+to use. Options are \code{'r'} (default) or \code{'cpp'}. Only used if
 non-integer clonotype abundances are present and \code{mode = "tab"}.}
 
 \item{BPPARAM}{A \linkS4class{BiocParallelParam} object specifying the

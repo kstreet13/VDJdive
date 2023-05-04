@@ -1,9 +1,8 @@
-#' @include clonoStats_class.R basilisk.R
+#' @include clonoStats_class.R RcppExports.R
 NULL
 
-#' @importFrom reticulate import
 #' @import Matrix
-.nonInt_tab <- function(x, lim, lang = c("r","python")){
+.nonInt_tab <- function(x, lim, lang = c("r","cpp")){
     lang <- match.arg(lang)
     nz <- unname(colSums(x > 0)) # non-zero count
     EX <- unname(colSums(x)) # sum of probs
@@ -27,20 +26,14 @@ NULL
         RS2 <- rep(0, lim)
     }
     if(lim >= 3){
-        # then do the rest (either in python or R)
+        # then do the rest (either in C++ or R)
         ind3p <- which(nz >= 3)
         counts <- x[, ind3p, drop = FALSE]@x
         probs_list <- unname(split(counts, 
                                    factor(rep(seq_len(length(ind3p)), 
                                               times = nz[ind3p]))))
-        if(lang == 'python'){
-            cl <- basiliskStart(pyenv)
-            distrs_list <- basiliskRun(proc = cl, function(probs_list){
-                mod <- import(module = "vdjHelpers", 
-                              convert = TRUE)
-                return(mod$make_distrs(probs_list))
-            }, probs_list = probs_list)
-            basiliskStop(cl)
+        if(lang == 'cpp'){
+            distrs_list <- make_distrs2(probs_list)
         }
         if(lang == 'r'){
             # this might cause memory problems
@@ -96,7 +89,7 @@ setGeneric(name = "summarizeClonotypes",
 #'   Alternative is \code{'tab'}, which constructs a table of clonotype
 #'   frequencies (ie. singletons, doubletons, etc.) by sample.
 #' @param lang Indicates which implementation of the \code{"tab"} summarization
-#'   to use. Options are \code{'r'} (default) or \code{'python'}. Only used if
+#'   to use. Options are \code{'r'} (default) or \code{'cpp'}. Only used if
 #'   non-integer clonotype abundances are present and \code{mode = "tab"}.
 #' @param BPPARAM A \linkS4class{BiocParallelParam} object specifying the
 #'   parallel backend for distributed clonotype assignment operations (split by
@@ -120,7 +113,7 @@ setGeneric(name = "summarizeClonotypes",
 setMethod(f = "summarizeClonotypes",
           signature = signature(x = "Matrix"),
           definition = function(x, by, mode = c('sum','tab'), 
-                                lang = c('r','python'),
+                                lang = c('r','cpp'),
                                 BPPARAM = SerialParam()){
               mode <- match.arg(mode)
               lang <- match.arg(lang)

@@ -15,7 +15,7 @@ clonoStats(x, ...)
   type = NULL,
   assignment = FALSE,
   method = "EM",
-  lang = c("python", "r"),
+  lang = c("cpp", "r"),
   thresh = 0.01,
   iter.max = 1000,
   BPPARAM = SerialParam()
@@ -23,7 +23,7 @@ clonoStats(x, ...)
 
 \S4method{clonoStats}{SingleCellExperiment}(x, contigs = "contigs", group = "sample", ...)
 
-\S4method{clonoStats}{clonoStats}(x, group = NULL, lang = c("python", "r"))
+\S4method{clonoStats}{clonoStats}(x, group = NULL, lang = c("cpp", "r"))
 }
 \arguments{
 \item{x}{A \code{SplitDataFrameList} object containing V(D)J contig
@@ -59,7 +59,7 @@ Details.}
 
 \item{lang}{character. Indicates which implementation of certain methods to
 use. The EM algorithm is implemented in both pure R (\code{'r'}) and mixed
-R and Python (\code{'python'}, default) versions. Similarly, clonotype
+R and C++ (\code{'cpp'}, default) versions. Similarly, clonotype
 summarization is implemented in two ways, which can impact speed,
 regardless of choice of \code{method}.}
 

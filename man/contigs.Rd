@@ -50,7 +50,7 @@ immune dysfunction with advancing disease stage in renal cell carcinoma."
 Cancer cell 39, no. 5 (2021): 632-648.
 }
 \usage{
-contigs
+data(contigs)
 }
 \description{
 Data are a small subset of the TCR-seq data from the paper, "Progressive

@@ -44,6 +44,7 @@
 #' different samples.}
 #' }
 #' 
+#' @usage data(contigs)
 #' @examples
 #' data('contigs')
 #' x <- clonoStats(contigs)

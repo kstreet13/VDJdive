@@ -46,7 +46,7 @@ if (!require("BiocManager", quietly = TRUE))
 BiocManager::install("VDJdive")
 ```
 
-Additionally, some features of `VDJdive` make use of Python functionality, which is made available through the [`basilisk`](https://bioconductor.org/packages/release/bioc/html/basilisk.html) package.
+Additionally, some features of `VDJdive` make use of C++ functionality, which is made available through the [`Rcpp`](https://cran.r-project.org/package=Rcpp) package.
 
 # Read in 10X data
 

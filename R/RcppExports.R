@@ -5,3 +5,7 @@ TCR_EM_counts2 <- function(unique_counts, counts_old, t_indices, thresh, max_ite
     .Call('_VDJdive_TCR_EM_counts2', PACKAGE = 'VDJdive', unique_counts, counts_old, t_indices, thresh, max_iters)
 }
 
+make_distrs2 <- function(probs_list) {
+    .Call('_VDJdive_make_distrs2', PACKAGE = 'VDJdive', probs_list)
+}
+

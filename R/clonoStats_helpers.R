@@ -1,4 +1,4 @@
-#' @include RcppExports.R basilisk.R
+#' @include RcppExports.R
 #' @useDynLib VDJdive
 NULL
 
@@ -126,24 +126,16 @@ NULL
     
     # repeat 2 (proportional to previous counts)
     #################
-    if(lang == 'python'){
+    if(lang == 'cpp'){
         # setup inputs
         t.indices <- poss.indices[ind.ambiguous]
-        # so python takes it as a list of lists, not a dict:
         names(t.indices) <- NULL
-        # force python to take length-1 vectors as lists
-        l1.idx <- which(lengths(t.indices) == 1)
-        for(ii in l1.idx){
-            t.indices[[ii]] <- list(as.integer(t.indices[[ii]]))
-        }
-        
-        ########################
-        
+        # l1.idx <- which(lengths(t.indices) == 1)
+        # for(ii in l1.idx){
+        #     t.indices[[ii]] <- list(as.integer(t.indices[[ii]]))
+        # }
         counts <- TCR_EM_counts2(uniquecounts, counts.old, t.indices,
                         thresh, iter.max)
-        
-        ########################
-        
     }else{
         working <- TRUE
         iters <- 0

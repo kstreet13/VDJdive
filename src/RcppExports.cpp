@@ -25,9 +25,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// make_distrs2
+Rcpp::List make_distrs2(Rcpp::List probs_list);
+RcppExport SEXP _VDJdive_make_distrs2(SEXP probs_listSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type probs_list(probs_listSEXP);
+    rcpp_result_gen = Rcpp::wrap(make_distrs2(probs_list));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_VDJdive_TCR_EM_counts2", (DL_FUNC) &_VDJdive_TCR_EM_counts2, 5},
+    {"_VDJdive_make_distrs2", (DL_FUNC) &_VDJdive_make_distrs2, 1},
     {NULL, NULL, 0}
 };
 
