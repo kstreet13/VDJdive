@@ -176,9 +176,12 @@ NULL
     rownames(clono) <- names(contigs)
     # clean up
     keep <- which(colSums(clono) > thresh/2)
+    names.idx <- matrix(c(rep(seq_along(all.alphas), times = length(all.betas)),
+                          rep(seq_along(all.betas), each = length(all.alphas))),
+                        ncol = 2)[keep, , drop = FALSE]
     clono <- clono[, keep, drop = FALSE]
-    colnames(clono) <- as.character(outer(all.alphas, all.betas,
-                                          FUN = paste))[keep]
+    colnames(clono) <- paste(all.alphas[names.idx[,1]], 
+                             all.betas[names.idx[,2]])
     # re-normalize rows with totals slightly less than 1
     rs <- rowSums(clono)
     renorm <- which(rs != 1 & rs > 0)
@@ -294,10 +297,14 @@ NULL
     clonoX <- rep(1, sum(lengths(poss.indices)))
     clono <- new('dgRMatrix', j = clonoJ, p = clonoP, x = clonoX,
                  Dim = as.integer(c(length(contigs), length(counts))))
-    colnames(clono) <- as.character(outer(all.alphas, all.betas,
-                                          FUN = paste))
-    clono <- clono[, which(colSums(clono) > 0), drop = FALSE]
     rownames(clono) <- names(contigs)
+    keep <- which(colSums(clono) > 0)
+    names.idx <- matrix(c(rep(seq_along(all.alphas), times = length(all.betas)),
+                          rep(seq_along(all.betas), each = length(all.alphas))),
+                        ncol = 2)[keep, , drop = FALSE]
+    clono <- clono[, keep, drop = FALSE]
+    colnames(clono) <- paste(all.alphas[names.idx[,1]], 
+                             all.betas[names.idx[,2]])
     
     return(clono)
 }
@@ -420,10 +427,14 @@ NULL
     clonoX <- rep(1, sum(lengths(poss.indices)))
     clono <- new('dgRMatrix', j = clonoJ, p = clonoP, x = clonoX,
                  Dim = as.integer(c(length(contigs), length(counts))))
-    colnames(clono) <- as.character(outer(all.alphas, all.betas,
-                                          FUN = paste))
-    clono <- clono[, which(colSums(clono) > 0), drop = FALSE]
     rownames(clono) <- names(contigs)
+    keep <- which(colSums(clono) > 0)
+    names.idx <- matrix(c(rep(seq_along(all.alphas), times = length(all.betas)),
+                          rep(seq_along(all.betas), each = length(all.alphas))),
+                        ncol = 2)[keep, , drop = FALSE]
+    clono <- clono[, keep, drop = FALSE]
+    colnames(clono) <- paste(all.alphas[names.idx[,1]], 
+                             all.betas[names.idx[,2]])
     
     return(clono)
 }
