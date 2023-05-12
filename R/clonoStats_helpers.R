@@ -1,5 +1,5 @@
 #' @include RcppExports.R
-#' @useDynLib VDJdive
+#' @useDynLib VDJdive, .registration = TRUE
 NULL
 
 # clonoStats helper functions

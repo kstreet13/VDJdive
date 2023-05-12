@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 TCR_EM_counts2 <- function(unique_counts, counts_old, t_indices, thresh, max_iters) {
-    .Call('_VDJdive_TCR_EM_counts2', PACKAGE = 'VDJdive', unique_counts, counts_old, t_indices, thresh, max_iters)
+    .Call(`_VDJdive_TCR_EM_counts2`, unique_counts, counts_old, t_indices, thresh, max_iters)
 }
 
 make_distrs2 <- function(probs_list) {
-    .Call('_VDJdive_make_distrs2', PACKAGE = 'VDJdive', probs_list)
+    .Call(`_VDJdive_make_distrs2`, probs_list)
 }
 
