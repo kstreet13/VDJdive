@@ -121,8 +121,8 @@ NULL
             counts[t.indices[[i]]] <-
                 counts[t.indices[[i]]] + 1/length(t.indices[[i]])
         }
-        counts.old <- counts
     }
+    counts.old <- counts
     
     # repeat 2 (proportional to previous counts)
     #################
