@@ -50,6 +50,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 StagedInstall: no
 VignetteBuilder: knitr
+Config/Bioconductor/UnsupportedPlatforms: windows
 Collate: 
     'RcppExports.R'
     'clonoStats_class.R'
