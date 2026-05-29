@@ -66,3 +66,4 @@ Collate:
     'scatterVDJ.R'
     'setup.R'
     'utils.R'
+Config/Bioconductor/UnsupportedPlatforms: windows
