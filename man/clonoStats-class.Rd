@@ -104,7 +104,7 @@ singletons, doubletons, etc.).}
 \item{\code{assignment}}{Optional matrix of clonotype assignments in each individual
 cell. Rows correspond to cells and row sums are all 0 or 1. When using
 \code{clonoStats} with \code{method = "unique"} or \code{method =
-  "CellRanger"}, all values will be 0 or 1. With \code{method = "EM"},
+"CellRanger"}, all values will be 0 or 1. With \code{method = "EM"},
 fractional values are allowed, representing the assignment confidence.}
 
 \item{\code{names1}}{Factor listing the first component of each clonotype name (alpha

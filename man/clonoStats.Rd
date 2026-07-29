@@ -48,7 +48,7 @@ to sample of origin to avoid unwanted cross-talk between samples.}
 \code{chain} types in \code{x}.}
 
 \item{assignment}{logical. Whether or not to return the full \code{nCells x
-  nClonotypes} sparse matrix of clonotype assignments (default =
+nClonotypes} sparse matrix of clonotype assignments (default =
 \code{FALSE})}
 
 \item{method}{character. Which method to use for assigning cell-level

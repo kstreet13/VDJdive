@@ -1,6 +1,6 @@
 Package: VDJdive
 Title: Analysis Tools for 10X V(D)J Data 
-Version: 1.15.1
+Version: 1.15.2
 Authors@R: c(
     person("Kelly", "Street", role = c("aut", "cre"), email = "street.kelly@gmail.com", comment = c(ORCID = "0000-0001-6379-5013")),
     person("Mercedeh", "Movassagh", role = "aut", email = "mercedeh@ds.dfci.harvard.edu", comment = c(ORCID = "0000-0001-7690-0230")),
@@ -10,7 +10,7 @@ Authors@R: c(
     person("Mingzhi", "Ye", role = "ctb"))
 Description: This package provides functions for handling and analyzing immune receptor repertoire data, such as produced by the CellRanger V(D)J pipeline. This includes reading the data into R, merging it with paired single-cell data, quantifying clonotype abundances, calculating diversity metrics, and producing common plots. It implements the E-M Algorithm for clonotype assignment, along with other methods, which makes use of ambiguous cells for improved quantification.
 Depends:
-    R (>= 4.2)
+    R (>= 4.6)
 Imports:
     BiocParallel,
     cowplot,
@@ -47,7 +47,6 @@ biocViews:
 Encoding: UTF-8
 LazyData: false
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
 StagedInstall: no
 VignetteBuilder: knitr
 Config/Bioconductor/UnsupportedPlatforms: windows
@@ -67,4 +66,4 @@ Collate:
     'scatterVDJ.R'
     'setup.R'
     'utils.R'
-Config/Bioconductor/UnsupportedPlatforms: windows
+Config/roxygen2/version: 8.0.0
