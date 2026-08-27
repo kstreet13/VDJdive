@@ -14,6 +14,11 @@
 # Output files from R CMD build
 /*.tar.gz
 
+# compiled artifacts
+src/*.o
+src/*.so
+src/*.dll
+
 # Output files from R CMD check
 /*.Rcheck/
 
